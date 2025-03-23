@@ -113,8 +113,6 @@ class MessageOptimizer:
         Returns:
             dict: Dictionary of construct names to scores
         """
-        # This is a simplified extraction that would need to be adapted based on
-        # the actual format of the evaluation text from your evaluator
         
         # Get all construct names from constants
         from common.constants import all_constructs

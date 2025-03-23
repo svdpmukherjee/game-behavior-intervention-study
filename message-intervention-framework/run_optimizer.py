@@ -20,10 +20,10 @@ def main():
                       help="Maximum number of iterations per message (default: 20)")
     parser.add_argument("--min-consecutive", type=int, default=3, 
                       help="Minimum consecutive iterations meeting convergence criteria (default: 3)")
-    parser.add_argument("--target-score-threshold", type=float, default=90.0, 
-                      help="Target construct score threshold for convergence (default: 90.0)")
-    parser.add_argument("--score-difference-threshold", type=float, default=30.0, 
-                    help="Minimum score difference between target and next highest construct (default: 30.0)")
+    parser.add_argument("--target-score-threshold", type=float, default=85.0, 
+                      help="Target construct score threshold for convergence (default: 85.0)")
+    parser.add_argument("--score-difference-threshold", type=float, default=25.0, 
+                    help="Minimum score difference between target and next highest construct (default: 25.0)")
     parser.add_argument("--improvement-threshold", type=float, default=5.0,
                     help="Threshold for determining score improvement plateaus (default: 5.0)")
     parser.add_argument("--output", type=str, default="optimization_results", 

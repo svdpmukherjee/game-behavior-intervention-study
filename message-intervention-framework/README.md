@@ -1,10 +1,10 @@
 # Message Intervention Framework
 
-This framework optimizes anti-cheating messages for the puzzle solving game application, using a sophisticated agent-based approach to generate messages aligned with various psychological constructs.
+This framework optimizes motivational messages for honest puzzle-solving in games, using a sophisticated agent-based approach to generate messages aligned with various psychological constructs.
 
 ## Overview
 
-The Message Intervention Framework is a critical component of the larger game-behavior-intervention-study. It serves to generate, evaluate, and optimize psychologically-aligned messages that aim to reduce cheating behavior in the puzzle solving game. The system leverages advanced language models in a carefully designed workflow to create effective behavioral interventions.
+The Message Intervention Framework is a critical component of the larger game-behavior-intervention-study. It serves to generate, evaluate, and optimize psychologically-aligned messages that aim to reduce cheating behavior in the puzzle solving game while encouraging better performance. The system leverages advanced language models in a carefully designed workflow to create effective behavioral interventions.
 
 ## Getting Started
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 
 ### API Configuration
 
-Create a `.env` file in the root directory with your API keys:
+Create a `.env` file in the root directory (/message-intervention-framework) with your API keys:
 
 ```
 TOGETHER_API_KEY=your_together_ai_key_here
@@ -102,7 +102,7 @@ The diagram illustrates the high-level workflow, but the actual process involves
 
 - Each generation request includes the full psychological construct definition
 - Examples of well-aligned messages serve as references
-- Specific differentiation guidance explains how the target construct differs from similar constructs
+- Specific differentiation guidance explains how each target construct differs from other constructs
 - Detailed context about the anagram game and potential cheating behaviors
 - Natural language instructions prioritizing 2-3 sentence motivational messages at ~8th-grade reading level
 
@@ -110,6 +110,8 @@ The diagram illustrates the high-level workflow, but the actual process involves
 
 - Structured scoring across 5 criteria: core element alignment, differentiation, language appropriateness, conciseness, and context relevance
 - Quantitative scores (0-100%) for the target construct and all competing constructs
+  - LLM is instructed to follow a precise scoring rubric where 90-100% indicates excellent alignment, 80-89% good alignment, 70-79% moderate alignment, etc.
+  - The prompt also includes detailed criteria for each scoring tier to ensure consistent evaluation and minimize arbitrary assessments
 - Detailed analysis of which aspects of the message align with which constructs
 - Identification of specific phrases that might trigger competing construct associations
 
@@ -133,7 +135,7 @@ The message generator leverages the Llama 3.3 70B model to:
 - Create natural, motivational messages aligned with specific psychological constructs
 - Generate multiple variations for each construct
 - Refine messages based on evaluation feedback
-- Filter out specific terminology that might prime participants
+- Filter out specific terminology (e.g. cheating) that might prime participants
 
 ### Message Evaluator (`evaluator/message_evaluator.py`)
 
@@ -174,6 +176,12 @@ Command-line options:
 - `--generator-temp`: Temperature for message generator (default: 0.7)
 - `--evaluator-temp`: Temperature for message evaluator (default: 0.3)
 
+For example, the below code generates one message for the Autonomy construct with a maximum of 20 iterations and a minimum of 3 consecutive iterations meeting the criteria:
+
+```bash
+python run_optimizer.py --construct Autonomy --max-iterations 20 --min-consecutive 3 --num-messages 1
+```
+
 ## Psychological Constructs
 
 The framework is designed to generate messages aligned with multiple psychological theories:
@@ -200,3 +208,7 @@ The optimizer will generate several outputs in newly created optimization_result
 - JSON files of optimized messages with evaluation metrics
 - Convergence plots showing the optimization process
 - Summary statistics across all optimization runs
+
+Here is an example of the visualization of a particular message generation-evaluation for Autonomy construct:
+
+![Generator-Evaluator Workflow](images/autonomy_example_plot.png)

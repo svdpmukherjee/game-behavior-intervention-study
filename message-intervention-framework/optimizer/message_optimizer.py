@@ -195,7 +195,7 @@ class MessageOptimizer:
         
     def optimize_message(self, construct_name, all_constructs, 
                     max_iterations=20, min_consecutive=3,
-                    target_score_threshold=90.0, score_difference_threshold=30.0):
+                    target_score_threshold=85.0, score_difference_threshold=25.0):
         """Run the optimization process for a construct with enhanced convergence criteria."""
         print(f"\n{'='*80}\nOptimizing message for construct: {construct_name}\n{'='*80}")
         
@@ -324,7 +324,7 @@ class MessageOptimizer:
     
     def optimize_multiple_messages(self, construct_name, all_constructs, num_messages=3, 
                                 max_iterations=20, min_consecutive=3,
-                                target_score_threshold=90.0, score_difference_threshold=50.0):
+                                target_score_threshold=85.0, score_difference_threshold=25.0):
         """Optimize multiple messages for a construct.
         
         Args:
@@ -333,8 +333,8 @@ class MessageOptimizer:
             num_messages: Number of messages to optimize
             max_iterations: Maximum number of iterations per message
             min_consecutive: Minimum number of consecutive iterations meeting criteria
-            target_score_threshold: Minimum score for target construct (default: 90%)
-            score_difference_threshold: Minimum difference between target and next highest score (default: 50%)
+            target_score_threshold: Minimum score for target construct (default: 85%)
+            score_difference_threshold: Minimum difference between target and next highest score (default: 25%)
             
         Returns:
             list: Optimized messages with scores
@@ -410,7 +410,7 @@ class MessageOptimizer:
         
         # Plot 1: Target construct score over iterations
         # ax1.plot(iterations, target_scores, marker='o', linestyle='-', color='#4285F4', linewidth=2)
-        # ax1.axhline(y=90, color='#EA4335', linestyle='--', alpha=0.7, label='Target threshold (90%)')
+        # ax1.axhline(y=85, color='#EA4335', linestyle='--', alpha=0.7, label='Target threshold (85%)')
         
         # ax1.set_title(f"Target Score Convergence for {construct_name}")
         # ax1.set_xlabel("Iteration")
@@ -444,7 +444,7 @@ class MessageOptimizer:
                 ax1.plot(iterations, comp_scores, marker='s', label=comp_name, 
                         color=colors[i % len(colors)], linewidth=1.5, alpha=0.8)
                 
-            ax1.axhline(y=90, color='#EA4335', linestyle='--', alpha=0.7, label='Target threshold (90%)')
+            ax1.axhline(y=85, color='#EA4335', linestyle='--', alpha=0.7, label='Target threshold (85%)')
             ax1.set_title(f"Score Trends: Target vs Top Competing Constructs")
             ax1.set_xlabel("Iteration")
             ax1.set_ylabel("Score (%)")
@@ -481,7 +481,7 @@ class MessageOptimizer:
             # Plot score differences
             ax2.plot(iterations, score_differences, marker='s', linestyle='-', color='#34A853', linewidth=2)
             ax2.set_yticks(range(10, 110, 10))
-            ax2.axhline(y=30, color='#FBBC05', linestyle='--', alpha=0.7, label='Difference threshold (30%)')
+            ax2.axhline(y=25, color='#FBBC05', linestyle='--', alpha=0.7, label='Difference threshold (25%)')
             
             ax2.set_title(f"Score Difference (Target vs Next Highest Construct)")
             ax2.set_xlabel("Iteration")
@@ -553,7 +553,7 @@ class MessageOptimizer:
                         capsize=4, elinewidth=1, capthick=1)
             
             # Highlight the target construct score threshold line
-            # ax3.axhline(y=90, color='green', linestyle='--', alpha=0.7, label='Target score threshold (90%)')
+            # ax3.axhline(y=85, color='green', linestyle='--', alpha=0.7, label='Target score threshold (85%)')
             
             # Add theory labels
             # for position, theory in theory_boundaries:
@@ -616,7 +616,7 @@ class MessageOptimizer:
             diff = target_score - competitor_score
             
             # Only add differentiation guidance if score difference is below threshold
-            if diff < 30.0:
+            if diff < 25.0:
                 from common.constants import all_constructs
                 construct_info = all_constructs.get(top_competitor, {})
                 description = construct_info.get("description", "")

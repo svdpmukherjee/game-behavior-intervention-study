@@ -1,6 +1,6 @@
 # Game Behavior Intervention Study
 
-This project implements a comprehensive framework for studying the effects of psychological interventions on player behavior in word puzzle solving games.
+This project implements a comprehensive framework to study the effects of message interventions, designed based on psychological constructs, on game-playing behavior in word puzzle-solving games.
 
 ## Project Structure
 

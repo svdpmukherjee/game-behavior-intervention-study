@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import Container from "./Container";
 
-const SurveyPage = ({ onComplete, messageId = "SDT-1" }) => {
+const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
   const [surveyCode, setSurveyCode] = useState("");
   const [codeError, setCodeError] = useState(false);
   const [surveyOpened, setSurveyOpened] = useState(false);
@@ -23,7 +23,8 @@ const SurveyPage = ({ onComplete, messageId = "SDT-1" }) => {
   };
 
   const handleSurveyCodeSubmit = () => {
-    if (surveyCode.trim().toLowerCase() === "12345") {
+    const correctCode = import.meta.env.SURVEY_COMPLETION_CODE || "12345";
+    if (surveyCode.trim().toLowerCase() === correctCode.toLowerCase()) {
       setCodeError(false);
       onComplete();
     } else {

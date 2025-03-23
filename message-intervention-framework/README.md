@@ -212,3 +212,11 @@ The optimizer will generate several outputs in newly created optimization_result
 Here is an example of the visualization of a particular message generation-evaluation for Autonomy construct:
 
 ![Generator-Evaluator Workflow](images/autonomy_example_plot.png)
+
+## Messages Generated Before the Convergence Criteria is Fulfilled
+
+```bash
+- Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
+- Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
+- Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
+```

@@ -6,25 +6,21 @@ from datetime import datetime
 from bson import ObjectId
 from typing import List, Dict, Any
 import os
-from dotenv import load_dotenv
 
-# from app.middleware.dependency import get_rate_limiter, get_event_validator
-from app.models.schemas import GameEvent
+# Import configuration
+from app.config.app_config import get_cors_origins, MONGODB_URI, MONGODB_DB_NAME
 
 from app.models.schemas import (
     SessionInit, GameEvent, WordSubmission, 
     GameInit, GameResponse, AntiCheatingMessage, WordMeaning, WordMeaningSubmission
 )
 
-load_dotenv()
-
 app = FastAPI()
 
 # CORS middleware setup
 app.add_middleware(
     CORSMiddleware,
-    # allow_origins=["https://anagram-game-solve-study.vercel.app"],
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:5173")],
+    allow_origins=get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,12 +29,13 @@ app.add_middleware(
 # MongoDB setup
 @app.on_event("startup")
 async def startup_db_client():
-    app.mongodb_client = AsyncIOMotorClient(os.getenv("MONGODB_URI"))
-    app.database = app.mongodb_client[os.getenv("MONGODB_DB_NAME")]
+    app.mongodb_client = AsyncIOMotorClient(MONGODB_URI)
+    app.database = app.mongodb_client[MONGODB_DB_NAME]
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
     app.mongodb_client.close()
+
 
 @app.post("/api/initialize-session")
 async def initialize_session(session_data: SessionInit):
@@ -63,6 +60,7 @@ async def initialize_session(session_data: SessionInit):
     except Exception as e:
         print(f"Session initialization error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/tutorial/init")
 async def initialize_tutorial(sessionId: str):

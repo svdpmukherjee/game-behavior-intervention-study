@@ -1,0 +1,7 @@
+together
+python-dotenv
+langchain-together
+langchain-openai
+langchain-core
+matplotlib
+numpy

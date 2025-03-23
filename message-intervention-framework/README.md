@@ -213,7 +213,7 @@ Here is an example of the visualization of a particular message generation-evalu
 
 ![Generator-Evaluator Workflow](images/autonomy_example_plot.png)
 
-## Messages Generated Before the Convergence Criteria is Fulfilled
+### Messages Generated Before the Convergence Criteria is Fulfilled
 
 ```bash
 - Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."

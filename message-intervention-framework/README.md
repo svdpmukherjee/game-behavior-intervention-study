@@ -93,7 +93,7 @@ The workflow iteratively improves messages until they reach target thresholds fo
 Here is the visualization of this workflow:
 
 ```markdown
-![Generator-Evaluator Workflow](images/workflow.png)
+![Generator-Evaluator Workflow](./images/workflow.png)
 ```
 
 ### Prompt and Feedback Details

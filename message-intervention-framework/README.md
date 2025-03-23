@@ -93,7 +93,7 @@ The workflow iteratively improves messages until they reach target thresholds fo
 Here is the visualization of this workflow:
 
 ```markdown
-![Generator-Evaluator Workflow](https://github.com/svdpmukherjee/game-behavior-intervention-study/blob/6d584305f7cea377ba8b6e1a9b15886b902be2f7/message-intervention-framework/images/workflow.png)
+![Generator-Evaluator Workflow](images/workflow.png)
 ```
 
 ### Prompt and Feedback Details

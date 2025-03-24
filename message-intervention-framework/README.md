@@ -376,6 +376,41 @@ The framework is designed to generate messages aligned with multiple psychologic
 - **Social Norm Theory (SNT)**
   - Descriptive Norms, Injunctive Norms, Social Sanctions, Reference Group Identification
 
+I'll create a grid-based layout for your README.md section that shows construct examples with their images and message texts side by side. Here's the improved version:
+
+## Output
+
+The optimizer generates several outputs in the newly created `optimization_results` folder:
+
+- JSON files of optimized messages with evaluation metrics
+- Convergence plots showing the optimization process
+- Summary statistics across all optimization runs
+
+### Example Results by Construct
+
+<table>
+<tr>
+  <th>Autonomy (Self-Determination Theory)</th>
+  <th>Cognitive Inconsistency (Cognitive Inconsistency Theory)</th>
+  <th>Vicarious Experience (Self-Efficacy Theory)</th>
+  <th>Injunctive Norms (Social Norms Theory)</th>
+</tr>
+<tr>
+  <td><img src="images/autonomy_example_plot.png" alt="Autonomy Plot" width="200"/></td>
+  <td><img src="images/cognitive_inconsistency_example_plot.png" alt="Cognitive Inconsistency Plot" width="200"/></td>
+  <td><img src="images/vicarious_experience_example_plot.png" alt="Vicarious Experience Plot" width="200"/></td>
+  <td><img src="images/injunctive_norms_example_plot.png" alt="Injunctive Norms Plot" width="200"/></td>
+</tr>
+<tr>
+  <td><p><strong>Final Message:</strong> "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."</p></td>
+  <td><p><strong>Final Message:</strong> "You're feeling like you've accomplished something by solving the anagram, but at the same time, you're thinking that it doesn't really count since you looked up the answers online. This is making you aware of the difference between how you want to play the game, which is to figure it out on your own, and how you're actually playing it, which is by getting help from the internet. You're noticing that your actions and your goals aren't matching up, and that's making you think about what you're really trying to achieve in this game."</p></td>
+  <td><p><strong>Final Message:</strong> "Seeing other players solve anagrams quickly and create long words is really motivating me to keep practicing, because it shows that with effort, I can get better too. Watching them find multiple solutions to a puzzle makes me believe I can do the same, and it's inspiring me to push myself to improve. By observing their successes, I'm gaining confidence that I can master this game and start solving anagrams like a pro."</p></td>
+  <td><p><strong>Final Message:</strong> "In our anagram game community, we expect players to solve puzzles on their own, without looking up answers online, because it's the right thing to do and it shows respect for the game and fellow players. By doing so, players demonstrate their commitment to fairness and honesty, which are values that our community holds in high regard. We believe that solving puzzles independently is what makes the game truly rewarding and enjoyable for everyone involved."</p></td>
+</tr>
+</table>
+
+The visualizations above show the convergence process for each construct, with the target construct score gradually improving and differentiating from competing constructs across iterations. The final messages represent the optimized output after meeting convergence criteria.
+
 ## Output
 
 The optimizer will generate several outputs in newly created optimization_results folder:
@@ -386,11 +421,37 @@ The optimizer will generate several outputs in newly created optimization_result
 
 Here is an example of the visualization of a particular message generation-evaluation for Autonomy construct:
 
-![Generator-Evaluator Workflow](images/autonomy_example_plot.png)
+<!-- ![Generator-Evaluator Workflow](images/autonomy_example_plot.png) -->
+<img src="images/autonomy_example_plot.png" alt="autonomy_example_plot" width="200" height="400">
+<img src="images/cognitive_inconsistency_example_plot.png" alt="cognitive_inconsistency_example" width="200" height="400">
+<img src="images/vicarious_experience_example_plot.png" alt="vicarious_experience_example_plot" width="200" height="400">
+<img src="images/injunctive_norms_example_plot.png" alt="injunctive_norms_example_plot" width="200" height="400">
 
 ### Messages Generated Before the Convergence Criteria is Fulfilled
 
 ```bash
+Construct name: Autonomy
+- Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
+- Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
+- Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
+```
+
+```bash
+Construct name: Cognitive inconsistency
+- Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
+- Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
+- Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
+```
+
+```bash
+Construct name: Vicarious experience
+- Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
+- Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
+- Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
+```
+
+```bash
+Construct name: Injunctive norms
 - Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
 - Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
 - Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."

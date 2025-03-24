@@ -86,7 +86,7 @@ The framework implements an iterative optimization process using two specialized
 The workflow iteratively improves messages until they reach target thresholds for below conditions for at least 3 iterations consecutively:
 
 - Alignment with the target construct (more than 85%)
-- Differentiation from competing constructs (more than 30%)
+- Differentiation from competing constructs (more than 25%)
 
 ### Workflow Visualization
 
@@ -96,35 +96,210 @@ Here is the visualization of this workflow:
 
 ### Prompt and Feedback Details
 
-The diagram illustrates the high-level workflow, but the actual process involves sophisticated prompting and feedback mechanisms:
+The diagram illustrates the high-level workflow, but the actual process involves sophisticated prompting and feedback mechanisms. Here are the key components with specific code implementations:
 
-**Generator Prompts:**
+#### Example Context and Construct Definition
 
-- Each generation request includes the full psychological construct definition
-- Examples of well-aligned messages serve as references
-- Specific differentiation guidance explains how each target construct differs from other constructs
-- Detailed context about the anagram game and potential cheating behaviors
-- Natural language instructions prioritizing 2-3 sentence motivational messages at ~8th-grade reading level
+Every prompt includes the game context and construct definition. Here's an example from `common/constants.py`:
 
-**Evaluator Analysis:**
+```python
+# From constants.py
+game_context = """
+People are playing an anagram game where they can get higher rewards when they create more valid English words
+from scrambled words given to them and also when they create words of higher word lengths.
+Some players might look up answers online, while others solve the puzzles independently.
+"""
 
-- Structured scoring across 5 criteria: core element alignment, differentiation, language appropriateness, conciseness, and context relevance
-- Quantitative scores (0-100%) for the target construct and all competing constructs
-  - LLM is instructed to follow a precise scoring rubric where 90-100% indicates excellent alignment, 80-89% good alignment, 70-79% moderate alignment, etc.
-  - The prompt also includes detailed criteria for each scoring tier to ensure consistent evaluation and minimize arbitrary assessments
-- Detailed analysis of which aspects of the message align with which constructs
-- Identification of specific phrases that might trigger competing construct associations
+all_constructs = {
+    "Autonomy": {
+        "theory": "Self-Determination Theory (SDT)",
+        "description": "Autonomy refers to the intrinsic motivation arising from an individual's experience of volition and self-regulation, with a sense of ownership over their choices and actions. It emphasizes acting according to personal values without external pressure.",
+        "examples": [
+            "You're free to choose your puzzle-solving strategy – we trust you to find what works best for you.",
+            "Your goal is to create words that spark joy and challenge you; no one else's expectations or standards are applied here, just yours.",
+            "We don't dictate how you solve the anagrams – every decision about word length, strategy, and more is entirely up to you."
+        ],
+        "differentiation": {
+            "from_Competence": "Unlike Competence (skill development), Autonomy focuses on freedom of choice regardless of skill level.",
+            "from_Relatedness": "Unlike Relatedness (social connections), Autonomy focuses on individual independence without reference to others.",
+            # [Additional differentiation entries...]
+        }
+    },
+    # [Other constructs...]
+}
+```
 
-**Feedback Mechanism:**
-The evaluator provides structured feedback including:
+#### Generator Prompts
 
-1. Specific alignment scores for target and competing constructs
-2. Identification of the strongest competing construct
-3. Targeted suggestions for improving differentiation
-4. Specific language recommendations to strengthen alignment
-5. Context refinements to better match the anagram game scenario
+The message generation process uses a structured prompt template in `generator/message_generator.py`:
 
-This evaluation-optimization cycle continues until convergence criteria are met, typically requiring 8-15 iterations per message.
+```python
+# From message_generator.py
+def generate_message(self, construct_name, context=None, generation_instruction=None,
+                     construct_description=None, construct_examples=None,
+                     construct_differentiation=None):
+    # [...]
+
+    # Default generation prompt template
+    self.default_generation_prompt = """
+    Context: {context}
+
+    I need you to craft a message that strongly aligns with the psychological construct of {construct_name}.
+
+    Here is the detailed description of {construct_name}:
+    {construct_description}
+
+    Here are examples of messages that exemplify {construct_name}:
+    {construct_examples}
+
+    This construct is differentiated from other constructs in these ways:
+    {construct_differentiation}
+
+    {generation_instruction}
+
+    Create exactly one message that is 2-3 sentences long, using simple, natural language at approximately an 8th-grade reading level. Avoid complex vocabulary, jargon, or academic phrasing. The message should be easily understood by the average person while still conveying the core principles of {construct_name}.
+    """
+```
+
+The generator also includes special handling for certain constructs that require additional differentiation:
+
+```python
+# From message_generator.py
+# Special generator for CDT constructs with enhanced differentiation
+if construct_name == "Cognitive inconsistency":
+    additional_instruction = "Focus ONLY on recognition of contradictions WITHOUT emotional reactions or resolution attempts."
+    generation_instruction += additional_instruction
+elif construct_name == "Dissonance arousal":
+    additional_instruction = "Focus ONLY on emotional discomfort WITHOUT mentioning recognition or resolution."
+    generation_instruction += additional_instruction
+```
+
+#### Evaluator Analysis
+
+The evaluator uses a comprehensive prompt template in `evaluator/message_evaluator.py` that includes specific scoring criteria:
+
+```python
+# From message_evaluator.py
+def _create_augmented_evaluation_prompt(self, context, message, construct_name,
+                    construct_description, examples_text, construct_differentiation):
+    """Create an augmented evaluation prompt with consistent scoring guidelines."""
+    return ChatPromptTemplate.from_messages([
+        ("user", """
+            Context: {context}
+
+            Message to evaluate: "{message}"
+
+            Target Construct: {construct_name}
+
+            Construct Description: {construct_description}
+
+            Construct Examples: {examples}
+
+            Construct Differentiation: {differentiation}
+
+            SCORING GUIDELINES:
+            - Be consistent in your scoring approach
+            - When scoring this message, consider it in isolation without comparing to previous iterations
+            - For each criterion, provide a specific score explanation with evidence from the message
+            - Maintain the same standards across all evaluations
+            - Focus on textual evidence rather than inferences
+
+            IMPORTANT EVALUATION GUIDELINES:
+            - Maintain consistency in your evaluation approach across messages
+            - When a message aligns strongly with the target construct, ensure competing constructs receive proportionally lower scores
+            - Be disciplined about score differences - they should reflect meaningful distinctions between constructs
+            - Avoid score inflation for non-target constructs that only tangentially relate to the message
+
+            Evaluate how well this message aligns with the target construct using these five criteria:
+
+            1. Core Element Alignment: Does the message capture the essential psychological mechanism of the construct?
+            2. Differentiation: Does the message avoid elements explicitly differentiated from this construct?
+            3. Language Appropriateness: Does the message use natural, motivational language suitable for an anagram game?
+            4. Conciseness: Is the message 2-3 sentences and focused?
+            5. Context Relevance: Is the message well-tailored to the anagram game context?
+
+            First, provide a detailed score (0-100%) for the target construct with specific reasoning.
+
+            Then, score ALL the listed psychological constructs:
+            {construct_list}
+
+            Use the rubric for scoring as stated below.
+            SCORING RUBRIC:
+            - 90-100%: Message captures all key aspects of the construct description with appropriate emphasis while clearly avoiding elements of differentiated constructs. Message uses language that precisely captures the psychological mechanism and closely resembles the provided examples.
+            - 80-89%: Message clearly invokes most of the key aspects of the construct description and largely avoids differentiated elements. Message contains similar themes to the examples with only minimal overlap with related constructs.
+            - 70-79%: Message conveys some important aspects of the construct description but may include elements from one or two differentiated constructs. Message shows general similarity to examples but lacks precision.
+            - 50-69%: Message only tangentially relates to the construct description and fails to maintain boundaries from differentiated constructs. Message has limited similarity to examples.
+            - 0-49%: Message contradicts the construct description or primarily exemplifies differentiated constructs. Message bears little resemblance to provided examples.
+
+            Present your scores in this format:
+            ### Construct Confidence Scores
+            - Construct1: XX%
+            - Construct2: XX%
+            [all constructs]
+
+            Then provide structured feedback in this JSON format:
+            {{
+                "context": "Specific context improvement",
+                "generation_instruction": "Specific guidance for improvement",
+                "top_competing_construct": "Name of the most similar competing construct",
+                "differentiation_tip": "Specific tip to better differentiate from the top competing construct"
+            }}
+            """)
+    ])
+```
+
+#### Example Feedback from Evaluator
+
+Here is an actual example of feedback generated by the GPT-4o evaluator during the optimization of an Autonomy-based message:
+
+```json
+{
+  "context": "The message is well-tailored to the anagram game context by emphasizing player choice and personal success criteria.",
+  "generation_instruction": "Maintain the focus on player autonomy by emphasizing personal choice and freedom in solving the puzzles without external pressure.",
+  "top_competing_construct": "Competence",
+  "differentiation_tip": "Ensure the message does not imply skill development or mastery as a primary focus, but rather emphasizes the freedom of choice and personal decision-making.",
+  "construct_description": "Autonomy refers to the intrinsic motivation arising from an individual's experience of volition and self-regulation, with a sense of ownership over their choices and actions. It emphasizes acting according to personal values without external pressure.",
+  "construct_examples": [
+    "You're free to choose your puzzle-solving strategy – we trust you to find what works best for you.",
+    "Your goal is to create words that spark joy and challenge you; no one else's expectations or standards are applied here, just yours.",
+    "We don't dictate how you solve the anagrams – every decision about word length, strategy, and more is entirely up to you."
+  ],
+  "construct_differentiation": "- Unlike Competence (skill development), Autonomy focuses on freedom of choice regardless of skill level.\n- Unlike Relatedness (social connections), Autonomy focuses on individual independence without reference to others.\n- Unlike Self-concept (identity alignment), Autonomy concerns only making choices freely, not identity reflection.\n- Unlike Cognitive inconsistency (contradictions), Autonomy emphasizes freedom from external constraints.\n- Unlike Dissonance arousal (discomfort), Autonomy emphasizes positive experiences without negative emotions.\n- Unlike Dissonance reduction (resolving conflicts), Autonomy focuses on freedom without resolving cognitions.\n- Unlike Performance accomplishments (past achievements), Autonomy focuses on present freedom regardless of success.\n- Unlike Vicarious experience (learning from others), Autonomy focuses on personal choice.\n- Unlike Efficacy expectations (future confidence), Autonomy focuses on present freedom.\n- Unlike Emotional arousal (affective states), Autonomy focuses on cognitive aspects of choice.\n- Unlike Descriptive Norms (common behaviors), Autonomy emphasizes individual choice regardless of group norms.\n- Unlike Injunctive Norms (community approval), Autonomy rejects external standards for personal choice.\n- Unlike Social Sanctions (social consequences), Autonomy emphasizes freedom from social judgment.\n- Unlike Reference Group Identification (group alignment), Autonomy emphasizes independence from group standards.\n"
+}
+```
+
+#### Generator Integration of Feedback
+
+The generator integrates feedback for improvement in `message_generator.py`:
+
+```python
+# From message_generator.py
+def improve_message(self, current_message, feedback, current_score=None):
+    """Improve an existing message with more targeted guidance."""
+    # Extract key feedback elements
+    context = feedback.get("context", game_context)
+    generation_instruction = feedback.get("generation_instruction", "")
+
+    # Determine if we're in conservative mode (high current score)
+    conservative_mode = current_score is not None and current_score >= 80
+
+    # Create a more focused improvement prompt
+    improvement_prompt = f"""
+    Current message: "{current_message}"
+
+    Context: {context}
+
+    Instruction: {generation_instruction}
+
+    {'IMPORTANT: Make only MINIMAL changes to refine this message.' if conservative_mode else 'IMPORTANT: Improve this message while maintaining its core meaning.'}
+
+    {'1. This message already scores well, so preserve its core meaning and structure.' if conservative_mode else '1. Keep elements that strongly align with the intended construct'}
+    2. Focus on addressing the specific feedback: {feedback.get("differentiation_tip", "")}
+    {'3. Change only specific phrases that could be improved, not the entire message.' if conservative_mode else '3. Maintain similar length and natural, motivational tone'}
+
+    Provide the improved message only.
+    """
+```
 
 ## Component Descriptions
 
@@ -219,4 +394,9 @@ Here is an example of the visualization of a particular message generation-evalu
 - Message text 1: "You're in control of your anagram-solving journey, and we trust you to make the choices that work best for you. Whether you want to focus on short and simple words or challenge yourself with longer ones, the decision is entirely yours. We're here to provide the puzzles, but it's up to you to decide how you want to solve them and what success means to you."
 - Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
 - Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
+```
+
+```
+
+
 ```

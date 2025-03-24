@@ -409,4 +409,4 @@ The optimizer generates several outputs in the newly created `optimization_resul
 </tr>
 </table>
 
-The visualizations above show the convergence process for each construct, with the target construct score gradually improving and differentiating from competing constructs across iterations. The final messages represent the optimized output after meeting convergence criteria.
+The visualizations above show the convergence process for each construct, with the target construct score consistently over 85% threshold and differentiating from competing constructs more than 25% threshold across iterations. The final messages represent the optimized output after meeting convergence criteria.

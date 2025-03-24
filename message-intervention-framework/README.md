@@ -395,8 +395,3 @@ Here is an example of the visualization of a particular message generation-evalu
 - Message text 2: "You're the captain of your anagram adventure, free to navigate and explore at your own pace. Whether you prefer to unwind with quick, simple words or indulge in more complex challenges, the choice is always yours. We're here to provide the puzzles, and you get to decide how you want to approach them, what brings you joy, and what makes your experience fulfilling."
 - Message text 3: "You're the captain of your anagram adventure, free to navigate the puzzles as you see fit. Whether you prefer to unwind with short, sweet words or indulge in longer, more intricate challenges, the choice is yours. We're here to provide the anagrams, and you get to decide what brings you joy and fulfillment. Your journey, your pace, your definition of success - it's all about embracing the fun and satisfaction that comes from solving them your way."
 ```
-
-```
-
-
-```

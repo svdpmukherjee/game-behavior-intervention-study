@@ -9,7 +9,7 @@ game-behavior-intervention-study/
 ├── game-application/               # The actual game web application
 │   ├── frontend-REACTJS/           # React-based game interface
 │   └── backend-FASTAPI-MONGODB/    # FastAPI server with MongoDB integration
-├── message-intervention-framework/ # System for generating anti-cheating messages
+├── message-intervention-framework/ # Framework for generating motivational messages for honest game playing
 └── game-behavior-analytics/        # Data analysis and visualization tools
 ```
 

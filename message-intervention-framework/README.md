@@ -371,7 +371,7 @@ The framework is designed to generate messages aligned with multiple psychologic
 
 - **Self-Efficacy Theory (SET)**
 
-  - Performance accomplishments, Vicarious experience, Efficacy expectations, Emotional arousal
+  - Performance accomplishments, Vicarious experience, Verbal persuasion, Emotional arousal
 
 - **Social Norm Theory (SNT)**
   - Descriptive Norms, Injunctive Norms, Social Sanctions, Reference Group Identification

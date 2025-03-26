@@ -33,7 +33,10 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
   };
 
   const handleOpenSurvey = () => {
-    window.open("https://ulsurvey.uni.lu/", "_blank");
+    window.open(
+      "https://docs.google.com/document/d/1_BdOtrfcSDy6u0Oy6h8QMW7Znmc8eT_dgO3DKNy-xX0/edit?usp=sharing",
+      "_blank"
+    );
     setSurveyOpened(true);
   };
 

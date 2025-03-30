@@ -218,14 +218,14 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           ) : (
             <div className="space-y-5 min-h-60 shadow-sm p-4">
               <p className="italic text-gray-400"> Hello, curious mind!</p>
-              {/* Previously completed sentences */}
+              {/* TypeAnimation - Previously completed sentences */}
               {typedSentences.map((sentence, index) => (
                 <p key={index} className="text-lg text-gray-800">
                   {sentence}
                 </p>
               ))}
 
-              {/* Currently typing sentence */}
+              {/* TypeAnimation - Currently typing sentence */}
               {currentSentenceText && (
                 <p className="text-lg text-gray-800">
                   {currentSentenceText}

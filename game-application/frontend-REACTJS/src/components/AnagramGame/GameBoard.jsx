@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Check, X } from "lucide-react";
+import { Check, X, ArrowDown, ArrowUpCircle } from "lucide-react";
 import GameTimer from "./GameTimer";
 
 const GameBoard = ({
@@ -85,12 +85,28 @@ const GameBoard = ({
       {/* Main Game Area */}
       <div className="flex-1">
         {/* Game Header */}
-        <div className="text-center bg-white rounded-xl mb-4">
+        <div className="text-center bg-white rounded-xl mb-16">
           <h2 className="text-xl font-bold text-gray-800">
             Word Challenge {wordIndex + 1} of {totalWords}
           </h2>
-          <div className="mt-2 mb-4">
-            <p className="text-gray-600">
+          <div className="mt-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-100 flex items-center justify-center">
+            <p className="text-blue-600 text-sm font-medium flex items-center">
+              {/* <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 60 30"
+                width="60"
+                height="30"
+                fill="none"
+                className="mr-1"
+              >
+                <path
+                  d="M10 15 C20 5, 40 5, 50 15"
+                  stroke="#3b82f6"
+                  strokeWidth="2"
+                  strokeDasharray="4 2"
+                />
+                <polygon points="46,12 50,15 46,18" fill="#3b82f6" />
+              </svg> */}
               Create words with 5+ letters by drag and drop. Added words will be
               submitted when time is up!
             </p>
@@ -101,24 +117,29 @@ const GameBoard = ({
         <GameTimer timeLeft={timeLeft} totalTime={totalTime} />
 
         {/* Solution Area with Numbered Slots */}
-        <div className="mt-8 bg-gray-100 pt-3 pl-3 pr-3 rounded-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-700">Your Word</h3>
-            {solution.length > 0 && (
-              <button
-                onClick={handleClearSolution}
-                className="text-red-500 text-sm flex items-center cursor-pointer"
-                disabled={isTimeUp}
-              >
-                <X className="w-4 h-4 mr-1" /> Clear
-              </button>
-            )}
+        <div className=" px-0 rounded-xl">
+          <div className="flex items-center justify-between mb-2 h-8">
+            {" "}
+            <button
+              onClick={handleClearSolution}
+              className={`text-red-500 text-sm flex items-center cursor-pointer ml-auto transition-opacity duration-200 ${
+                solution.length > 0
+                  ? "opacity-100"
+                  : "opacity-0 pointer-events-none"
+              }`}
+              disabled={isTimeUp || solution.length === 0}
+            >
+              <X className="w-4 h-4 mr-1" /> Clear
+            </button>
           </div>
 
           <div
-            className="flex flex-wrap gap-3 justify-center min-h-[80px]"
+            className="flex flex-wrap justify-center border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50 relative w-full min-h-[96px] items-center"
             onDragOver={(e) => e.preventDefault()}
           >
+            <div className="absolute -top-3 left-4 bg-white px-3 py-1 text-xs font-semibold text-blue-600 rounded-full border border-blue-200 z-10">
+              Drop here
+            </div>
             {/* Filled slots */}
             {solution.map((letter, index) => (
               <div
@@ -129,15 +150,13 @@ const GameBoard = ({
                 }
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "solution", index)}
-                className="w-12 h-12 bg-blue-600 text-white rounded-lg flex flex-col items-center justify-center 
-                          font-bold text-xl cursor-move shadow transition-all hover:bg-blue-700 active:scale-95"
+                className="w-12 h-12  flex flex-col items-center justify-center 
+                          font-bold text-xl cursor-move shadow-sm transition-all hover:bg-blue-300 active:scale-95 bg-white border-gray-300 border-1 rounded-sm"
               >
                 <span>{letter}</span>
-                {/* <span className="text-xs text-blue-50">{index + 1}</span> */}
               </div>
             ))}
 
-            {/* Empty slots */}
             {Array.from({ length: maxSolutionLength - solution.length }).map(
               (_, index) => (
                 <div
@@ -146,35 +165,35 @@ const GameBoard = ({
                   onDrop={(e) =>
                     handleDrop(e, "solution", solution.length + index)
                   }
-                  className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-lg 
-                         flex flex-col items-center justify-center text-gray-400 transition-colors hover:bg-gray-50"
+                  className="w-13 h-22 relative"
                 >
-                  <span className="text-gray-300">+</span>
-                  <span className="text-xs">{solution.length + index + 1}</span>
+                  {/* Visual empty slot stays the same size */}
+                  <div
+                    className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-lg bg-white
+                         flex flex-col items-center justify-center text-gray-400 transition-colors hover:bg-gray-50 absolute inset-0 m-auto cursor-move"
+                  >
+                    {/* <span className="text-gray-300">+</span>
+                    <span className="text-xs">
+                      {solution.length + index + 1}
+                    </span> */}
+                  </div>
                 </div>
               )
             )}
           </div>
-
-          {/* {solution.length > 0 && (
-            <div className="text-center mt-4">
-              <span className="font-medium text-lg text-blue-600">
-                {solution.join("")}
-              </span>
-            </div>
-          )} */}
         </div>
 
-        {/* Available Letters */}
-        <div className="mt-8">
-          {/* <h3 className="font-semibold text-gray-700 mb-3">
-            Available Letters
-          </h3> */}
+        {/* Available Letters Area */}
+        <div className="mt-4">
           <div
-            className="flex flex-wrap gap-3 justify-center"
+            className="flex flex-wrap gap-2 justify-center pt-3 border-2 border-green-200 rounded-lg bg-green-50/30 relative w-full min-h-[80px]"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => handleDrop(e, "available", availableLetters.length)}
           >
+            {/* Subtle drag area indicator - left aligned */}
+            <span className="absolute -top-3 left-4 bg-white px-3 py-1 text-xs font-semibold text-green-600 rounded-full border border-green-200">
+              Drag letters
+            </span>
             {availableLetters.map((letter, index) => (
               <div
                 key={`available-${index}`}
@@ -184,8 +203,12 @@ const GameBoard = ({
                 }
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "available", index)}
-                className="w-12 h-12 bg-gray-700 text-white rounded-lg flex items-center justify-center 
-                          font-bold text-xl cursor-move shadow transition-all hover:bg-gray-600 active:scale-95"
+                className="w-12 h-12 border-2 border-green-300 bg-gray-700 text-white rounded-lg flex items-center justify-center 
+                          font-bold text-xl cursor-move shadow-lg hover:shadow-xl transition-all hover:bg-gray-600 active:scale-95
+                          transform hover:-translate-y-1"
+                style={{
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
+                }}
               >
                 {letter}
               </div>
@@ -203,7 +226,7 @@ const GameBoard = ({
               ${
                 isValidateDisabled
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow hover:shadow-md"
+                  : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-md hover:shadow-lg"
               }
             `}
           >

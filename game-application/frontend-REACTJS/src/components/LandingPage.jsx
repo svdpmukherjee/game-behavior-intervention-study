@@ -23,20 +23,15 @@ const StudyOverview = ({ onNext, studyConfig }) => (
       <Target className="h-5 w-5 text-blue-600 mr-2" />
       Your Task
     </h3>
-    <div className=" p-6 rounded-lg mb-10">
+    <div className="p-6 rounded-lg mb-10">
       <ul className="space-y-4">
         <li className="flex items-start">
           <span className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
           <span>
-            You will see {studyConfig.game_anagrams} sets of scrambled letters
-            and should use them to create valid English words of{" "}
-            <span className="font-semibold">
-              at least{" "}
-              {Math.min(...Object.keys(studyConfig.rewards).map(Number))}{" "}
-              letters
-            </span>
+            You will be given <strong>{studyConfig.game_anagrams}</strong> sets
+            of 8 scrambled letters
           </span>
         </li>
         <li className="flex items-start">
@@ -44,19 +39,35 @@ const StudyOverview = ({ onNext, studyConfig }) => (
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
           <span>
-            Try to create&nbsp;
-            <span className="font-semibold">as many words</span>&nbsp;as you can
-            from each set
+            Use the letters to form valid English words of{" "}
+            <strong>
+              at least{" "}
+              {Math.min(...Object.keys(studyConfig.rewards).map(Number))}{" "}
+              letters
+            </strong>{" "}
+            (e.g., 5, 6, 7 or 8-letter words)
           </span>
         </li>
         <li className="flex items-start">
           <span className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
-          Your created words will be automatically submitted when the time is up
+          <span>
+            Try to find <strong>as many words as possible</strong> from each set
+          </span>
+        </li>
+        <li className="flex items-start">
+          <span className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
+            <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
+          </span>
+          <span>
+            Your words will be <strong>automatically</strong> submitted when
+            time runs out - <strong>no need submit manually</strong>
+          </span>
         </li>
       </ul>
     </div>
+
     <DeviceWarning />
     <button
       onClick={onNext}
@@ -77,90 +88,100 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
     studyConfig.timeSettings.survey_time;
 
   return (
-    <div className="space-y-6">
-      <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-2 mb-4">
-          <Clock className="h-5 w-5 text-green-600" />
-          <h4 className="text-lg font-semibold text-gray-800">
+    <div className="space-y-8">
+      {/* Time Commitment Section */}
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <div className="flex items-center gap-3 mb-5">
+          <Clock className="h-6 w-6 text-green-600" />
+          <h4 className="text-xl font-semibold text-gray-800">
             Time Commitment
           </h4>
         </div>
-        <div className=" p-4 rounded-lg">
+        <div className="space-y-4">
           <ul className="text-md text-gray-600 space-y-3">
-            <li className="flex items-center">
-              <span className="bg-green-100 rounded-full p-1 mr-2">
-                <span className="block h-1.5 w-1.5 bg-green-600 rounded-full"></span>
-              </span>
-              <div>
-                <span className="font-semibold">Practice round</span>{" "}
-                <span className="text-gray-500">
-                  (1 word, {studyConfig.timeSettings.tutorial_time / 60}{" "}
-                  minutes)
+            {[
+              {
+                label: "Practice round",
+                time: studyConfig.timeSettings.tutorial_time / 60,
+                words: 1,
+              },
+              {
+                label: "Game round",
+                time: studyConfig.timeSettings.game_time / 60,
+                words: studyConfig.game_anagrams,
+              },
+              {
+                label: "Quick survey",
+                time: studyConfig.timeSettings.survey_time / 60,
+                words: 0,
+              },
+            ].map((item, index) => (
+              <li key={index} className="flex items-center space-x-3">
+                <span className="bg-green-100 rounded-full p-2">
+                  <span className="block h-2 w-2 bg-green-600 rounded-full"></span>
                 </span>
-              </div>
-            </li>
-            <li className="flex items-center">
-              <span className="bg-green-100 rounded-full p-1 mr-2">
-                <span className="block h-1.5 w-1.5 bg-green-600 rounded-full"></span>
-              </span>
-              <div>
-                <span className="font-semibold">Game round</span>{" "}
-                <span className="text-gray-500">
-                  ({studyConfig.game_anagrams} words,{" "}
-                  {studyConfig.timeSettings.game_time / 60} minutes each)
-                </span>
-              </div>
-            </li>
-            <li className="flex items-center">
-              <span className="bg-green-100 rounded-full p-1 mr-2">
-                <span className="block h-1.5 w-1.5 bg-green-600 rounded-full"></span>
-              </span>
-              <div>
-                <span className="font-semibold">Quick survey</span>{" "}
-                <span className="text-gray-500">
-                  ({studyConfig.timeSettings.survey_time / 60} minutes)
-                </span>
-              </div>
-            </li>
+                <div>
+                  <span className="font-semibold">{item.label}</span>{" "}
+                  <span className="text-gray-500">
+                    ({item.words} word{item.words !== 1 && "s"}, {item.time}{" "}
+                    minutes)
+                  </span>
+                </div>
+              </li>
+            ))}
           </ul>
           <p className="font-medium text-gray-700 mt-4">
-            Total time: ~{Math.ceil(totalTime / 60)} minutes
+            Total time: {Math.ceil(totalTime / 60)} -{" "}
+            {Math.ceil(totalTime / 60) + 3} minutes
           </p>
         </div>
-      </section>
+      </div>
 
-      <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        <div className="flex items-center gap-2 mb-4">
-          <Banknote className="h-5 w-5 text-amber-600" />
-          <h4 className="text-lg font-semibold text-gray-800">Compensation</h4>
+      {/* Compensation & Rewards Section */}
+      <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <div className="flex items-center gap-3 mb-5">
+          <Banknote className="h-6 w-6 text-amber-600" />
+          <h4 className="text-xl font-semibold text-gray-800">
+            Compensation & Rewards
+          </h4>
         </div>
-        <div className="p-4 rounded-lg">
-          <p className="font-bold mb-4">
-            Base compensation: {studyConfig.compensation.prolific_rate}
+
+        {/* Base Compensation */}
+        <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-300 text-center rounded-lg p-4 shadow-sm">
+          <p className="text-lg font-semibold text-amber-800">
+            💰 Base Compensation
           </p>
-          <h5 className="font-medium text-gray-700 mb-2">
-            Additional rewards per word creation:
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {studyConfig.compensation.prolific_rate}
+          </p>
+        </div>
+
+        {/* Additional Rewards */}
+        <div className="mt-6">
+          <h5 className="text-md font-medium text-gray-700 mb-4">
+            Additional rewards per <strong>valid word</strong> creation:
           </h5>
-          <div className="space-y-2">
+          <div className="flex justify-center items-center space-y-2">
             <RewardDisplay
               rewards={studyConfig.rewards}
               maxReward={studyConfig.compensation.max_reward_per_anagram}
             />
           </div>
         </div>
-      </section>
+      </div>
 
-      <div className="flex gap-4">
+      {/* Navigation Buttons */}
+      <div className="flex gap-6">
         <button
           onClick={onBack}
-          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
         >
           <ArrowLeft className="h-5 w-5" />
           Back
         </button>
         <button
           onClick={onNext}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
         >
           Next
           <ArrowRight className="h-5 w-5" />
@@ -177,60 +198,44 @@ const PrivacyAndConsent = ({
   setIsChecked,
 }) => (
   <div className="space-y-6">
+    {/* Section: Data Collection and Privacy */}
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-2 mb-4">
         <Shield className="h-6 w-6 text-blue-600 fill-blue-300" />
         <h3 className="text-xl font-semibold text-gray-800">
-          Data Collection and Privacy
+          Data Privacy & Consent
         </h3>
       </div>
 
-      <div className="space-y-4 text-gray-700">
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h4 className="font-medium mb-2">We collect:</h4>
-          <ul className="space-y-2 ml-4">
-            {[
-              "Anagrams you solve and the patterns in solving them",
-              "Response times and word creation strategies",
-              "Game interactions",
-              "Survey responses",
-              "Basic demographic information",
-            ].map((item, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="bg-blue-100 rounded-full p-1 mt-1">
-                  <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div className="text-gray-700 space-y-4">
+        <p>
+          We collect the following data to analyze your behavior and
+          interactions during the study:
+        </p>
+        <ul className="list-disc ml-6 space-y-2">
+          {[
+            "Puzzle-solving patterns and strategies",
+            "Response times and game interactions",
+            "Survey responses",
+            "Basic demographic information",
+          ].map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
 
-        <div className="space-y-3">
-          <p className="flex items-start gap-2">
-            <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 " />
-            Your personal data will be strictly pseudonymized and securely
-            stored at the University of Luxembourg.
-          </p>
-          <p className="flex items-start gap-2">
-            <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 " />
-            Only the researchers working on this study will have access to these
-            data.
-          </p>
-          <p className="flex items-start gap-2">
-            <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 " />
-            The data collected during the study will only be used for the
-            research project.
-          </p>
-          <p className="flex items-start gap-2">
-            <Shield className="h-5 w-5 text-blue-600 flex-shrink-0 " />
-            The data will be used for publications without personally
-            identifying you.
-          </p>
-        </div>
+        <p>
+          Your personal data will be <strong>strictly pseudonymized</strong> and
+          securely stored at the University of Luxembourg.
+        </p>
+        <p>
+          <strong>Only</strong> the study researchers will have access to your
+          data, and it will be used solely for this research project.
+        </p>
+        <p>Data may be published without identifying you personally.</p>
       </div>
     </section>
 
+    {/* Consent Checkbox & Action Buttons */}
     <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
       <div className="flex items-center gap-3 mb-6">
         <input
@@ -238,15 +243,14 @@ const PrivacyAndConsent = ({
           id="consent"
           checked={isChecked}
           onChange={() => setIsChecked(!isChecked)}
-          className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
         />
         <label htmlFor="consent" className="text-gray-700">
-          I have read the above information and agree to participate in this
-          study
+          I have read the information above and agree to participate in this
+          study.
         </label>
       </div>
 
-      {/* Buttons for Back and Start Study */}
       <div className="flex gap-4 mb-4">
         <button
           onClick={onBack}
@@ -259,13 +263,13 @@ const PrivacyAndConsent = ({
           onClick={onStartStudy}
           disabled={!isChecked}
           className={`
-        flex-1 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer
-        ${
-          isChecked
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "bg-gray-200 text-gray-500 cursor-not-allowed"
-        }
-      `}
+            flex-1 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer
+            ${
+              isChecked
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
+                : "bg-gray-200 text-gray-500 cursor-not-allowed"
+            }
+          `}
         >
           Start Study
           <ArrowRight className="h-5 w-5" />

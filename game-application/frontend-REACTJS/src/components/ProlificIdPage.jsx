@@ -35,7 +35,9 @@ const ProlificIdPage = ({ onSubmit, initialValue, isInitializing }) => {
     try {
       await onSubmit(trimmedId);
     } catch (error) {
-      setError("Failed to initialize session. Please try again.");
+      setError(
+        "You can only participate in this study once. Please contact the researcher if you believe this is a mistake."
+      );
     }
   };
 

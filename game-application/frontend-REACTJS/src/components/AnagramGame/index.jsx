@@ -364,7 +364,7 @@ const AnagramGame = ({
       // Check if this is the final anagram submission
       if (gameState.wordIndex >= gameState.totalAnagrams - 1) {
         // Show completion alert before moving to next phase
-        alert("You have now completed all anagrams!");
+        alert("You have now completed all puzzles!");
       }
 
       // Check if there are more anagrams

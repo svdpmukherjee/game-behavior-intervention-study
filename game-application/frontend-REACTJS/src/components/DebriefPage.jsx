@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   CheckCircle,
   XCircle,
@@ -18,9 +18,18 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
     selectAll: false,
   });
 
+  // Add this to track when the step changes
+  const prevStepRef = useRef(currentStep);
+
   useEffect(() => {
     if (onStateChange) {
       onStateChange(currentStep);
+    }
+
+    // Add scroll behavior when currentStep changes
+    if (prevStepRef.current !== currentStep) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      prevStepRef.current = currentStep;
     }
   }, [currentStep, onStateChange]);
 
@@ -344,54 +353,55 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
           </h2>
 
           <div className="space-y-6">
+            {/* Research Purpose & Methodology section */}
             <div className="bg-blue-50 p-6 rounded-lg">
               <h3 className="text-lg font-semibold mb-3">
-                Research Purpose & Methodology
+                What This Study Was Really About
               </h3>
               <p className="text-gray-700">
-                This study examined problem-solving behavior in anagram tasks,
-                with a focus on integrity in online assessments. We implemented
-                several monitoring techniques to understand participants'
-                approaches:
+                This study looked at how people solve word puzzles and whether
+                they play by the rules when nobody is watching. We used several
+                ways to understand how people approach these puzzles:
               </p>
               <ul className="list-disc list-inside mt-3 mb-4 space-y-2 text-gray-700">
-                <li>Page focus and visibility tracking</li>
-                <li>Mouse movement and inactivity detection</li>
-                <li>Time spent on each word</li>
-                <li>Word validation patterns</li>
+                <li>Tracking when you switched away from the game screen</li>
+                <li>Noticing when your mouse stopped moving</li>
+                <li>Measuring how long you spent on each word</li>
+                <li>Looking at patterns in how you found words</li>
               </ul>
               <p className="text-gray-700 mt-4">
-                The word meaning check helped us understand whether words were
-                independently created or sourced externally. This research
-                contributes to broader knowledge about problem-solving integrity
-                in digital environments.
+                When we asked you to explain what your words meant, we were
+                trying to understand if you came up with the words on your own
+                or found them somewhere else. This helps us learn more about how
+                people behave when solving problems online.
               </p>
               <p className="text-gray-700 mt-4">
-                All collected data is pseudonymized, kept confidential, and used
-                exclusively for research purposes, in accordance with ethical
-                standards.
+                We keep all your information private. Your name is replaced with
+                a code, and only researchers can see your answers. We only use
+                this information for our study, just as we promised.
               </p>
             </div>
 
+            {/* Compensation Details section */}
             <div className="bg-green-50 border border-green-100 rounded-lg p-6">
               <h3 className="text-lg font-semibold text-green-800 mb-3">
-                Compensation Details
+                Your Reward
               </h3>
               <p className="text-gray-700 mb-4">
-                To ensure equitable treatment of all participants, we've decided
-                to award the maximum possible bonus of{" "}
-                {studyConfig?.compensation?.max_reward_per_anagram} pence per
-                anagram, regardless of individual performance.
+                To be fair to everyone, we decided to give all participants the
+                same bonus amount. No matter how many words you found, you will
+                get the full possible reward.
               </p>
               <p className="text-xl font-bold text-green-700">
                 Your final reward:{" "}
                 {studyConfig?.compensation?.max_reward_per_anagram *
                   studyConfig?.game_anagrams}{" "}
                 pence ({studyConfig?.compensation?.max_reward_per_anagram} pence
-                × {studyConfig?.game_anagrams} anagrams)
+                × {studyConfig?.game_anagrams} word puzzles)
               </p>
               <p className="text-sm text-gray-700 mt-4">
-                Thank you for your valuable contribution to this research!
+                Thank you for helping with our research! Your participation is
+                really valuable.
               </p>
             </div>
 
@@ -428,7 +438,7 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
               <div className="flex items-start gap-3 mb-6 ">
                 <AlertTriangle className="h-7 w-7 text-amber-500 " />
                 <div className="space-y-2.5">
-                  <h3 className="font-semibold text-gray-800 ">
+                  <h3 className="font-semibold text-gray-800 text-lg">
                     Final Question
                   </h3>
                   <p className="text-gray-700">
@@ -437,10 +447,13 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                     Did you use any external help (such as websites or mobile
                     apps) for finding words?
                   </p>
+                  <br />
                   <p className="text-sm text-gray-500">
                     You can select multiple words where you used external help.
-                    This will not affect your participation credit or final
-                    reward amount
+                    <strong className="text-gray-700">
+                      This will not affect your participation or final reward
+                      amount
+                    </strong>
                   </p>
                 </div>
               </div>

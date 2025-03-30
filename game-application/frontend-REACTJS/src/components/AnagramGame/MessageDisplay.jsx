@@ -15,7 +15,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
   const minReadTime = 20000;
   const messageStartTime = useRef(new Date());
-  const typingSpeed = 10; // milliseconds per character
+  const typingSpeed = 5; // milliseconds per character
 
   // Refs for typing animation
   const sentences = useRef([]);
@@ -216,17 +216,18 @@ const MessageDisplay = ({ message, onMessageShown }) => {
               </button>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="space-y-5 min-h-60 shadow-sm p-4">
+              <p className="italic text-gray-400"> Hello, curious mind!</p>
               {/* Previously completed sentences */}
               {typedSentences.map((sentence, index) => (
-                <p key={index} className="text-xl text-gray-800">
+                <p key={index} className="text-lg text-gray-800">
                   {sentence}
                 </p>
               ))}
 
               {/* Currently typing sentence */}
               {currentSentenceText && (
-                <p className="text-xl text-gray-800">
+                <p className="text-lg text-gray-800">
                   {currentSentenceText}
                   <span className={cursorClass}></span>
                 </p>
@@ -269,17 +270,27 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           ) : isTypingComplete ? (
             // `Please wait ${remainingTime} seconds...`
             <div className="text-center text-sm italic space-y-2">
-              <p>
-                Please wait ({remainingTime} seconds) while the puzzles are
-                getting ready.
-              </p>
               <p className="font-medium text-gray-700">
-                Meanwhile, ensure you understand the message as it is very
+                Please make sure that you understand the message as it is very
                 important for the game.
+              </p>
+              <p>
+                You need to wait ({remainingTime} seconds) while the puzzles are
+                getting ready.
               </p>
             </div>
           ) : (
-            "Please wait for the message to complete..."
+            <div className="text-center text-sm italic space-y-2">
+              <p className="font-medium text-gray-700">
+                Please make sure that you understand the message as it is very
+                important for the game.
+              </p>
+              <p>
+                You need to wait ({remainingTime} seconds) while the puzzles are
+                getting ready.
+              </p>
+            </div>
+            // "Please wait for the message to complete..."
           )}
         </button>
       </div>

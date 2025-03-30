@@ -580,8 +580,8 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
             <div className="space-y-4">
               <div className="bg-white p-6 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  <div className="order-2 md:order-1">
-                    <ul className="space-y-6 text-blue-700">
+                  <div className="order-2 md:order-1 m-auto">
+                    <ul className="space-y-1 text-blue-700">
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Drag and drop letters{" "}
                         <span className="font-semibold text-amber-600">
@@ -605,7 +605,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                       </li>
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Your words will be automatically submitted when the
-                        timer ends - no need to manually submit
+                        timer ends - no need of manual submission
                       </li>
                     </ul>
                   </div>

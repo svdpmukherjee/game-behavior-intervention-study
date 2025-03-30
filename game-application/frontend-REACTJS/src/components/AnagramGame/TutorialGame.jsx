@@ -569,34 +569,43 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     return (
       <Container>
         <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-            <div className="flex items-center gap-2 mb-4">
-              <Info className="h-5 w-5 text-blue-600" />
-              <h3 className="text-lg font-semibold text-gray-800">
+          <div className="bg-gradient-to-r from-white to-blue-50 p-8 rounded-3xl shadow-lg border-2 border-gray-300 space-y-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Info className="h-6 w-6 text-blue-600" />
+              <h3 className="text-2xl font-extrabold text-gray-800">
                 How To Play
               </h3>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-white p-6 rounded-lg">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                   <div className="order-2 md:order-1">
-                    <ul className="space-y-8 text-blue-700">
-                      <li>
-                        • Drag and drop letters using mouse to form valid
-                        English words
+                    <ul className="space-y-6 text-blue-700">
+                      <li className="hover:bg-blue-100 p-2 rounded-lg">
+                        • Drag and drop letters{" "}
+                        <span className="font-semibold text-amber-600">
+                          using mouse
+                        </span>{" "}
+                        to form valid English words
                       </li>
-                      <li>
+                      <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Each word must contain at least {minLength} letters
                       </li>
-                      <li>• Click 'Add Word' to record each completed word</li>
-                      <li>
+                      <li className="hover:bg-blue-100 p-2 rounded-lg">
+                        • Click{" "}
+                        <span className="font-semibold text-amber-600">
+                          'Add Word'
+                        </span>{" "}
+                        to record each completed word
+                      </li>
+                      <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Create as many words as possible to earn higher
                         rewards
                       </li>
-                      <li>
-                        • All words will be automatically submitted when time
-                        runs out!
+                      <li className="hover:bg-blue-100 p-2 rounded-lg">
+                        • Your words will be automatically submitted when the
+                        timer ends - no need to manually submit
                       </li>
                     </ul>
                   </div>
@@ -604,24 +613,24 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                     <img
                       src={game_gif}
                       alt="How to play demonstration"
-                      className="rounded-lg w-full"
+                      className="rounded-lg w-full shadow-lg transition-transform duration-500 transform hover:scale-105"
                       style={{
+                        // aspectRatio: "16/9",
                         imageRendering: "auto",
-                        animationTimingFunction: "linear",
                       }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <Timer className="h-5 w-5 text-green-600 mt-1" />
+              <div className="flex items-start gap-4 bg-blue-100 p-4 rounded-lg">
+                <Timer className="h-6 w-6 text-green-600 mt-1" />
                 <div>
-                  <p className="font-medium text-gray-700">Time Limit</p>
-                  <p className="text-gray-600">
+                  <p className="font-semibold text-gray-800">Time Limit</p>
+                  <p className="text-xl font-bold text-gray-700">
                     {tutorialTime} minutes to practice
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className="text-sm text-gray-500 mt-2">
                     Game will automatically submit when time runs out
                   </p>
                 </div>
@@ -630,7 +639,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
 
             <button
               onClick={() => setShowOverview(false)}
-              className="w-full mt-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
+              className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-lg transition-all transform hover:scale-105 cursor-pointer"
             >
               Start Practice Round
             </button>

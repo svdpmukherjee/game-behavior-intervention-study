@@ -4,7 +4,7 @@ import { Info, ArrowRight, AlertTriangle } from "lucide-react";
 const MessageDisplay = ({ message, onMessageShown }) => {
   const [isReady, setIsReady] = useState(false);
   const [hasRead, setHasRead] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(15);
+  const [remainingTime, setRemainingTime] = useState(20);
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
   const [typedSentences, setTypedSentences] = useState([]);
@@ -13,7 +13,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
 
-  const minReadTime = 15000;
+  const minReadTime = 20000;
   const messageStartTime = useRef(new Date());
   const typingSpeed = 10; // milliseconds per character
 
@@ -199,7 +199,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           <div className="mr-4">{getTheoryIcon()}</div>
           <div>
             <h3 className="text-xl font-semibold">
-              Message from the researcher
+              A Few Words From The Researcher Before You Start
             </h3>
           </div>
         </div>
@@ -210,9 +210,9 @@ const MessageDisplay = ({ message, onMessageShown }) => {
             <div className="flex flex-col items-center justify-center h-full">
               <button
                 onClick={handleStartTyping}
-                className="px-6 py-3 bg-blue-400 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform hover:-translate-y-1 cursor-pointer"
+                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform cursor-pointer"
               >
-                Tap to see message
+                Curious? See the message now!
               </button>
             </div>
           ) : (
@@ -251,23 +251,33 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           onClick={() => setHasRead(true)}
           disabled={!isReady || !isTypingComplete || !hasStartedTyping}
           className={`
-            w-full mt-6 py-3 rounded-lg font-medium
-            transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
-            ${
-              isReady && isTypingComplete && hasStartedTyping
-                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1"
-                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-            }
-          `}
+    w-full mt-6 py-3 rounded-lg font-medium
+    transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
+    ${
+      isReady && isTypingComplete && hasStartedTyping
+        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1"
+        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+    }
+  `}
         >
           {!hasStartedTyping ? (
             "Please view the message first"
           ) : isReady && isTypingComplete ? (
             <>
-              I understand, Continue <ArrowRight className="w-5 h-5" />
+              I am ready, Let's continue <ArrowRight className="w-5 h-5" />
             </>
           ) : isTypingComplete ? (
-            `Please wait ${remainingTime} seconds...`
+            // `Please wait ${remainingTime} seconds...`
+            <div className="text-center text-sm italic space-y-2">
+              <p>
+                Please wait ({remainingTime} seconds) while the puzzles are
+                getting ready.
+              </p>
+              <p className="font-medium text-gray-700">
+                Meanwhile, ensure you understand the message as it is very
+                important for the game.
+              </p>
+            </div>
           ) : (
             "Please wait for the message to complete..."
           )}

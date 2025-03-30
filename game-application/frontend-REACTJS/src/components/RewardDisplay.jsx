@@ -61,19 +61,21 @@ const RewardDisplay = ({ rewards, maxReward }) => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4 p-4 rounded-lg w-3/5 border border-gray-200 ml-10">
+      <div className="space-y-4 rounded-lg w-4/5 bg-gray-50 border-gray-200 m-auto">
         {Object.entries(rewards)
           .sort(([a], [b]) => Number(b) - Number(a))
           .map(([length, reward]) => (
             <div
               key={length}
-              className="flex items-center p-2 bg-white rounded-lg shadow-sm transition-shadow border border-gray-100"
+              className="flex items-center p-2 bg-white rounded-lg shadow-sm transition-shadow border border-gray-100]"
             >
-              <span className="text-md font-medium text-gray-800 w-32">
+              <span className="text-md font-medium text-gray-800">
                 {length}-letter word
               </span>
               <div className="flex-1 flex items-center gap-2">
-                <div className="flex items-center">{renderCoins(reward)}</div>
+                <div className="flex items-center ml-2">
+                  {renderCoins(reward)}
+                </div>
                 <span className="text-amber-600 font-small ml-auto">
                   {reward} pence
                 </span>
@@ -82,10 +84,27 @@ const RewardDisplay = ({ rewards, maxReward }) => {
           ))}
       </div>
 
-      <div className="bg-yellow-50 p-3 rounded-lg">
-        <div className="flex items-center justify-center gap-2 text-yellow-800 text-lg font-medium">
-          <CircleAlert className="h-6 w-6" />
-          <span>Maximum reward per anagram: {maxReward} pence</span>
+      <div className="p-3 rounded-lg">
+        <div className="bg-gradient-to-r text-center rounded-lg p-4">
+          <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-800">
+            <CircleAlert className="h-6 w-6 text-red-600" />
+            <span className="text-lg text-gray-700 font-medium">
+              Maximum reward is capped per set of scrambled letters:{" "}
+              <strong className="text-xl text-red-600">
+                {maxReward} pence
+              </strong>
+            </span>
+          </div>
+          {/* <div className="mt-4 text-gray-600 text-sm">
+            <p>There are 2 sets of scrambled letters</p>
+            <p>
+              You can earn up to <strong>{maxReward} pence</strong> per set
+            </p>
+            <p>
+              Remember, the reward is capped at 30 pence per set of words you
+              create
+            </p>
+          </div> */}
         </div>
       </div>
     </div>

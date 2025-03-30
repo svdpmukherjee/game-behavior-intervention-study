@@ -8,24 +8,32 @@ import DebriefPage from "./components/DebriefPage";
 import ThankYouPage from "./components/ThankYouPage";
 import WordMeaningCheck from "./components/AnagramGame/WordMeaningCheck";
 import Container from "./components/Container";
+import { BadgePoundSterling } from "lucide-react";
 
 const STEPS = {
   LANDING: {
     id: "landing",
     progress: 0,
-    title: "Word Formation Puzzles: Test Your Word-Building Skills",
+    title: "Word Puzzles: Test Your Word-Building Skills",
     subtitle: (
       <div className="space-y-2 text-center">
         <p className="text-gray-600 text-md">
           Create valid English words from scrambled letters
         </p>
         <div className="flex flex-col items-center gap-1">
-          <p className="text-gray-600">
-            <span className="text-gray-500">•</span>{" "}
-            <span className="text-blue-600 font-semibold">Longer words</span>{" "}
-            earn higher rewards <span className="text-gray-500">•</span>{" "}
-            <span className="text-blue-600 font-semibold">More words</span> earn
-            more rewards
+          <p className="text-gray-600 flex items-center gap-1">
+            <BadgePoundSterling className="w-5 h-5 text-amber-500" />
+            {/* <span className="text-gray-500">•</span>{" "} */}
+            <span className="text-blue-600 font-semibold flex items-center gap-1">
+              Longer words{" "}
+            </span>{" "}
+            earn higher rewards
+            {/* <span className="text-gray-500">•</span>{" "} */}
+            <BadgePoundSterling className="w-5 h-5 text-amber-500" />
+            <span className="text-blue-600 font-semibold flex items-center gap-1">
+              More words{" "}
+            </span>{" "}
+            earn more rewards
           </p>
         </div>
       </div>
@@ -41,7 +49,7 @@ const STEPS = {
     id: "tutorial",
     progress: 30,
     step: 2,
-    title: "Practice Creating Words from Anagrams",
+    title: "Practice Creating Words",
   },
   MAIN_GAME: {
     id: "main_game",
@@ -140,7 +148,9 @@ function App() {
       setCurrentStep(STEPS.TUTORIAL.id);
     } catch (error) {
       console.error("Error during initialization:", error);
-      alert("Failed to initialize session. Please try again.");
+      alert(
+        "You can only participate in this study once. Please contact the researcher if you believe this is a mistake."
+      );
     } finally {
       setIsInitializing(false);
     }

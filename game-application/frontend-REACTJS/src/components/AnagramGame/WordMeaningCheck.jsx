@@ -19,6 +19,7 @@ const WordMeaningCheck = ({
   const startTime = useRef(new Date());
   const wordStartTime = useRef(new Date());
   const isSubmitted = useRef(false);
+  const textareaRef = useRef(null); // Add a ref for the textarea
 
   // First, fetch game results to get complete anagram information
   useEffect(() => {
@@ -89,6 +90,15 @@ const WordMeaningCheck = ({
 
     fetchGameResults();
   }, [sessionId, prolificId, validatedWords]);
+
+  // Focus the textarea whenever currentIndex changes or when intro is dismissed
+  useEffect(() => {
+    if (!showIntro && textareaRef.current) {
+      setTimeout(() => {
+        textareaRef.current.focus();
+      }, 100);
+    }
+  }, [currentIndex, showIntro]);
 
   const handleNoWordsCompletion = async () => {
     try {
@@ -331,7 +341,7 @@ const WordMeaningCheck = ({
                       dictionary.
                     </span>
                   </p> */}
-                    <p className="text-blue-700 text-xl ml-2 mt-6">
+                    <p className="text-blue-700 text-lg ml-2 mt-6">
                       To help us understand your word-building process, could
                       you explain what meaning you had in mind for each word you
                       created?
@@ -382,6 +392,7 @@ const WordMeaningCheck = ({
 
           <div className="space-y-4">
             <textarea
+              ref={textareaRef} // Add the ref here
               className="w-full p-4 border rounded-lg focus:ring-2 focus:ring-blue-500 
                      focus:border-blue-500 min-h-[120px] text-gray-700"
               value={meanings[currentWord.word] || ""}

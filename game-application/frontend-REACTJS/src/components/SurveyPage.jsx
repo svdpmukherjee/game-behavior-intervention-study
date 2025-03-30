@@ -48,7 +48,7 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
           <div className="p-5">
             <div className="space-y-8">
               {/* Step 1 */}
-              <div className="flex items-start gap-4">
+              {/* <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
                   1
                 </div>
@@ -81,12 +81,12 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
                     </p>
                   )}
                 </div>
-              </div>
+              </div> */}
 
               {/* Step 2 */}
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                  2
+                  1
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
               {/* Step 3 */}
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
-                  3
+                  2
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-gray-800 mb-2">

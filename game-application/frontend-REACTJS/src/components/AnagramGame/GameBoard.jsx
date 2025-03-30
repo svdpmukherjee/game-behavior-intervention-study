@@ -107,8 +107,8 @@ const GameBoard = ({
                 />
                 <polygon points="46,12 50,15 46,18" fill="#3b82f6" />
               </svg> */}
-              Create words with 5+ letters by drag and drop. Added words will be
-              submitted when time is up!
+              Create words with at least 5 letters by drag and drop. Added words
+              will be submitted when time is up!
             </p>
           </div>
         </div>

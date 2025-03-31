@@ -129,7 +129,7 @@ If you use this game or message generation framework in your research, please ci
 
 ```bibtex
 @misc{message-intervention-framework,
-  author = {Mukherjee, Suvadeep},
+  author = {XXX, YYY},
   title = {Message Intervention Framework for Game Behavior Study},
   year = {2025},
   publisher = {GitHub},

@@ -30,7 +30,7 @@ def main():
         "Injunctive Norms", "Social Sanctions", "Reference Group Identification"
     ]
     
-    print("\nMessage Optimizer - Enhanced Version")
+    print("\nMessage Optimizer - Version")
     print("====================================")
     print("\nList of Theoretical Concepts for Message Generation:")
     for i, construct in enumerate(constructs, start=1):
@@ -71,7 +71,7 @@ def main():
     llama_model = get_user_input("Llama model", defaults["llama_model"])
     gpt_model = get_user_input("GPT model", defaults["gpt_model"])
     
-    # parser = argparse.ArgumentParser(description="Optimize messages for psychological constructs with enhanced convergence criteria")
+    # parser = argparse.ArgumentParser(description="Optimize messages for psychological constructs with convergence criteria")
     # parser.add_argument("--construct", type=str, 
     #                   help="Target construct for message optimization (if not specified, will optimize for all constructs)")
     # parser.add_argument("--num-messages", type=int, default=3, 

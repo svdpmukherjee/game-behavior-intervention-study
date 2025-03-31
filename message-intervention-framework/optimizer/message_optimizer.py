@@ -186,7 +186,7 @@ class MessageOptimizer:
     def optimize_message(self, construct_name, all_constructs, 
                     max_iterations=20, min_consecutive=3,
                     target_score_threshold=85.0, score_difference_threshold=25.0):
-        """Run the optimization process for a construct with enhanced convergence criteria."""
+        """Run the optimization process for a construct with convergence criteria."""
         print(f"\n{'='*80}\nOptimizing message for construct: {construct_name}\n{'='*80}")
         
         # Initialize parameters
@@ -266,7 +266,7 @@ class MessageOptimizer:
                 best_score = target_score
                 best_all_scores = all_scores
             
-            # Check for convergence based on enhanced criteria
+            # Check for convergence based on criteria
             has_converged, convergence_reason = self._check_convergence_criteria(
                 construct_name,
                 all_construct_scores_history,
@@ -281,8 +281,8 @@ class MessageOptimizer:
             else:
                 print(f"  Not yet converged: {convergence_reason}")
             
-            # Update parameters based on feedback with enhanced differentiation
-            print("  Updating parameters with enhanced differentiation focus...")
+            # Update parameters based on feedback with differentiation
+            print("  Updating parameters with differentiation focus...")
             self.update_parameters_with_differentiation(
                 params, feedback, all_scores, construct_name)
             

@@ -96,16 +96,12 @@ class GPTEvaluator:
 
                 1. Core Element Alignment: Does the message capture the essential psychological mechanism of the construct?
                 2. Differentiation: Does the message avoid elements explicitly differentiated from this construct?
-                3. Language Appropriateness: Does the message use natural, motivational language suitable for an anagram game?
+                3. Language Appropriateness: Does the message use natural, motivational language suitable for a puzzle-solving game?
                 4. Conciseness: Is the message 2-3 sentences and focused?
-                5. Context Relevance: Is the message well-tailored to the anagram game context?
+                5. Context Relevance: Is the message well-tailored to the puzzle-solving game context?
 
-                First, provide a detailed score (0-100%) for the target construct with specific reasoning.
-                
-                Then, score ALL the listed psychological constructs:
-                {construct_list}
-                
-                Use the rubric for scoring as stated below.
+                First, provide a detailed score for the target construct with specific reasoning.
+                Use the below rubric for scoring as stated below.
                 SCORING RUBRIC:
                 - 90-100%: Message captures all key aspects of the construct description with appropriate emphasis while clearly avoiding elements of differentiated constructs. Message uses language that precisely captures the psychological mechanism and closely resembles the provided examples.
                 - 80-89%: Message clearly invokes most of the key aspects of the construct description and largely avoids differentiated elements. Message contains similar themes to the examples with only minimal overlap with related constructs.
@@ -113,6 +109,9 @@ class GPTEvaluator:
                 - 50-69%: Message only tangentially relates to the construct description and fails to maintain boundaries from differentiated constructs. Message has limited similarity to examples.
                 - 0-49%: Message contradicts the construct description or primarily exemplifies differentiated constructs. Message bears little resemblance to provided examples.
 
+                Then, score ALL the listed psychological constructs:
+                {construct_list}
+                
                 Present your scores in this format:
                 ### Construct Confidence Scores
                 - Construct1: XX%

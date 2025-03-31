@@ -105,7 +105,7 @@ class MessageOptimizer:
         # Initial generation instruction
         generation_instruction = (
             f"Create a message that strongly aligns with the psychological construct of {construct_name}. "
-            f"The message should be 2-3 sentences, use natural motivational language, and be tailored to the anagram game context. "
+            f"The message should be 2-3 sentences, use natural motivational and conversational language, and be tailored to the puzzle-solving game context. "
             f"Your message should exemplify the core elements of {construct_name} and avoid elements of differentiated constructs."
         )
         

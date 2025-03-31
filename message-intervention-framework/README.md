@@ -336,7 +336,8 @@ The optimization engine:
 Execute the optimization process using:
 
 ```bash
-python run_optimizer.py [options]
+python run_optimizer.py
+[options to select with default values]
 ```
 
 Command-line options:
@@ -353,9 +354,9 @@ Command-line options:
 
 For example, the below code generates one message for the Autonomy construct with a maximum of 20 iterations and a minimum of 3 consecutive iterations meeting the criteria:
 
-```bash
+<!-- ```bash
 python run_optimizer.py --construct Autonomy --max-iterations 20 --min-consecutive 3 --num-messages 1
-```
+``` -->
 
 ## Psychological Constructs
 
@@ -375,8 +376,6 @@ The framework is designed to generate messages aligned with multiple psychologic
 
 - **Social Norm Theory (SNT)**
   - Descriptive Norms, Injunctive Norms, Social Sanctions, Reference Group Identification
-
-I'll create a grid-based layout for your README.md section that shows construct examples with their images and message texts side by side. Here's the improved version:
 
 ## Output
 

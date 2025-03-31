@@ -1,4 +1,17 @@
-"""Message optimizer that iteratively refines message generation parameters with enhanced convergence criteria."""
+"""
+*** Message Optimizer implementation ***
+
+This module orchestrates the iterative optimization process between message generation and 
+evaluation to create messages that strongly align with psychological constructs.
+
+Functions
+- initialize_parameters: Sets up initial parameters for a construct based on its definition
+- optimize_message: Runs the iterative optimization process for a single message
+- optimize_multiple_messages: Orchestrates optimization of multiple messages for a construct
+- _check_convergence_criteria: Determines if optimization has converged based on scores
+- _identify_competing_constructs: Identifies constructs with scores competing with target
+- update_parameters_with_differentiation: Updates parameters to better differentiate from competing constructs
+"""
 
 import os
 import json
@@ -169,29 +182,6 @@ class MessageOptimizer:
         
         # Return the top n competing constructs
         return competing[:top_n]
-    
-    def _refine_generation_instruction(self, instruction, competing_constructs):
-        """
-        Refine generation instruction to emphasize differentiation from competing constructs.
-        
-        Args:
-            instruction: Original generation instruction
-            competing_constructs: List of tuples (construct_name, score) of competing constructs
-            
-        Returns:
-            Refined instruction with emphasis on differentiation
-        """
-        if not competing_constructs:
-            return instruction
-            
-        # Extract names of top competing constructs
-        competing_names = [c[0] for c in competing_constructs]
-        competing_str = ", ".join(competing_names)
-        
-        # Add differentiation guidance to the instruction
-        refined = f"{instruction} Additionally, ensure the message clearly differentiates from {competing_str} by emphasizing elements unique to the target construct and avoiding characteristic elements of these competing constructs."
-        
-        return refined
         
     def optimize_message(self, construct_name, all_constructs, 
                     max_iterations=20, min_consecutive=3,
@@ -230,7 +220,9 @@ class MessageOptimizer:
                 # Improve the previous best message
                 message = self.generator.improve_message(
                     best_message,
-                    feedbacks[-1]  # Use the most recent feedback
+                    feedbacks[-1],
+                    current_score=best_score,
+                    target_score_threshold=target_score_threshold
                 )
             
             messages.append(message)
@@ -633,45 +625,3 @@ class MessageOptimizer:
                 diff_enhancement = f"\n\nAdditional differentiation emphasis:\nFocus on distinguishing from {top_competitor}: {description.split('.')[0]}."
                 
                 params.construct_differentiation = diff_text + diff_enhancement
-                
-    def _get_construct_characteristics(self, construct_name):
-        """
-        Get key characteristics of a construct to help with differentiation.
-        This would use the construct definitions from common.constants.
-        
-        Args:
-            construct_name: Name of the construct
-            
-        Returns:
-            String describing key characteristics of the construct
-        """
-        from common.constants import all_constructs
-        
-        # Get the construct info
-        construct_info = all_constructs.get(construct_name, {})
-        
-        # Extract key phrases from the description
-        description = construct_info.get("description", "")
-        key_phrases = []
-        
-        # Simple extraction of potential key phrases based on common patterns
-        if "focuses on" in description:
-            parts = description.split("focuses on")
-            if len(parts) > 1:
-                key_phrases.append(parts[1].split(".")[0].strip())
-        
-        if "emphasizes" in description:
-            parts = description.split("emphasizes")
-            if len(parts) > 1:
-                key_phrases.append(parts[1].split(".")[0].strip())
-        
-        if "centers on" in description:
-            parts = description.split("centers on")
-            if len(parts) > 1:
-                key_phrases.append(parts[1].split(".")[0].strip())
-        
-        # If no key phrases were found, use the first sentence of the description
-        if not key_phrases and description:
-            key_phrases.append(description.split(".")[0].strip())
-        
-        return ", ".join(key_phrases)

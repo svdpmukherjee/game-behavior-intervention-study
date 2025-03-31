@@ -1,4 +1,21 @@
-"""Llama 3.3 70B-based message generator implementation using Together.ai."""
+
+"""
+*** Llama 3.3 70B-based Message Generator implementation using Together.ai ***
+
+This module provides an Llama 3.3 70B-based message generator for psychological concepts or constructs.
+1. It incorporates generation techniques using specific prompt, differentiation between competing constructs, examples
+2. It improves the generated messages based on evaluator feedback
+
+Key Components:
+- LlamaGenerator: Main class that handles message generation using the Together.ai API
+
+Functions:
+- __init__: Initializes the generator with model parameters and API key
+- generate_message: Generates a single message for a specified construct with optional custom parameters
+- improve_message: Improves an existing message based on evaluator feedback with enhanced strategies
+- _check_forbidden_terms: Checks if a message contains forbidden psychological terminology
+- _clean_message: Cleans up the generated message by removing prefixes and quotes
+"""
 
 import os
 from dotenv import load_dotenv
@@ -55,18 +72,18 @@ class LlamaGenerator:
         
         {generation_instruction}
         
-        Create exactly one message that is 2-3 sentences long, using simple, natural language at approximately an 8th-grade reading level. Avoid complex vocabulary, jargon, or academic phrasing. The message should be easily understood by the average person while still conveying the core principles of {construct_name}.
+        Create exactly one message that is 2-3 sentences long, using simple, conversational and natural language at approximately an 8th-grade reading level. Avoid complex vocabulary, jargon, or academic phrasing. The message should be easily understood by the average person while still conveying the core principles of {construct_name}.
         """
     
-    def get_llm(self):
-        """Return the Llama 3.3 70B language model from Together.ai."""
-        return LangchainTogether(
-            model=self.model_name,
-            temperature=self.temperature,
-            top_p=self.top_p,
-            max_tokens=512,
-            together_api_key=self.api_key,
-        )
+    # def get_llm(self):
+    #     """Return the Llama 3.3 70B language model from Together.ai."""
+    #     return LangchainTogether(
+    #         model=self.model_name,
+    #         temperature=self.temperature,
+    #         top_p=self.top_p,
+    #         # max_tokens=512,
+    #         together_api_key=self.api_key,
+    #     )
         
     def _check_forbidden_terms(self, message):
         """Check if the message contains any forbidden terms that could prime participants."""
@@ -159,7 +176,7 @@ class LlamaGenerator:
             messages=[{"role": "user", "content": generation_prompt}],
             temperature=self.temperature,
             top_p=self.top_p,
-            max_tokens=512
+            # max_tokens=512
         )
         
         # Extract the message from the response
@@ -188,7 +205,7 @@ class LlamaGenerator:
                 messages=[{"role": "user", "content": improvement_prompt}],
                 temperature=self.temperature,
                 top_p=self.top_p,
-                max_tokens=512
+                # max_tokens=512
             )
             
             message = response.choices[0].message.content.strip()
@@ -214,32 +231,14 @@ class LlamaGenerator:
         
         return messages
     
-    def generate_messages_for_all_constructs(self, num_messages_per_construct=3):
-        """Generate messages for all available constructs.
-        
-        Args:
-            num_messages_per_construct (int): Number of messages to generate per construct
-            
-        Returns:
-            dict: Dictionary of construct names to lists of generated messages
-        """
-        all_messages = {}
-        
-        for construct_name in all_constructs.keys():
-            print(f"Generating messages for {construct_name}...")
-            messages = self.generate_messages(construct_name, num_messages_per_construct)
-            all_messages[construct_name] = messages
-            
-        return all_messages
-    
-    def improve_message(self, current_message, feedback, current_score=None):
+    def improve_message(self, current_message, feedback, target_score_threshold=85.0, current_score=None):
         """Improve an existing message with more targeted guidance."""
         # Extract key feedback elements
         context = feedback.get("context", game_context)
         generation_instruction = feedback.get("generation_instruction", "")
         
         # Determine if we're in conservative mode (high current score)
-        conservative_mode = current_score is not None and current_score >= 80
+        conservative_mode = current_score is not None and current_score >= target_score_threshold + 5
         
         # Create a more focused improvement prompt
         improvement_prompt = f"""
@@ -264,7 +263,7 @@ class LlamaGenerator:
             messages=[{"role": "user", "content": improvement_prompt}],
             temperature=self.temperature,
             top_p=self.top_p,
-            max_tokens=512
+            # max_tokens=512
         )
         
         improved_message = response.choices[0].message.content.strip()
@@ -292,7 +291,7 @@ class LlamaGenerator:
                 messages=[{"role": "user", "content": term_improvement_prompt}],
                 temperature=self.temperature,
                 top_p=self.top_p,
-                max_tokens=512
+                # max_tokens=512
             )
             
             improved_message = response.choices[0].message.content.strip()

@@ -1,4 +1,22 @@
-"""Enhanced evaluator with feedback mechanism for message optimization."""
+"""
+*** GPT-4o Message Evaluator implementation ***
+
+This module evaluates how well generated messages align with psychological constructs
+and provides more consistent, actionable feedback for optimization.
+
+This module provides a GPT-4o based message evaluator for psychological concept or constructs.
+1. It uses an evaluation prompt with specific scoring (rubric) guidelines for all constructs
+3. Detailed feedback structure for message improvement back to message generator
+4. Score extraction and consistency checks
+
+Functions
+- __init__(): Initializes evaluator with GPT model settings
+- get_llm(): Creates and returns the configured LLM instance
+- evaluate_message_with_feedback(): Main function that assesses message alignment and generates improvement feedback
+- _create_augmented_evaluation_prompt(): Creates prompt template with scoring guidelines
+- _extract_primary_score(): Extracts numerical score for target construct
+- _extract_feedback_json(): Parses structured JSON feedback from evaluation
+"""
 
 import os
 import json
@@ -43,6 +61,73 @@ class GPTEvaluator:
             top_p=self.top_p,
             api_key=self.api_key
         )
+        
+    def _create_augmented_evaluation_prompt(self, context, message, construct_name, 
+                        construct_description, examples_text, construct_differentiation):
+        """Create an augmented evaluation prompt with consistent scoring guidelines."""
+        return ChatPromptTemplate.from_messages([
+            ("user", """
+                Context: {context}
+                
+                Message to evaluate: "{message}"
+
+                Target Construct: {construct_name}
+
+                Construct Description: {construct_description}
+
+                Construct Examples: {examples}
+
+                Construct Differentiation: {differentiation}
+                
+                SCORING GUIDELINES:
+                - Be consistent in your scoring approach
+                - When scoring this message, consider it in isolation without comparing to previous iterations
+                - For each criterion, provide a specific score explanation with evidence from the message
+                - Maintain the same standards across all evaluations
+                - Focus on textual evidence rather than inferences
+                
+                IMPORTANT EVALUATION GUIDELINES:
+                - Maintain consistency in your evaluation approach across messages
+                - When a message aligns strongly with the target construct, ensure competing constructs receive proportionally lower scores
+                - Be disciplined about score differences - they should reflect meaningful distinctions between constructs
+                - Avoid score inflation for non-target constructs that only tangentially relate to the message
+
+                Evaluate how well this message aligns with the target construct using these five criteria:
+
+                1. Core Element Alignment: Does the message capture the essential psychological mechanism of the construct?
+                2. Differentiation: Does the message avoid elements explicitly differentiated from this construct?
+                3. Language Appropriateness: Does the message use natural, motivational language suitable for an anagram game?
+                4. Conciseness: Is the message 2-3 sentences and focused?
+                5. Context Relevance: Is the message well-tailored to the anagram game context?
+
+                First, provide a detailed score (0-100%) for the target construct with specific reasoning.
+                
+                Then, score ALL the listed psychological constructs:
+                {construct_list}
+                
+                Use the rubric for scoring as stated below.
+                SCORING RUBRIC:
+                - 90-100%: Message captures all key aspects of the construct description with appropriate emphasis while clearly avoiding elements of differentiated constructs. Message uses language that precisely captures the psychological mechanism and closely resembles the provided examples.
+                - 80-89%: Message clearly invokes most of the key aspects of the construct description and largely avoids differentiated elements. Message contains similar themes to the examples with only minimal overlap with related constructs.
+                - 70-79%: Message conveys some important aspects of the construct description but may include elements from one or two differentiated constructs. Message shows general similarity to examples but lacks precision.
+                - 50-69%: Message only tangentially relates to the construct description and fails to maintain boundaries from differentiated constructs. Message has limited similarity to examples.
+                - 0-49%: Message contradicts the construct description or primarily exemplifies differentiated constructs. Message bears little resemblance to provided examples.
+
+                Present your scores in this format:
+                ### Construct Confidence Scores
+                - Construct1: XX%
+                - Construct2: XX%
+                [all constructs]
+
+                Then provide structured feedback in this JSON format:
+                {{
+                    "context": "Specific context improvement",
+                    "generation_instruction": "Specific guidance for improvement",
+                    "top_competing_construct": "Name of the most similar competing construct",
+                    "differentiation_tip": "Specific tip to better differentiate from the top competing construct"
+                }}
+                """)
+        ])
     
     def evaluate_message_with_feedback(self, message, construct_name, context=None, 
                                      construct_description=None, construct_examples=None,
@@ -146,73 +231,6 @@ class GPTEvaluator:
             "feedback": feedback
         }
     
-    def _create_augmented_evaluation_prompt(self, context, message, construct_name, 
-                        construct_description, examples_text, construct_differentiation):
-        """Create an augmented evaluation prompt with consistent scoring guidelines."""
-        return ChatPromptTemplate.from_messages([
-            ("user", """
-                Context: {context}
-                
-                Message to evaluate: "{message}"
-
-                Target Construct: {construct_name}
-
-                Construct Description: {construct_description}
-
-                Construct Examples: {examples}
-
-                Construct Differentiation: {differentiation}
-                
-                SCORING GUIDELINES:
-                - Be consistent in your scoring approach
-                - When scoring this message, consider it in isolation without comparing to previous iterations
-                - For each criterion, provide a specific score explanation with evidence from the message
-                - Maintain the same standards across all evaluations
-                - Focus on textual evidence rather than inferences
-                
-                IMPORTANT EVALUATION GUIDELINES:
-                - Maintain consistency in your evaluation approach across messages
-                - When a message aligns strongly with the target construct, ensure competing constructs receive proportionally lower scores
-                - Be disciplined about score differences - they should reflect meaningful distinctions between constructs
-                - Avoid score inflation for non-target constructs that only tangentially relate to the message
-
-                Evaluate how well this message aligns with the target construct using these five criteria:
-
-                1. Core Element Alignment: Does the message capture the essential psychological mechanism of the construct?
-                2. Differentiation: Does the message avoid elements explicitly differentiated from this construct?
-                3. Language Appropriateness: Does the message use natural, motivational language suitable for an anagram game?
-                4. Conciseness: Is the message 2-3 sentences and focused?
-                5. Context Relevance: Is the message well-tailored to the anagram game context?
-
-                First, provide a detailed score (0-100%) for the target construct with specific reasoning.
-                
-                Then, score ALL the listed psychological constructs:
-                {construct_list}
-                
-                Use the rubric for scoring as stated below.
-                SCORING RUBRIC:
-                - 90-100%: Message captures all key aspects of the construct description with appropriate emphasis while clearly avoiding elements of differentiated constructs. Message uses language that precisely captures the psychological mechanism and closely resembles the provided examples.
-                - 80-89%: Message clearly invokes most of the key aspects of the construct description and largely avoids differentiated elements. Message contains similar themes to the examples with only minimal overlap with related constructs.
-                - 70-79%: Message conveys some important aspects of the construct description but may include elements from one or two differentiated constructs. Message shows general similarity to examples but lacks precision.
-                - 50-69%: Message only tangentially relates to the construct description and fails to maintain boundaries from differentiated constructs. Message has limited similarity to examples.
-                - 0-49%: Message contradicts the construct description or primarily exemplifies differentiated constructs. Message bears little resemblance to provided examples.
-
-                Present your scores in this format:
-                ### Construct Confidence Scores
-                - Construct1: XX%
-                - Construct2: XX%
-                [all constructs]
-
-                Then provide structured feedback in this JSON format:
-                {{
-                    "context": "Specific context improvement",
-                    "generation_instruction": "Specific guidance for improvement",
-                    "top_competing_construct": "Name of the most similar competing construct",
-                    "differentiation_tip": "Specific tip to better differentiate from the top competing construct"
-                }}
-                """)
-        ])
-    
     def _extract_primary_score(self, evaluation, construct_name):
         """Extract the primary score for the target construct from evaluation text.
         
@@ -270,65 +288,5 @@ class GPTEvaluator:
                         feedback[key] = None
         except Exception as e:
             print(f"Error extracting feedback JSON: {e}")
-            
-        return feedback
-    
-    def _extract_structured_feedback(self, evaluation):
-        """Extract structured feedback from the evaluation text when JSON parsing fails.
-        
-        Args:
-            evaluation (str): The evaluation text
-            
-        Returns:
-            dict: Extracted feedback
-        """
-        feedback = {
-            "context": "",
-            "generation_instruction": "",
-            "construct_description": "",
-            "construct_examples": [],
-            "construct_differentiation": ""
-        }
-        
-        # Look for sections that might contain feedback
-        sections = [
-            ("context", ["context", "game context", "anagram game"]),
-            ("generation_instruction", ["instruction", "generation instruction", "prompt"]),
-            ("construct_description", ["description", "construct description"]),
-            ("construct_examples", ["examples", "construct examples"]),
-            ("construct_differentiation", ["differentiation", "construct differentiation"])
-        ]
-        
-        lines = evaluation.split('\n')
-        current_section = None
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-            
-            # Check if this line starts a new section
-            for section_key, keywords in sections:
-                if any(line.lower().startswith(keyword) for keyword in keywords):
-                    current_section = section_key
-                    # Extract content if it's on the same line
-                    content = line.split(':', 1)
-                    if len(content) > 1:
-                        if section_key == "construct_examples":
-                            feedback[section_key].append(content[1].strip())
-                        else:
-                            feedback[section_key] = content[1].strip()
-                    break
-            
-                # If we're in a section and the line doesn't start a new one, add it to the current section
-                elif current_section:
-                    if current_section == "construct_examples":
-                        # Look for numbered or bulleted items
-                        if line.startswith(('1.', '2.', '3.', '-', '*', '•')):
-                            # Clean up the line
-                            clean_line = line.lstrip('123456789.-*• ')
-                            feedback[current_section].append(clean_line)
-                    else:
-                        feedback[current_section] += " " + line
             
         return feedback

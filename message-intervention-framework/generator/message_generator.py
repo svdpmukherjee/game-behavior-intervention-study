@@ -12,7 +12,7 @@ Key Components:
 Functions:
 - __init__: Initializes the generator with model parameters and API key
 - generate_message: Generates a single message for a specified construct with optional custom parameters
-- improve_message: Improves an existing message based on evaluator feedback with enhanced strategies
+- improve_message: Improves an existing message based on evaluator feedback with specific strategies
 - _check_forbidden_terms: Checks if a message contains forbidden psychological terminology
 - _clean_message: Cleans up the generated message by removing prefixes and quotes
 """
@@ -144,7 +144,7 @@ class LlamaGenerator:
                 f"Create a message that strongly aligns with the psychological construct of {construct_name}. "
                 f"The message should exemplify the core elements of {construct_name} and avoid elements of differentiated constructs."
             )
-        """Special generator for CDT constructs with enhanced differentiation."""
+        """Special generator for CDT constructs with differentiation."""
         if construct_name == "Cognitive inconsistency":
             additional_instruction = "Focus ONLY on recognition of contradictions WITHOUT emotional reactions or resolution attempts."
             generation_instruction += additional_instruction

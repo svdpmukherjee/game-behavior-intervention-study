@@ -1,11 +1,12 @@
-"""Entry point for running the message optimization process with convergence criteria."""
+"""Entry point for running the message optimization process with enhanced convergence criteria."""
 
 import argparse
 import json
 import os
 from datetime import datetime
+import random
 
-from common.constants import all_constructs
+from common.constants import all_constructs, task_contexts
 from generator.message_generator import LlamaGenerator
 from evaluator.message_evaluator import GPTEvaluator
 from optimizer.message_optimizer import MessageOptimizer
@@ -30,25 +31,40 @@ def main():
         "Injunctive Norms", "Social Sanctions", "Reference Group Identification"
     ]
     
-    print("\nMessage Optimizer - Version")
+    print("\nMessage Optimizer - Enhanced Version")
     print("====================================")
     print("\nList of Theoretical Concepts for Message Generation:")
-    for i, construct in enumerate(constructs, start=1):
-        print(f"{i}. {construct}")
+    
+    # Group constructs by theory
+    construct_by_theory = {}
+    for construct in constructs:
+        theory = all_constructs[construct]["theory"]
+        if theory not in construct_by_theory:
+            construct_by_theory[theory] = []
+        construct_by_theory[theory].append(construct)
+    
+    # Print constructs organized by theory
+    count = 1
+    for theory, theory_constructs in construct_by_theory.items():
+        print(f"\n{theory}:")
+        for construct in theory_constructs:
+            print(f"{count}. {construct}")
+            count += 1
     
     construct_choice = get_user_input("\nEnter the number corresponding to your theoretical concept", cast_func=int)
-    construct = constructs[construct_choice - 1] if 1 <= construct_choice <= len(constructs) else None
-    if not construct:
+    if 1 <= construct_choice <= len(constructs):
+        construct = constructs[construct_choice - 1]
+    else:
         print("Invalid choice. Exiting...")
         return
     
-    # IMPROVED default argument values for parameters based on analysis
+    # IMPROVED default argument values for parameters
     defaults = {
         "num_messages": 3,
-        "max_iterations": 20,
+        "max_iterations": 25,  # Increased from 20
         "min_consecutive": 3,
-        "target_score_threshold": 85.0,
-        "score_difference_threshold": 25.0,
+        "target_score_threshold": 90.0,  # Increased from 85
+        "score_difference_threshold": 30.0,  # Increased from 25
         "output": "optimization_results",
         "generator_temp": 0.7,
         "evaluator_temp": 0.2,
@@ -71,33 +87,14 @@ def main():
     llama_model = get_user_input("Llama model", defaults["llama_model"])
     gpt_model = get_user_input("GPT model", defaults["gpt_model"])
     
-    # parser = argparse.ArgumentParser(description="Optimize messages for psychological constructs with convergence criteria")
-    # parser.add_argument("--construct", type=str, 
-    #                   help="Target construct for message optimization (if not specified, will optimize for all constructs)")
-    # parser.add_argument("--num-messages", type=int, default=3, 
-    #                   help="Number of messages to optimize per construct (default: 3)")
-    # parser.add_argument("--max-iterations", type=int, default=20, 
-    #                   help="Maximum number of iterations per message (default: 20)")
-    # parser.add_argument("--min-consecutive", type=int, default=3, 
-    #                   help="Minimum consecutive iterations meeting convergence criteria (default: 3)")
-    # parser.add_argument("--target-score-threshold", type=float, default=85.0, 
-    #                   help="Target construct score threshold for convergence (default: 85.0)")
-    # parser.add_argument("--score-difference-threshold", type=float, default=25.0, 
-    #                 help="Minimum score difference between target and next highest construct (default: 25.0)")
-    # parser.add_argument("--improvement-threshold", type=float, default=5.0,
-    #                 help="Threshold for determining score improvement plateaus (default: 5.0)")
-    # parser.add_argument("--output", type=str, default="optimization_results", 
-    #                   help="Output directory for optimization results (default: 'optimization_results')")
-    # parser.add_argument("--generator-temp", type=float, default=0.7, 
-    #                   help="Temperature for generator (default: 0.7)")
-    # parser.add_argument("--evaluator-temp", type=float, default=0.3, 
-    #                   help="Temperature for evaluator (default: 0.3)")
-    # parser.add_argument("--llama-model", type=str, default="meta-llama/Llama-3.3-70B-Instruct-Turbo", 
-    #                   help="Llama model to use for generation (default: meta-llama/Llama-3.3-70B-Instruct-Turbo)")
-    # parser.add_argument("--gpt-model", type=str, default="gpt-4o", 
-    #                   help="GPT model to use for evaluation (default: gpt-4o)")
+    # Choose contexts
+    print("\nAvailable task contexts:")
+    for i, context in enumerate(task_contexts, start=1):
+        # Show a preview of each context (first 100 characters)
+        preview = context[:100] + "..." if len(context) > 100 else context
+        print(f"{i}. {preview}")
     
-    # args = parser.parse_args()
+    context_choice = get_user_input("Choose a primary context (0 for random each time)", 0, int)
     
     # Create output directory if it doesn't exist
     os.makedirs(output, exist_ok=True)
@@ -120,6 +117,11 @@ def main():
         evaluator=evaluator,
         output_dir=output
     )
+    
+    # Set selected context if specified
+    if context_choice > 0 and context_choice <= len(task_contexts):
+        selected_context = task_contexts[context_choice - 1]
+        optimizer.default_context = selected_context
     
     # Get list of all constructs to optimize
     constructs_to_optimize = []
@@ -153,11 +155,12 @@ def main():
         # Print optimized messages
         print(f"\nOptimized messages for {construct}:")
         for i, result in enumerate(optimized_messages, 1):
-            converged_status = "CONVERGED" if result.get("converged", False) else "NOT CONVERGED"
+            converged_status = "✓ CONVERGED" if result.get("converged", False) else "✗ NOT CONVERGED"
             score_diff = result.get("score_difference", "N/A")
             next_highest = result.get("next_highest_construct", "N/A")
             
-            print(f"\n{i}. \"{result['message']}\" (Score: {result['score']}%, Iterations: {result['iterations']}, Status: {converged_status})")
+            print(f"\n{i}. \"{result['message']}\"")
+            print(f"   Score: {result['score']}%, Iterations: {result['iterations']}, Status: {converged_status}")
             print(f"   Difference from next highest construct ({next_highest}): {score_diff}%")
     
     # Save all optimized messages to a single file
@@ -196,6 +199,14 @@ def main():
     print(f"Total messages optimized: {total_messages}")
     print(f"Messages that converged: {converged_count} ({convergence_rate:.1f}%)")
     print(f"Messages that did not converge: {total_messages - converged_count} ({100 - convergence_rate:.1f}%)")
+    
+    # Print the best message
+    if all_optimized_messages and constructs_to_optimize:
+        construct = constructs_to_optimize[0]
+        if construct in all_optimized_messages and all_optimized_messages[construct]:
+            best_message = max(all_optimized_messages[construct], key=lambda x: x.get("score", 0))
+            print(f"\nBest message for {construct} (Score: {best_message.get('score', 0)}%):")
+            print(f"\"{best_message.get('message', '')}\"")
 
 if __name__ == "__main__":
     main()

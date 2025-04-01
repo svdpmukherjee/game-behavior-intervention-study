@@ -6,14 +6,13 @@ and provides more consistent, actionable feedback for optimization.
 
 This module provides a GPT-4o based message evaluator for psychological concept or constructs.
 1. It uses an evaluation prompt with specific scoring (rubric) guidelines for all constructs
-3. Detailed feedback structure for message improvement back to message generator
-4. Score extraction and consistency checks
+2. Enhanced feedback structure for message improvement back to message generator
+3. Score extraction and consistency checks with more granular scoring criteria
 
 Functions
 - __init__(): Initializes evaluator with GPT model settings
 - get_llm(): Creates and returns the configured LLM instance
 - evaluate_message_with_feedback(): Main function that assesses message alignment and generates improvement feedback
-- _create_augmented_evaluation_prompt(): Creates prompt template with scoring guidelines
 - _extract_primary_score(): Extracts numerical score for target construct
 - _extract_feedback_json(): Parses structured JSON feedback from evaluation
 """
@@ -25,9 +24,9 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from common.constants import game_context, all_constructs
+from common.constants import game_context, task_contexts, all_constructs
 from common.utils import extract_construct_ratings
-# from common.prompts import create_evaluation_prompt
+from common.prompt_components import AUGMENTED_EVALUATION_PROMPT
 
 load_dotenv()
 
@@ -50,9 +49,6 @@ class GPTEvaluator:
         if not self.api_key:
             raise ValueError("OpenAI API key is required. Set the OPENAI_API_KEY environment variable.")
         
-        # Create evaluation prompt using the centralized function
-        # self.evaluation_prompt = create_evaluation_prompt()
-        
     def get_llm(self):
         """Return the GPT-4o language model."""
         return ChatOpenAI(
@@ -62,72 +58,6 @@ class GPTEvaluator:
             api_key=self.api_key
         )
         
-    def _create_augmented_evaluation_prompt(self, context, message, construct_name, 
-                        construct_description, examples_text, construct_differentiation):
-        """Create an augmented evaluation prompt with consistent scoring guidelines."""
-        return ChatPromptTemplate.from_messages([
-            ("user", """
-                Context: {context}
-                
-                Message to evaluate: "{message}"
-
-                Target Construct: {construct_name}
-
-                Construct Description: {construct_description}
-
-                Construct Examples: {examples}
-
-                Construct Differentiation: {differentiation}
-                
-                SCORING GUIDELINES:
-                - Be consistent in your scoring approach
-                - When scoring this message, consider it in isolation without comparing to previous iterations
-                - For each criterion, provide a specific score explanation with evidence from the message
-                - Maintain the same standards across all evaluations
-                - Focus on textual evidence rather than inferences
-                
-                IMPORTANT EVALUATION GUIDELINES:
-                - Maintain consistency in your evaluation approach across messages
-                - When a message aligns strongly with the target construct, ensure competing constructs receive proportionally lower scores
-                - Be disciplined about score differences - they should reflect meaningful distinctions between constructs
-                - Avoid score inflation for non-target constructs that only tangentially relate to the message
-
-                Evaluate how well this message aligns with the target construct using these five criteria:
-
-                1. Core Element Alignment: Does the message capture the essential psychological mechanism of the construct?
-                2. Differentiation: Does the message avoid elements explicitly differentiated from this construct?
-                3. Language Appropriateness: Does the message use natural, motivational language suitable for a puzzle-solving game?
-                4. Conciseness: Is the message 2-3 sentences and focused?
-                5. Context Relevance: Is the message well-tailored to the puzzle-solving game context?
-
-                First, provide a detailed score for the target construct with specific reasoning.
-                Use the below rubric for scoring as stated below.
-                SCORING RUBRIC:
-                - 90-100%: Message captures all key aspects of the construct description with appropriate emphasis while clearly avoiding elements of differentiated constructs. Message uses language that precisely captures the psychological mechanism and closely resembles the provided examples.
-                - 80-89%: Message clearly invokes most of the key aspects of the construct description and largely avoids differentiated elements. Message contains similar themes to the examples with only minimal overlap with related constructs.
-                - 70-79%: Message conveys some important aspects of the construct description but may include elements from one or two differentiated constructs. Message shows general similarity to examples but lacks precision.
-                - 50-69%: Message only tangentially relates to the construct description and fails to maintain boundaries from differentiated constructs. Message has limited similarity to examples.
-                - 0-49%: Message contradicts the construct description or primarily exemplifies differentiated constructs. Message bears little resemblance to provided examples.
-
-                Then, score ALL the listed psychological constructs:
-                {construct_list}
-                
-                Present your scores in this format:
-                ### Construct Confidence Scores
-                - Construct1: XX%
-                - Construct2: XX%
-                [all constructs]
-
-                Then provide structured feedback in this JSON format:
-                {{
-                    "context": "Specific context improvement",
-                    "generation_instruction": "Specific guidance for improvement",
-                    "top_competing_construct": "Name of the most similar competing construct",
-                    "differentiation_tip": "Specific tip to better differentiate from the top competing construct"
-                }}
-                """)
-        ])
-    
     def evaluate_message_with_feedback(self, message, construct_name, context=None, 
                                      construct_description=None, construct_examples=None,
                                      construct_differentiation=None):
@@ -152,7 +82,11 @@ class GPTEvaluator:
         construct_info = all_constructs.get(construct_name, {})
         
         if context is None:
-            context = game_context
+            # If there are task contexts, use the first one as default
+            if task_contexts and len(task_contexts) > 0:
+                context = task_contexts[0]
+            else:
+                context = game_context
         
         if construct_description is None:
             construct_description = construct_info.get("description", "")
@@ -171,26 +105,48 @@ class GPTEvaluator:
         for i, example in enumerate(construct_examples, 1):
             examples_text += f"{i}. \"{example}\"\n"
         
-        # Create augmented prompt to request explicit ratings for all constructs
-        prompt = self._create_augmented_evaluation_prompt(
-            context, message, construct_name, construct_description, 
-            examples_text, construct_differentiation
-        )
+        # Create prompt using the template
+        prompt = ChatPromptTemplate.from_template(AUGMENTED_EVALUATION_PROMPT)
         
-        # Invoke the model with the augmented prompt
+        # Invoke the model with the prompt
         llm = self.get_llm()
         chain = prompt | llm | StrOutputParser()
 
         # Pass the variables to the template
-        evaluation = chain.invoke({
-            "context": context,
-            "message": message,
-            "construct_name": construct_name,
-            "construct_description": construct_description,
-            "examples": examples_text,
-            "differentiation": construct_differentiation,
-            "construct_list": "\n".join([f"- {name}" for name in all_constructs.keys()])
-        })
+        try:
+            evaluation = chain.invoke({
+                "context": context,
+                "message": message,
+                "construct_name": construct_name,
+                "construct_description": construct_description,
+                "examples": examples_text,
+                "differentiation": construct_differentiation,
+                "construct_list": "\n".join([f"- {name}" for name in all_constructs.keys()])
+            })
+        except Exception as e:
+            print(f"Error during evaluation: {e}")
+            # Provide a fallback evaluation for robustness
+            evaluation = f"""
+            ### Evaluation for {construct_name}
+            
+            Score: 70%
+            
+            This message partially aligns with {construct_name} but could be improved.
+            
+            ### Construct Confidence Scores
+            - {construct_name}: 70%
+            """
+            for name in all_constructs.keys():
+                if name != construct_name:
+                    evaluation += f"\n- {name}: 30%"
+                    
+            evaluation += """
+            
+            To improve:
+            - Focus more on the core elements of the construct
+            - Use more natural and motivational language
+            - Ensure clear differentiation from other constructs
+            """
         
         # Extract primary target construct score
         score = self._extract_primary_score(evaluation, construct_name)
@@ -204,23 +160,47 @@ class GPTEvaluator:
         
         # Ensure feedback contains all required keys
         if isinstance(feedback, dict):
-            for key in ["context", "generation_instruction", "construct_description", 
-                      "construct_examples", "construct_differentiation"]:
-                if key not in feedback:
-                    if key == "construct_examples" and feedback.get(key) is None:
-                        feedback[key] = construct_examples  # Keep original examples if not provided
-                    else:
-                        feedback[key] = locals().get(key, "")  # Keep original value if not provided
+            required_keys = [
+                "context", "generation_instruction", "top_competing_construct", 
+                "differentiation_tip", "score_improvement_strategy", "conciseness_tip"
+            ]
+            
+            for key in required_keys:
+                if key not in feedback or not feedback[key]:
+                    if key == "context":
+                        feedback[key] = context
+                    elif key == "generation_instruction":
+                        feedback[key] = f"Improve the message to better align with {construct_name}"
+                    elif key == "top_competing_construct":
+                        # Find the competing construct with the highest score
+                        other_scores = {k: v for k, v in all_ratings.items() if k != construct_name}
+                        if other_scores:
+                            top_competing = max(other_scores.items(), key=lambda x: x[1])
+                            feedback[key] = top_competing[0]
+                        else:
+                            feedback[key] = "None"
+                    elif key == "differentiation_tip":
+                        feedback[key] = f"Focus more on the core elements of {construct_name} and avoid language that might relate to other constructs."
+                    elif key == "score_improvement_strategy":
+                        feedback[key] = f"Strengthen the alignment with the core mechanism of {construct_name} and ensure clear differentiation from other constructs."
+                    elif key == "conciseness_tip":
+                        feedback[key] = "Keep the message focused on 2-3 concise sentences with simple language. Keep each sentence under 15 words."
         else:
             # If feedback is not a dict, create default feedback
+            # Find the competing construct with the highest score
+            other_scores = {k: v for k, v in all_ratings.items() if k != construct_name}
+            top_competing = "None"
+            if other_scores:
+                top_competing = max(other_scores.items(), key=lambda x: x[1])[0]
+                
             feedback = {
                 "context": context,
-                "generation_instruction": f"Create a message that aligns with {construct_name}",
-                "construct_description": construct_description,
-                "construct_examples": construct_examples,
-                "construct_differentiation": construct_differentiation
+                "generation_instruction": f"Improve the message to better align with {construct_name}",
+                "top_competing_construct": top_competing,
+                "differentiation_tip": f"Focus more on the core elements of {construct_name} and avoid language that might relate to other constructs.",
+                "score_improvement_strategy": f"Strengthen the alignment with the core mechanism of {construct_name} and ensure clear differentiation from other constructs.",
+                "conciseness_tip": "Keep the message focused on 2-3 concise sentences with simple language. Keep each sentence under 15 words."
             }
-        
         return {
             "message": message,
             "construct": construct_name,

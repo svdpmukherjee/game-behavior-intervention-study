@@ -17,11 +17,13 @@ import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 from datetime import datetime
+from difflib import SequenceMatcher
 from dataclasses import dataclass, field, asdict
 from typing import Dict, List, Tuple, Any, Optional
 from common.utils import plot_message_construct_barchart
-from common.constants import all_constructs
+from common.constants import all_constructs, task_contexts
 
 @dataclass
 class GenerationParameters:
@@ -49,17 +51,25 @@ class GenerationParameters:
         })
         
         # Update parameters based on feedback
-        if "context" in feedback:
-            self.context = feedback["context"]
-        if "generation_instruction" in feedback:
-            self.generation_instruction = feedback["generation_instruction"]
-        if "construct_description" in feedback:
-            self.construct_description = feedback["construct_description"]
-        if "construct_examples" in feedback:
-            self.construct_examples = feedback["construct_examples"]
-        if "construct_differentiation" in feedback:
-            self.construct_differentiation = feedback["construct_differentiation"]
-
+        if isinstance(feedback, dict):
+            if "context" in feedback and feedback["context"]:
+                self.context = feedback["context"]
+            if "generation_instruction" in feedback and feedback["generation_instruction"]:
+                self.generation_instruction = feedback["generation_instruction"]
+            if "construct_description" in feedback and feedback["construct_description"]:
+                self.construct_description = feedback["construct_description"]
+            if "construct_examples" in feedback and feedback["construct_examples"]:
+                self.construct_examples = feedback["construct_examples"]
+            if "construct_differentiation" in feedback and feedback["construct_differentiation"]:
+                self.construct_differentiation = feedback["construct_differentiation"]
+            
+            # Apply score improvement strategy if available
+            if "score_improvement_strategy" in feedback and feedback["score_improvement_strategy"]:
+                current_instruction = self.generation_instruction
+                if "Additionally" in current_instruction:
+                    self.generation_instruction = current_instruction.split("Additionally")[0].strip()
+                    
+                self.generation_instruction += f" Additionally, {feedback['score_improvement_strategy']}"
 
 class MessageOptimizer:
     """Optimizer that coordinates the iterative process between generation and evaluation."""
@@ -75,9 +85,10 @@ class MessageOptimizer:
         self.generator = generator
         self.evaluator = evaluator
         self.output_dir = output_dir
+        self.task_contexts = task_contexts if task_contexts else []
         
         # Create output directory if it doesn't exist
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)                               
         
     def initialize_parameters(self, construct_name, all_constructs):
         """Initialize parameters for a construct.
@@ -99,23 +110,47 @@ class MessageOptimizer:
         for other_construct, diff_description in differentiation.items():
             differentiation_text += f"- {diff_description}\n"
         
-        # Use the game context from constants
-        from common.constants import game_context
+        # Select a context from the available task contexts
+        if self.task_contexts:
+            context = random.choice(self.task_contexts)
+        else:
+            # Use the game context from constants if no task contexts
+            from common.constants import game_context
+            context = game_context
         
         # Initial generation instruction
         generation_instruction = (
             f"Create a message that strongly aligns with the psychological construct of {construct_name}. "
-            f"The message should be 2-3 sentences, use natural motivational and conversational language, and be tailored to the puzzle-solving game context. "
-            f"Your message should exemplify the core elements of {construct_name} and avoid elements of differentiated constructs."
+            f"The message should be 2-3 sentences, use natural motivational and conversational language, and be tailored to task completion contexts. "
+            f"Your message should exemplify the core elements of {construct_name} and avoid elements of differentiated constructs. "
+            f"Ensure the message encourages honest effort and authentic skill development."
         )
         
         return GenerationParameters(
-            context=game_context,
+            context=context,
             generation_instruction=generation_instruction,
             construct_description=construct_description,
             construct_examples=construct_examples,
             construct_differentiation=differentiation_text
         )
+        
+    def check_message_similarity(self, new_message, previous_messages, threshold=0.7):
+        """Check if new message is too similar to previous ones.
+        
+        Args:
+            new_message: New message to check
+            previous_messages: List of previous messages
+            threshold: Similarity threshold (0-1)
+            
+        Returns:
+            bool: True if too similar, False otherwise
+        """
+        for prev_msg in previous_messages:
+            # Use SequenceMatcher for a better similarity check
+            similarity = SequenceMatcher(None, new_message.lower(), prev_msg.lower()).ratio()
+            if similarity > threshold:
+                return True
+        return False
     
     def _extract_all_construct_ratings(self, evaluation_text):
         """Extract ratings for all constructs from the evaluation text.
@@ -139,19 +174,24 @@ class MessageOptimizer:
                     target_construct: str, 
                     scores_history: List[Dict[str, float]], 
                     min_consecutive: int = 3,
-                    target_score_threshold: float = 85.0,
-                    score_difference_threshold: float = 25.0) -> Tuple[bool, str]:
-        """Check if optimization has converged with simplified criteria."""
+                    target_score_threshold: float = 90.0,
+                    score_difference_threshold: float = 30.0) -> Tuple[bool, str]:
+        """Check if optimization has converged with enhanced criteria."""
         
         if len(scores_history) < min_consecutive:
             return False, "Not enough iterations yet"
             
         # Get recent scores for target construct
-        recent_scores = [scores.get(target_construct, 0) for scores in scores_history[-min_consecutive:]]
+        recent_scores = [scores.get(target_construct, 0) for scores in scores_history[-min_consecutive:]]   
         
         # Check if target scores meet threshold
         if min(recent_scores) < target_score_threshold:
             return False, f"Target score below threshold: {min(recent_scores):.1f}%"
+        
+        # Check if scores are stable (no significant change in last consecutive iterations)
+        score_stability = max(recent_scores) - min(recent_scores)
+        if score_stability > 5.0:  # More than 5% variation
+            return False, f"Scores not stable: {score_stability:.1f}% variation"
         
         # Check if differentiation is sufficient
         for scores in scores_history[-min_consecutive:]:
@@ -184,9 +224,10 @@ class MessageOptimizer:
         return competing[:top_n]
         
     def optimize_message(self, construct_name, all_constructs, 
-                    max_iterations=20, min_consecutive=3,
-                    target_score_threshold=85.0, score_difference_threshold=25.0):
-        """Run the optimization process for a construct with convergence criteria."""
+                    max_iterations=25, min_consecutive=3,
+                    target_score_threshold=90.0, score_difference_threshold=30.0,
+                    previous_messages=None):
+        """Run the optimization process for a construct with improved convergence criteria."""
         print(f"\n{'='*80}\nOptimizing message for construct: {construct_name}\n{'='*80}")
         
         # Initialize parameters
@@ -201,29 +242,109 @@ class MessageOptimizer:
         best_score = 0
         best_all_scores = {}
         
+        # Store original generator temperature for reset
+        exploration_temperature = self.generator.temperature
+        previous_best_message = ""
+        
+        # Initialize previous messages list if not provided
+        if previous_messages is None:
+            previous_messages = []
+        
         # Run optimization loop
         for iteration in range(1, max_iterations + 1):
             print(f"\nIteration {iteration}/{max_iterations}:")
             
-            # Generate or improve message
-            print("  Generating/improving message...")
-            if iteration == 1 or best_score < 50:  # Start fresh for first iteration or poor previous results
+            # Implement simulated annealing - exploration phase
+            if iteration > 5 and (iteration % 3 == 0) and best_score > 0:
+                # Exploration phase to escape local maxima
+                print("  Exploration phase: Adjusting parameters for diversity...")
+                temp_boost = min(0.3, 1.0 - self.generator.temperature)  # Ensure we don't exceed 1.0
+                self.generator.temperature += temp_boost
+                
+                # Add specific instruction to try something different
+                exploration_instruction = params.generation_instruction
+                exploration_instruction += " IMPORTANT: Try a completely different approach than previous messages."
+                
+                if random.random() < 0.5:  # 50% chance to use a different context
+                    if self.task_contexts:
+                        alt_context = random.choice(self.task_contexts)
+                        print(f"  Using alternative context for exploration.")
+                    else:
+                        from common.constants import task_contexts
+                        self.task_contexts = task_contexts
+                        alt_context = random.choice(task_contexts)
+                        
+                    message = self.generator.generate_message(
+                        construct_name,
+                        context=alt_context,
+                        generation_instruction=exploration_instruction,
+                        construct_description=params.construct_description,
+                        construct_examples=params.construct_examples,
+                        construct_differentiation=params.construct_differentiation,
+                        diversity_mode=True,
+                        previous_messages=messages
+                    )
+                else:
+                    message = self.generator.generate_message(
+                        construct_name,
+                        params.context,
+                        exploration_instruction,
+                        params.construct_description,
+                        params.construct_examples,
+                        params.construct_differentiation,
+                        diversity_mode=True,
+                        previous_messages=messages
+                    )
+                
+                # Reset temperature for next normal iteration
+                self.generator.temperature = exploration_temperature
+            elif iteration == 1 or best_score < 50:  # Start fresh for first iteration or poor previous results
+                print("  Generating new message...")
                 message = self.generator.generate_message(
                     construct_name,
                     params.context,
                     params.generation_instruction,
                     params.construct_description,
                     params.construct_examples,
-                    params.construct_differentiation
+                    params.construct_differentiation,
+                    diversity_mode=False,
+                    previous_messages=previous_messages
                 )
             else:
                 # Improve the previous best message
+                print("  Improving previous best message...")
                 message = self.generator.improve_message(
                     best_message,
                     feedbacks[-1],
                     current_score=best_score,
-                    target_score_threshold=target_score_threshold
+                    target_score_threshold=target_score_threshold,
+                    previous_messages=previous_messages
                 )
+            
+            # Check for too much similarity with previous best message
+            if previous_best_message and self.check_message_similarity(message, [previous_best_message]) and iteration > 1:
+                print("  Generated message too similar to previous best. Attempting more diverse generation...")
+                
+                # Temporarily increase temperature to encourage diversity
+                orig_temp = self.generator.temperature
+                self.generator.temperature = min(0.9, self.generator.temperature + 0.2)
+                
+                # Add diversity instruction
+                diversity_instruction = params.generation_instruction + " IMPORTANT: Generate a message that expresses the same construct but is substantially different in wording and approach."
+                
+                message = self.generator.generate_message(
+                    construct_name,
+                    params.context,
+                    diversity_instruction,
+                    params.construct_description,
+                    params.construct_examples,
+                    params.construct_differentiation,
+                    diversity_mode=True,
+                    previous_messages=[previous_best_message] + messages[-2:] if len(messages) >= 2 else [previous_best_message]
+                )
+                
+                # Reset temperature
+                self.generator.temperature = orig_temp
             
             messages.append(message)
             print(f"  Generated: {message}")
@@ -244,7 +365,7 @@ class MessageOptimizer:
             message_scores.append(target_score)
             
             # Extract all construct scores from the evaluation text
-            all_scores = self._extract_all_construct_ratings(evaluation["evaluation"])
+            all_scores = evaluation["ratings"] if "ratings" in evaluation else self._extract_all_construct_ratings(evaluation["evaluation"])
             all_construct_scores_history.append(all_scores)
             
             # Get feedback for parameter updating
@@ -262,9 +383,11 @@ class MessageOptimizer:
             
             # Update best message if this one has a higher target score
             if target_score > best_score:
+                previous_best_message = best_message
                 best_message = message
                 best_score = target_score
                 best_all_scores = all_scores
+                print(f"  New best message (score: {best_score}%)")
             
             # Check for convergence based on criteria
             has_converged, convergence_reason = self._check_convergence_criteria(
@@ -290,7 +413,11 @@ class MessageOptimizer:
             competing = self._identify_competing_constructs(all_scores, construct_name)
             if competing:
                 print(f"  Key competing constructs to differentiate from: {', '.join([c[0] for c in competing])}")
-                
+        
+        # Save convergence tracking information
+        convergence_messages = messages[-min_consecutive:] if len(messages) >= min_consecutive else messages
+        convergence_scores = message_scores[-min_consecutive:] if len(message_scores) >= min_consecutive else message_scores
+        
         # Create results
         results = {
             "construct": construct_name,
@@ -303,7 +430,9 @@ class MessageOptimizer:
             "feedbacks": feedbacks,
             "final_parameters": params.to_dict(),
             "converged": has_converged,
-            "convergence_reason": convergence_reason if 'convergence_reason' in locals() else "Max iterations reached"
+            "convergence_reason": convergence_reason if 'convergence_reason' in locals() else "Max iterations reached",
+            "convergence_messages": convergence_messages,
+            "convergence_scores": convergence_scores
         }
         
         # Save results
@@ -315,9 +444,9 @@ class MessageOptimizer:
         return results
     
     def optimize_multiple_messages(self, construct_name, all_constructs, num_messages=3, 
-                                max_iterations=20, min_consecutive=3,
-                                target_score_threshold=85.0, score_difference_threshold=25.0):
-        """Optimize multiple messages for a construct.
+                                max_iterations=25, min_consecutive=3,
+                                target_score_threshold=90.0, score_difference_threshold=30.0):
+        """Optimize multiple messages for a construct with enhanced diversity.
         
         Args:
             construct_name: Name of the construct
@@ -325,25 +454,68 @@ class MessageOptimizer:
             num_messages: Number of messages to optimize
             max_iterations: Maximum number of iterations per message
             min_consecutive: Minimum number of consecutive iterations meeting criteria
-            target_score_threshold: Minimum score for target construct (default: 85%)
-            score_difference_threshold: Minimum difference between target and next highest score (default: 25%)
+            target_score_threshold: Minimum score for target construct (default: 90%)
+            score_difference_threshold: Minimum difference between target and next highest score (default: 30%)
             
         Returns:
             list: Optimized messages with scores
         """
         optimized_messages = []
+        all_previous_messages = []
         
         for i in range(1, num_messages + 1):
             print(f"\nOptimizing message {i}/{num_messages} for {construct_name}")
             
-            results = self.optimize_message(
-                construct_name,
-                all_constructs,
-                max_iterations,
-                min_consecutive,
-                target_score_threshold,
-                score_difference_threshold
-            )
+            # Create varied parameters for each message after the first one
+            if i > 1:
+                # Initialize with fresh parameters but modify for diversity
+                print(f"  Creating diversified parameters for message {i}...")
+                params = self.initialize_parameters(construct_name, all_constructs)
+                
+                # Add diversity through parameter tweaking
+                diversity_additions = [
+                    "Focus on expressing this construct through the lens of personal growth.",
+                    "Emphasize how this construct applies to overcoming specific challenges.",
+                    "Frame this construct in terms of long-term development.",
+                    "Highlight how this construct relates to achieving authentic results.",
+                    "Connect this construct to maintaining personal integrity in task completion."
+                ]
+                
+                # Add a specific diversity instruction
+                diversity_instruction = random.choice(diversity_additions)
+                params.generation_instruction = f"{params.generation_instruction} {diversity_instruction}"
+                
+                # Use a different context from the pool if available
+                if self.task_contexts:
+                    params.context = random.choice(self.task_contexts)
+                
+                # Modify generator temperature for creativity
+                original_temp = self.generator.temperature
+                generator_temp = self.generator.temperature + (random.random() * 0.2 - 0.1)  # +/- 0.1
+                self.generator.temperature = max(0.1, min(0.9, generator_temp))
+                
+                # Pass the previous messages to avoid excessive similarity
+                results = self.optimize_message(
+                    construct_name,
+                    all_constructs,
+                    max_iterations,
+                    min_consecutive,
+                    target_score_threshold,
+                    score_difference_threshold,
+                    previous_messages=all_previous_messages
+                )
+                
+                # Reset temperature
+                self.generator.temperature = original_temp
+            else:
+                results = self.optimize_message(
+                    construct_name,
+                    all_constructs,
+                    max_iterations,
+                    min_consecutive,
+                    target_score_threshold,
+                    score_difference_threshold
+                )
             
             # Calculate the score difference against next highest construct
             if results["best_all_scores"]:
@@ -359,14 +531,19 @@ class MessageOptimizer:
                 score_difference = None
                 next_highest_name = None
             
-            optimized_messages.append({
+            optimized_message = {
                 "message": results["best_message"],
                 "score": results["best_score"],
                 "iterations": results["iterations"],
                 "converged": results.get("converged", False),
                 "score_difference": score_difference,
                 "next_highest_construct": next_highest_name
-            })
+            }
+            
+            optimized_messages.append(optimized_message)
+            
+            # Add to previous messages list to ensure diversity in subsequent generations
+            all_previous_messages.append(results["best_message"])
         
         return optimized_messages
     

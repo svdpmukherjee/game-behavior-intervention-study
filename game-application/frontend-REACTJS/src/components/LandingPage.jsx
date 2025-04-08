@@ -109,16 +109,18 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                 label: "Practice round",
                 time: studyConfig.timeSettings.tutorial_time / 60,
                 words: 1,
+                showWords: true,
               },
               {
                 label: "Game round",
                 time: studyConfig.timeSettings.game_time / 60,
                 words: studyConfig.game_anagrams,
+                showWords: true,
               },
               {
                 label: "Quick survey",
                 time: studyConfig.timeSettings.survey_time / 60,
-                words: 0,
+                showWords: false,
               },
             ].map((item, index) => (
               <li key={index} className="flex items-center space-x-3">
@@ -128,8 +130,10 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                 <div>
                   <span className="font-semibold">{item.label}</span>{" "}
                   <span className="text-gray-500">
-                    ({item.words} word{item.words !== 1 && "s"}, {item.time}{" "}
-                    minutes)
+                    {item.showWords
+                      ? `(${item.words} word${item.words !== 1 ? "s" : ""}, `
+                      : "("}
+                    {item.time} minutes)
                   </span>
                 </div>
               </li>

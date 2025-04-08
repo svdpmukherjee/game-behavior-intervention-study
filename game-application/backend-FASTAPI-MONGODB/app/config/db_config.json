@@ -1,21 +1,99 @@
 {
   "anti_cheating_messages": [
     {
+      "id": "T0C0M0",
+      "theory": "Control",
+      "text": "Thanks for your participation. Your puzzle-solving patterns are very important for our research. You are on the right track. Keep going!",
+      "shown_count": 0
+    },
+    {
       "id": "T1C1M1",
       "theory": "Self-Determination Theory",
-      "text": "You're free to approach these word puzzles in whatever way feels most enjoyable to you, whether that's starting with shorter words or diving right into the longer challenges. As you play, remember that your experience is entirely your own, and you can choose to solve the puzzles at your own pace, without worrying about how others might be playing the game.",
+      "text": "When you make choices that feel right to you, then you're more likely to stay motivated. People learn and grow more when they have the freedom to choose their own path. This freedom helps learners develop a sense of ownership over their progress. When choices are made without external pressure, then the outcome is more satisfying.",
       "shown_count": 0
     },
     {
-      "id": "T1C1M2",
+      "id": "T1C2M1",
       "theory": "Self-Determination Theory",
-      "text": "You get to decide how you want to approach this challenge, and what matters most is that you're making choices that feel right for you, based on your own interests and values. We are there to support you, but ultimately, the direction you take is entirely up to you, and we trust that you'll find a path that's both fun and fulfilling.",
+      "text": "When people work to solve problems on their own, they build strong foundations. This helps them master challenges and feel capable. As they tackle tough tasks, their skills grow, and they become more effective. By doing so, they create a sense of competence that comes from within, based on their actual abilities.",
       "shown_count": 0
     },
     {
-      "id": "T1C1M3",
+      "id": "T1C3M1",
       "theory": "Self-Determination Theory",
-      "text": "You're completely in charge of your puzzle-solving journey, free to choose your approach without any guidance or pressure, and that means you can decide how to figure it out all on your own. We are here to provide a comfortable space for you to make those choices, where you can solve puzzles in a way that feels right to you, at your own pace and with the freedom to learn and grow as you see fit.",
+      "text": "When people work alone, they might feel like they're on their own. But when they work with others, they feel supported and understood. This sense of connection is what makes the experience more meaningful, not just the end result. People grow and learn more when they feel like they're part of a community that values their efforts and contributions.",
+      "shown_count": 0
+    },
+    {
+      "id": "T2C1M1",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "What does it mean to truly master a challenge? It means putting in honest effort and being committed to improvement. You develop skills that reflect who you are as a person, and that's what makes your accomplishments meaningful. When people take the time to learn and grow, they build a sense of self that is rooted in their values and actions.",
+      "shown_count": 0
+    },
+    {
+      "id": "T2C2M1",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "When learners aim for authentic skill development, they notice gaps between their goals and actions. Then, they see that their behaviors don't always match their values. People recognize these contradictions without feeling upset, and they exist alongside each other. This awareness helps learners understand their own approaches to developing skills.",
+      "shown_count": 0
+    },
+    {
+      "id": "T2C3M1",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "When people take shortcuts to complete tasks, they often feel a nagging tension inside. This happens because their actions don't match their values of doing good work. Then, they start to feel uneasy about the praise they receive for something that wasn't their best effort. When this tension builds up, it can be really hard to focus on new tasks and feel good about their work.",
+      "shown_count": 0
+    },
+    {
+      "id": "T2C4M1",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "When people feel conflicted about their approach, they resolve the tension by finding a balance. This balance comes from aligning their actions with their values. You see this when learners redefine what success means to them, making it about honest progress rather than perfect results. By doing so, they eliminate the discomfort of contradictory thoughts and actions.",
+      "shown_count": 0
+    },
+    {
+      "id": "T3C1M1",
+      "theory": "Social Norms Theory",
+      "text": "What do people usually do when working on challenges like these? They typically take their time and put in honest effort. You see that most learners review their work carefully before submitting, and they often find ways to stay focused without taking shortcuts. How do most people approach these tasks to achieve authentic skill growth?",
+      "shown_count": 0
+    },
+    {
+      "id": "T3C2M1",
+      "theory": "Social Norms Theory",
+      "text": "What makes a learning community strong? It's when people follow standards that value honest effort and authentic work. You should strive to meet these standards, even when it's harder, because that's what the community expects. By doing so, learners can build skills they can truly be proud of, without relying on shortcuts or unauthorized help.",
+      "shown_count": 0
+    },
+    {
+      "id": "T3C3M1",
+      "theory": "Social Norms Theory",
+      "text": "What happens when people take shortcuts on tasks? They often miss out on opportunities because others notice their lack of effort. When learners put in honest work, they earn respect and recognition from their community. How will others perceive you if you prioritize authentic skill development over quick fixes?",
+      "shown_count": 0
+    },
+    {
+      "id": "T3C4M1",
+      "theory": "Social Norms Theory",
+      "text": "What does it mean to be part of a community that values honest effort? It means you're part of a group that prioritizes authentic skill development over shortcuts. When faced with a challenge, you ask yourself: does this approach align with the values of our community? People who belong to this group take pride in upholding its standards, and that guides their choices.",
+      "shown_count": 0
+    },
+    {
+      "id": "T4C1M1",
+      "theory": "Self-Efficacy Theory",
+      "text": "What makes someone confident in their skills? It's their past successes. When people achieve something on their own, they prove to themselves that they have what it takes. This track record of success shows that they can handle new challenges because they've already overcome similar ones before.",
+      "shown_count": 0
+    },
+    {
+      "id": "T4C2M1",
+      "theory": "Self-Efficacy Theory",
+      "text": "People who observe others overcoming challenges are more likely to believe in their own abilities. Seeing how others achieve success through genuine effort shows that it's possible to master skills without taking shortcuts. Unlike those who rely on quick fixes, learners who observe and imitate others' authentic approaches tend to develop more lasting confidence. By following the examples of those who have succeeded honestly, you can build a stronger foundation for your own skills.",
+      "shown_count": 0
+    },
+    {
+      "id": "T4C3M1",
+      "theory": "Self-Efficacy Theory",
+      "text": "When people receive positive feedback on their work, they start to believe in their own capabilities. This feedback helps build confidence that they can handle specific tasks. You will see your own progress and growth when you put in honest effort and receive supportive comments from others. As you get more encouragement, you will become more confident in your ability to tackle challenging tasks.",
+      "shown_count": 0
+    },
+    {
+      "id": "T4C4M1",
+      "theory": "Self-Efficacy Theory",
+      "text": "When people put in honest effort, they feel a surge of excitement and pride. This happens because their hard work leads to real accomplishments. As they achieve their goals, they experience a boost in confidence and a sense of fulfillment. This emotional response motivates them to continue growing and developing their skills in an authentic way.",
       "shown_count": 0
     }
   ],
@@ -360,8 +438,8 @@
       "survey_time": 240
     },
     "study_compensation": {
-      "prolific_rate": "£1.80",
-      "max_reward_per_anagram": 30
+      "prolific_rate": "£2.00",
+      "max_reward_per_anagram": 20
     }
   }
 }

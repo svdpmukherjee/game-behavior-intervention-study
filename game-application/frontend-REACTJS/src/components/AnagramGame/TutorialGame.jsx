@@ -639,7 +639,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
 
             <button
               onClick={() => setShowOverview(false)}
-              className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-lg transition-all transform hover:scale-105 cursor-pointer"
+              className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-md transition-all transform hover:scale-105 cursor-pointer"
             >
               Start Practice Round
             </button>

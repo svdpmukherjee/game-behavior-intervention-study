@@ -61,13 +61,13 @@ const RewardDisplay = ({ rewards, maxReward }) => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-4 rounded-lg w-4/5 bg-gray-50 border-gray-200 m-auto">
+      <div className="space-y-4 rounded-lg w-3/5 bg-gray-50 border-gray-200 m-auto">
         {Object.entries(rewards)
           .sort(([a], [b]) => Number(b) - Number(a))
           .map(([length, reward]) => (
             <div
               key={length}
-              className="flex items-center p-2 bg-white rounded-lg shadow-sm transition-shadow border border-gray-100]"
+              className="flex items-center p-2 bg-white rounded-lg shadow-sm transition-shadow border border-gray-100"
             >
               <span className="text-md font-medium text-gray-800">
                 {length}-letter word
@@ -86,11 +86,11 @@ const RewardDisplay = ({ rewards, maxReward }) => {
 
       <div className="p-3 rounded-lg">
         <div className="bg-gradient-to-r text-center rounded-lg p-4">
-          <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-800">
+          <div className="flex items-center justify-center gap-2 font-semibold text-gray-800">
             <CircleAlert className="h-6 w-6 text-red-600" />
-            <span className="text-lg text-gray-700 font-medium">
+            <span className="text-lg text-gray-700 ">
               Maximum reward is capped per set of scrambled letters:{" "}
-              <strong className="text-xl text-red-600">
+              <strong className="text-lg text-red-600">
                 {maxReward} pence
               </strong>
             </span>

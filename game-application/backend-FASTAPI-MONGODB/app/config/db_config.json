@@ -435,7 +435,7 @@
     "time_settings": {
       "tutorial_time": 90,
       "game_time": 120,
-      "survey_time": 240
+      "survey_time": 300
     },
     "study_compensation": {
       "prolific_rate": "£2.00",

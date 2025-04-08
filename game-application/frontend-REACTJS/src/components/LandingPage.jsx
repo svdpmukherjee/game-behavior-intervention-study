@@ -18,20 +18,21 @@ const handleExit = () => {
 };
 
 const StudyOverview = ({ onNext, studyConfig }) => (
-  <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+  <section className="bg-white p-6 rounded-xl  border-1 border-gray-100">
     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
       <Target className="h-5 w-5 text-blue-600 mr-2" />
       Your Task
     </h3>
     <div className="p-6 rounded-lg mb-10">
-      <ul className="space-y-4">
+      <ul className="space-y-4 text-md">
         <li className="flex items-start">
           <span className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
           <span>
-            You will be given <strong>{studyConfig.game_anagrams}</strong> sets
-            of 8 scrambled letters
+            You will be given{" "}
+            <span className="font-semibold">{studyConfig.game_anagrams}</span>{" "}
+            sets of scrambled letters
           </span>
         </li>
         <li className="flex items-start">
@@ -40,11 +41,11 @@ const StudyOverview = ({ onNext, studyConfig }) => (
           </span>
           <span>
             Use the letters to form valid English words of{" "}
-            <strong>
+            <span className="font-semibold">
               at least{" "}
               {Math.min(...Object.keys(studyConfig.rewards).map(Number))}{" "}
               letters
-            </strong>{" "}
+            </span>{" "}
             (e.g., 5, 6, 7 or 8-letter words)
           </span>
         </li>
@@ -53,7 +54,9 @@ const StudyOverview = ({ onNext, studyConfig }) => (
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
           <span>
-            Try to find <strong>as many words as possible</strong> from each set
+            Try to find{" "}
+            <span className="font-semibold">as many words as possible</span>{" "}
+            from each set
           </span>
         </li>
         <li className="flex items-start">
@@ -61,8 +64,10 @@ const StudyOverview = ({ onNext, studyConfig }) => (
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
           <span>
-            Your words will be <strong>automatically</strong> submitted when
-            time runs out - <strong>no need submit manually</strong>
+            Your words will be{" "}
+            <span className="font-semibold">automatically</span> submitted when
+            time runs out -{" "}
+            <span className="font-semibold">no need submit manually</span>
           </span>
         </li>
       </ul>
@@ -92,13 +97,13 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
       {/* Time Commitment Section */}
       <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
         <div className="flex items-center gap-3 mb-5">
-          <Clock className="h-6 w-6 text-green-600" />
+          <Clock className="h-5 w-5 text-green-600" />
           <h4 className="text-xl font-semibold text-gray-800">
             Time Commitment
           </h4>
         </div>
-        <div className="space-y-4">
-          <ul className="text-md text-gray-600 space-y-3">
+        <div className="space-y-6">
+          <ul className="text-sm text-gray-600 space-y-3">
             {[
               {
                 label: "Practice round",
@@ -151,17 +156,18 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
           <p className="text-lg font-semibold text-amber-800">
             💰 Base Compensation
           </p>
-          <p className="text-3xl font-bold text-gray-900 mt-2">
+          <p className="text-2xl font-semibold text-gray-900 mt-2">
             {studyConfig.compensation.prolific_rate}
           </p>
         </div>
 
         {/* Additional Rewards */}
         <div className="mt-6">
-          <h5 className="text-md font-medium text-gray-700 mb-4">
-            Additional rewards per <strong>valid word</strong> creation:
+          <h5 className="text-sm font-medium text-gray-700 mb-4">
+            Additional rewards per{" "}
+            <span className="font-semibold">valid word</span> creation:
           </h5>
-          <div className="flex justify-center items-center space-y-2">
+          <div className="flex justify-center items-center space-y-2 text-sm">
             <RewardDisplay
               rewards={studyConfig.rewards}
               maxReward={studyConfig.compensation.max_reward_per_anagram}
@@ -197,7 +203,7 @@ const PrivacyAndConsent = ({
   isChecked,
   setIsChecked,
 }) => (
-  <div className="space-y-6">
+  <div className="space-y-6 text-sm">
     {/* Section: Data Collection and Privacy */}
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center gap-2 mb-4">
@@ -224,12 +230,14 @@ const PrivacyAndConsent = ({
         </ul>
 
         <p>
-          Your personal data will be <strong>strictly pseudonymized</strong> and
-          securely stored at the University of Luxembourg.
+          Your personal data will be{" "}
+          <span className="font-semibold"> anonymized</span> and securely stored
+          at the University of Luxembourg.
         </p>
         <p>
-          <strong>Only</strong> the study researchers will have access to your
-          data, and it will be used solely for this research project.
+          <span className="font-semibold">Only</span> the study researchers will
+          have access to your data, and it will be used solely for this research
+          project.
         </p>
         <p>Data may be published without identifying you personally.</p>
       </div>

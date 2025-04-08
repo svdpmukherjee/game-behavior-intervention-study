@@ -7,20 +7,25 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const [remainingTime, setRemainingTime] = useState(20);
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
-  const [typedSentences, setTypedSentences] = useState([]);
-  const [currentSentenceIndex, setCurrentSentenceIndex] = useState(0);
-  const [currentSentenceText, setCurrentSentenceText] = useState("");
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
-  const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const [visibleSentences, setVisibleSentences] = useState([]);
+  const [hasStartedReading, setHasStartedReading] = useState(false);
+  const [isAllSentencesVisible, setIsAllSentencesVisible] = useState(false);
 
-  const minReadTime = 20000;
+  const minReadTime = 20000; // 20 seconds minimum reading time
   const messageStartTime = useRef(new Date());
-  const typingSpeed = 5; // milliseconds per character
+  const sentenceDelay = 2000; // 2 seconds between sentences appearing
 
-  // Refs for typing animation
+  // Store sentences from the message
   const sentences = useRef([]);
-  const charIndex = useRef(0);
-  const typingTimer = useRef(null);
+  const sentenceTimers = useRef([]);
+
+  // Define the fade-in animation style
+  const fadeInStyle = `
+    @keyframes slowFadeIn {
+      0% { opacity: 0; ; }
+      100% { opacity: 1; ; }
+    }
+  `;
 
   useEffect(() => {
     const fetchConfig = async () => {
@@ -52,77 +57,45 @@ const MessageDisplay = ({ message, onMessageShown }) => {
         .split(/(?<=[.!?])\s+|(?<=[.!?])$/)
         .filter((sentence) => sentence.trim().length > 0);
 
-      setTypedSentences([]);
-      setCurrentSentenceIndex(0);
-      setCurrentSentenceText("");
-      charIndex.current = 0;
-      setIsTypingComplete(false);
+      setVisibleSentences([]);
+      setIsAllSentencesVisible(false);
 
-      return () => {
-        if (typingTimer.current) {
-          clearTimeout(typingTimer.current);
-        }
-      };
+      // Clear any existing timers
+      sentenceTimers.current.forEach((timer) => clearTimeout(timer));
+      sentenceTimers.current = [];
     }
   }, [message?.text]);
 
-  // Start typing animation when user clicks to see
+  // Start revealing sentences when user clicks to see
   useEffect(() => {
-    if (hasStartedTyping && message?.text) {
-      // Start typing the first sentence
-      typeSentence(0);
-
-      // Start the message timer when typing begins
+    if (hasStartedReading && message?.text) {
+      // Start the message timer when reading begins
       messageStartTime.current = new Date();
+
+      // Reveal sentences one by one with delay
+      sentences.current.forEach((sentence, index) => {
+        const timer = setTimeout(() => {
+          setVisibleSentences((prev) => [...prev, sentence]);
+
+          // Check if this is the last sentence
+          if (index === sentences.current.length - 1) {
+            setIsAllSentencesVisible(true);
+          }
+        }, index * sentenceDelay);
+
+        sentenceTimers.current.push(timer);
+      });
     }
 
     return () => {
-      if (typingTimer.current) {
-        clearTimeout(typingTimer.current);
-      }
+      // Clear timers on cleanup
+      sentenceTimers.current.forEach((timer) => clearTimeout(timer));
     };
-  }, [hasStartedTyping]);
+  }, [hasStartedReading]);
 
-  // Function to type a sentence character by character
-  const typeSentence = (sentenceIndex) => {
-    if (sentenceIndex >= sentences.current.length) {
-      setIsTypingComplete(true);
-      return;
-    }
-
-    const currentSentence = sentences.current[sentenceIndex];
-    charIndex.current = 0;
-
-    // Clear the current sentence text
-    setCurrentSentenceText("");
-
-    const typeNextChar = () => {
-      if (charIndex.current < currentSentence.length) {
-        // Update the current text with the entire partial sentence up to this point
-        // This ensures the first character is always visible
-        setCurrentSentenceText(
-          currentSentence.substring(0, charIndex.current + 1)
-        );
-        charIndex.current++;
-        typingTimer.current = setTimeout(typeNextChar, typingSpeed);
-      } else {
-        // Sentence is complete, add it to the typed sentences and clear current text
-        setTypedSentences((prev) => [...prev, currentSentence]);
-        setCurrentSentenceText("");
-
-        // Move to the next sentence after a pause
-        setTimeout(() => {
-          setCurrentSentenceIndex(sentenceIndex + 1);
-          typeSentence(sentenceIndex + 1);
-        }, 500); // pause between sentences
-      }
-    };
-
-    typeNextChar();
-  };
-
+  // Handle minimum reading time
   useEffect(() => {
-    if (message?.id && !isReady && hasStartedTyping) {
+    if (message?.id && !isReady && hasStartedReading) {
       const timer = setTimeout(() => {
         setIsReady(true);
         setRemainingTime(0);
@@ -137,8 +110,9 @@ const MessageDisplay = ({ message, onMessageShown }) => {
         clearInterval(interval);
       };
     }
-  }, [message?.id, hasStartedTyping]);
+  }, [message?.id, hasStartedReading]);
 
+  // Handle completion
   useEffect(() => {
     if (hasRead && message?.id) {
       const timeSpent = Math.round(
@@ -169,9 +143,9 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
   const gameTime = studyConfig.timeSettings.game_time / 60;
 
-  // Start the typing animation
-  const handleStartTyping = () => {
-    setHasStartedTyping(true);
+  // Start revealing sentences
+  const handleStartReading = () => {
+    setHasStartedReading(true);
   };
 
   // Determine the theory icon
@@ -184,13 +158,11 @@ const MessageDisplay = ({ message, onMessageShown }) => {
     return "bg-blue-100 text-blue-800";
   };
 
-  // Add blinking cursor effect
-  const cursorClass = isTypingComplete
-    ? "hidden"
-    : "inline-block w-1 h-5 bg-gray-800 ml-1 animate-pulse";
-
   return (
     <div className="space-y-6">
+      {/* Add the keyframes style to the component */}
+      <style>{fadeInStyle}</style>
+
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 overflow-hidden">
         {/* Message header */}
         <div
@@ -204,33 +176,52 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           </div>
         </div>
 
-        {/* Message content with typing animation */}
+        {/* Message content with sentence-by-sentence reveal */}
         <div className="bg-gray-50 p-6 rounded-lg min-h-[180px] flex flex-col justify-center">
-          {!hasStartedTyping ? (
+          {!hasStartedReading ? (
             <div className="flex flex-col items-center justify-center h-full">
               <button
-                onClick={handleStartTyping}
+                onClick={handleStartReading}
                 className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform cursor-pointer"
               >
                 Curious? See the message now!
               </button>
             </div>
           ) : (
-            <div className="space-y-5 min-h-60 shadow-sm p-4">
-              <p className="italic text-gray-400"> Hello, curious mind!</p>
-              {/* TypeAnimation - Previously completed sentences */}
-              {typedSentences.map((sentence, index) => (
-                <p key={index} className="text-lg text-gray-800">
+            <div className="space-y-5 min-h-70 shadow-sm p-4">
+              <p className="text-gray-400 italic">Hello! Did You Know?</p>
+
+              {/* Sentences that appear one by one */}
+              {visibleSentences.map((sentence, index) => (
+                <p
+                  key={index}
+                  className="text-lg text-gray-800 pl-8"
+                  style={{
+                    //  textIndent: "1.5em",
+                    animation: "slowFadeIn 1.5s ease-in-out",
+                    opacity: 1,
+                  }}
+                >
                   {sentence}
                 </p>
               ))}
 
-              {/* TypeAnimation - Currently typing sentence */}
-              {currentSentenceText && (
-                <p className="text-lg text-gray-800">
-                  {currentSentenceText}
-                  <span className={cursorClass}></span>
-                </p>
+              {/* Loading indicator for next sentence */}
+              {hasStartedReading && !isAllSentencesVisible && (
+                <div className="flex items-center gap-2 mt-4 pl-8">
+                  <div
+                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  ></div>
+                  <div
+                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  ></div>
+                  <div
+                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "600ms" }}
+                  ></div>
+                </div>
               )}
             </div>
           )}
@@ -250,25 +241,24 @@ const MessageDisplay = ({ message, onMessageShown }) => {
         {/* Continue button */}
         <button
           onClick={() => setHasRead(true)}
-          disabled={!isReady || !isTypingComplete || !hasStartedTyping}
+          disabled={!isReady || !isAllSentencesVisible || !hasStartedReading}
           className={`
-    w-full mt-6 py-3 rounded-lg font-medium
-    transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
-    ${
-      isReady && isTypingComplete && hasStartedTyping
-        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1"
-        : "bg-gray-100 text-gray-400 cursor-not-allowed"
-    }
-  `}
+            w-full mt-6 py-3 rounded-lg font-medium
+            transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
+            ${
+              isReady && isAllSentencesVisible && hasStartedReading
+                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                : "bg-white text-gray-400 cursor-not-allowed"
+            }
+          `}
         >
-          {!hasStartedTyping ? (
+          {!hasStartedReading ? (
             "Please view the message first"
-          ) : isReady && isTypingComplete ? (
+          ) : isReady && isAllSentencesVisible ? (
             <>
               I am ready, Let's continue <ArrowRight className="w-5 h-5" />
             </>
-          ) : isTypingComplete ? (
-            // `Please wait ${remainingTime} seconds...`
+          ) : isAllSentencesVisible ? (
             <div className="text-center text-sm italic space-y-2">
               <p className="font-medium text-gray-700">
                 Please make sure that you understand the message as it is very
@@ -285,12 +275,8 @@ const MessageDisplay = ({ message, onMessageShown }) => {
                 Please make sure that you understand the message as it is very
                 important for the game.
               </p>
-              <p>
-                You need to wait ({remainingTime} seconds) while the puzzles are
-                getting ready.
-              </p>
+              <p>Please wait while the message is being revealed...</p>
             </div>
-            // "Please wait for the message to complete..."
           )}
         </button>
       </div>

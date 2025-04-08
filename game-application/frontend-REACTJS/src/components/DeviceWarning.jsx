@@ -20,8 +20,8 @@ const DeviceWarning = () => {
           </h2>
 
           {/* Message */}
-          <div className="mt-2 text-red-700">
-            <p className="font-medium">
+          <div className="mt-2 text-red-700 text-sm">
+            <p className="">
               To participate in this study, you{" "}
               <span className="font-bold">must</span> use:
             </p>
@@ -30,19 +30,21 @@ const DeviceWarning = () => {
               <li className="flex items-center gap-2">
                 <Laptop2 className="w-5 h-5 text-red-500" />
                 <span>
-                  A <strong>laptop </strong> (with touchpad or a mouse) OR
+                  A <span className="font-semibold">laptop </span> (with
+                  touchpad or a mouse) OR
                 </span>
               </li>
               <li className="flex items-center gap-2">
                 <Monitor className="w-5 h-5 text-red-500" />
                 <span>
-                  A <strong>desktop computer</strong> (with a mouse)
+                  A <span className="font-semibold">desktop computer</span>{" "}
+                  (with a mouse)
                 </span>
               </li>
             </ul>
 
             {/* Final Warning */}
-            <p className="mt-4 bg-red-200 text-red-900 px-3 py-2 rounded-lg text-center font-semibold text-sm">
+            <p className="mt-4 bg-white text-red-900 px-3 py-2 rounded-lg text-center font-semibold text-sm">
               🚫 Mobile devices & tablets are{" "}
               <span className="underline">not supported</span> and will be
               disqualified

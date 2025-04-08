@@ -89,7 +89,7 @@ const ProlificIdPage = ({ onSubmit, initialValue, isInitializing }) => {
           </form>
         </section>
         {/* Privacy Notice */}
-        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-sm">
           <div className="flex items-center gap-2 mb-4">
             <Shield className="h-5 w-5 text-blue-600" />
             <h3 className="text-lg font-semibold text-gray-800">

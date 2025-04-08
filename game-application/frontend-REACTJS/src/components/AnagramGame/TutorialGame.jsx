@@ -562,9 +562,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     const rewards = studyConfig.rewards;
     const minLength = Math.min(...Object.keys(rewards).map(Number));
     const maxLength = Math.max(...Object.keys(rewards).map(Number));
-    const tutorialTime = Math.floor(
-      studyConfig.timeSettings.tutorial_time / 60
-    );
+    const tutorialTime = studyConfig.timeSettings.tutorial_time / 60;
 
     return (
       <Container>

@@ -13,8 +13,9 @@ const ProlificIdPage = ({ onSubmit, initialValue, isInitializing }) => {
 
   const validateProlificId = (id) => {
     // Basic Prolific ID validation (alphanumeric, correct length)
-    const idRegex = /^[0-9a-zA-Z]{24}$/;
-    return idRegex.test(id.trim());
+    // const idRegex = /^[0-9a-zA-Z]{24}$/;
+    // return idRegex.test(id.trim());
+    return id.trim().length > 0;
   };
 
   const handleSubmit = async (e) => {
@@ -28,7 +29,7 @@ const ProlificIdPage = ({ onSubmit, initialValue, isInitializing }) => {
     }
 
     if (!validateProlificId(trimmedId)) {
-      setError("Please enter a valid 24-character Prolific ID");
+      setError("Please enter a valid Prolific ID");
       return;
     }
 

@@ -153,6 +153,10 @@ def display_generation_view():
                         st.warning(f"Message is too similar to previous messages (Max similarity: {similarity_result['max_similarity']:.2f})")
                         st.markdown("Consider using different examples, structure, or phrasing to increase diversity.")
     
+    # Create new unique keys for each render to force clearing of fields
+    # This is a simple approach that guarantees fields are cleared on each iteration
+    unique_key_base = f"feedback_{workflow.current_message_number}_{workflow.current_iteration}"
+    
     # Human feedback section with structured feedback fields
     with st.container(border=True):
         st.markdown('<div class="section-header">Your Feedback</div>', unsafe_allow_html=True)
@@ -168,37 +172,37 @@ def display_generation_view():
                 max_value=10,
                 value=7,
                 step=1,
-                key="rating_slider"
+                key=f"{unique_key_base}_rating_slider"
             )
         
         with col2:
-            # Structured feedback fields
+            # Structured feedback fields with unique keys for each render
             strengths_feedback = st.text_area(
                 "Strengths (what to preserve)",
                 placeholder="What aspects of this message work well and should be kept?",
                 height=70,
-                key="strengths_feedback_area"
+                key=f"{unique_key_base}_strengths_feedback_area"
             )
             
             weaknesses_feedback = st.text_area(
                 "Weaknesses (what to change)",
                 placeholder="What aspects need improvement or don't align well with the concept?",
                 height=70,
-                key="weaknesses_feedback_area"
+                key=f"{unique_key_base}_weaknesses_feedback_area" 
             )
             
             improvement_feedback = st.text_area(
                 "Improvement Suggestions",
                 placeholder="Specific suggestions for improving the message in the next iteration",
                 height=70,
-                key="improvement_feedback_area"
+                key=f"{unique_key_base}_improvement_feedback_area"
             )
         
         # Action buttons
         col1, col2, col3 = st.columns([1, 1, 1])
         
         with col1:
-            if st.button("Refine Message", type="primary", use_container_width=True, key="refine_message_btn"):
+            if st.button("Refine Message", type="primary", use_container_width=True, key=f"{unique_key_base}_refine_message_btn"):
                 # Record structured feedback
                 workflow.record_structured_human_feedback(
                     rating,
@@ -230,7 +234,7 @@ def display_generation_view():
                     accept_button_type = "secondary"
                     st.warning("This message is very similar to previous ones. Consider refining it further for more diversity.")
             
-            if st.button("Accept Message", type=accept_button_type, use_container_width=True, key="accept_message_btn"):
+            if st.button("Accept Message", type=accept_button_type, use_container_width=True, key=f"{unique_key_base}_accept_message_btn"):
                 # Record structured feedback
                 workflow.record_structured_human_feedback(
                     rating,
@@ -252,7 +256,7 @@ def display_generation_view():
                 st.rerun()
         
         with col3:  
-            if st.button("Cancel & Reset", type="secondary", use_container_width=True, key="cancel_reset_btn"):
+            if st.button("Cancel & Reset", type="secondary", use_container_width=True, key=f"{unique_key_base}_cancel_reset_btn"):
                 if st.session_state.get("confirm_reset"):
                     from workflow.state_manager import reset_session_state
                     reset_session_state()

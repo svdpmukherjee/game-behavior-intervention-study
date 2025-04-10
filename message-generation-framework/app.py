@@ -67,7 +67,7 @@ def api_key_setup():
     
     # Create API key input fields
     together_api_key = st.text_input(
-        "Together API Key",
+        "Together.ai API Key",
         type="password",
         value=st.session_state.together_api_key,
         help="Required for using Together AI models (Llama, Gemma, etc.)",

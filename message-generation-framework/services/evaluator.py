@@ -5,6 +5,7 @@ Handles interactions with language model APIs for evaluating generated messages.
 
 import json
 import logging
+import re
 from typing import Dict, Any, Callable, Tuple, Optional
 
 from openai import OpenAI
@@ -13,6 +14,30 @@ from together import Together
 from data.concepts import ALL_conceptS
 
 logger = logging.getLogger(__name__)
+
+def extract_json_from_llm_response(text):
+    """
+    Extract valid JSON from LLM response text which may contain markdown or additional text.
+    
+    Args:
+        text: The raw response text from the LLM
+        
+    Returns:
+        Extracted JSON string or the original text if no JSON markers found
+    """
+    # Try to find JSON enclosed in code blocks first (common LLM output pattern)
+    # Look for ```json ... ``` pattern
+    json_code_block = re.search(r'```(?:json)?\s*({[\s\S]*?})\s*```', text)
+    if json_code_block:
+        return json_code_block.group(1)
+    
+    # Look for JSON object pattern (starting with { and ending with })
+    json_pattern = re.search(r'({[\s\S]*})', text)
+    if json_pattern:
+        return json_pattern.group(1)
+    
+    # Return original if no JSON pattern found
+    return text
 
 class MessageEvaluationService:
     """Service for evaluating messages using different language model providers."""
@@ -124,14 +149,49 @@ class MessageEvaluationService:
                 
                 # Parse JSON response
                 try:
+                    # For Together.ai models, try to extract JSON from the response
+                    if (is_together_model and self.together_client) or not is_openai_model:
+                        result_text = extract_json_from_llm_response(result_text)
+                        
                     result = json.loads(result_text)
-                    if concept_name not in result["ratings"]:
+                    if concept_name not in result.get("ratings", {}):
                         # If target concept is missing, add it using the overall score
-                        result["ratings"][concept_name] = result["score"]
+                        if "ratings" not in result:
+                            result["ratings"] = {}
+                        if "score" in result:
+                            result["ratings"][concept_name] = result["score"]
+                        else:
+                            # If no score available, default to 50
+                            result["score"] = 50
+                            result["ratings"] = {concept_name: 50}
+                        
+                    # Ensure feedback structure exists
+                    if "feedback" not in result:
+                        result["feedback"] = {
+                            "strengths": "Feedback structure missing in evaluation response",
+                            "improvements": "Feedback structure missing in evaluation response",
+                            "differentiation_tips": "Feedback structure missing in evaluation response"
+                        }
+                    elif not isinstance(result["feedback"], dict):
+                        # Convert string feedback to structured format if needed
+                        feedback_text = str(result["feedback"])
+                        result["feedback"] = {
+                            "strengths": feedback_text,
+                            "improvements": "Please refine for better concept alignment",
+                            "differentiation_tips": "Ensure clear differentiation from related concepts"
+                        }
+                    
+                    # Ensure all required feedback fields exist
+                    required_fields = ["strengths", "improvements", "differentiation_tips"]
+                    for field in required_fields:
+                        if field not in result["feedback"]:
+                            result["feedback"][field] = f"{field.capitalize()} information not provided"
+                            
                     return result
+                    
                 except json.JSONDecodeError:
                     # Fallback if response is not valid JSON
-                    logger.error(f"Error parsing evaluation response: {result_text[:100]}...")
+                    logger.error(f"Error parsing evaluation response: {result_text[:200]}...")
                     return {
                         "score": 50,
                         "ratings": {concept_name: 50},
@@ -203,7 +263,7 @@ def create_evaluation_prompt(message: str, concept_name: str, context: Optional[
     for other_concept, diff_description in differentiation.items():
         differentiation_text += f"- {diff_description}\n"
 
-    # Prepare evaluation prompt
+    # Prepare evaluation prompt - using raw string to avoid issues with format specifiers
     evaluation_prompt = f"""
     Context: {context or "Task completion scenario with ethical considerations"}
 
@@ -242,17 +302,28 @@ def create_evaluation_prompt(message: str, concept_name: str, context: Optional[
 
     Respond in this JSON format:
     {{
-        "score": <score for the target concept>,
+        "score": [score for the target concept],
         "ratings": {{
-            "Autonomy": <score>,
-            "Competence": <score>,
-            "Relatedness": <score>,
-            ...
+            "Autonomy": [score],
+            "Competence": [score],
+            "Relatedness": [score],
+            "Self-concept": [score],
+            "Cognitive inconsistency": [score],
+            "Dissonance arousal": [score],
+            "Dissonance reduction": [score],
+            "Performance accomplishments": [score],
+            "Vicarious experience": [score],
+            "Verbal persuasion": [score],
+            "Emotional arousal": [score],
+            "Descriptive Norms": [score],
+            "Injunctive Norms": [score],
+            "Social Sanctions": [score],
+            "Reference Group Identification": [score]
         }},
         "feedback": {{
-            "strengths": <what the message does well>,
-            "improvements": <how the message could better align with the target concept>,
-            "differentiation_tips": <how to better differentiate from competing concepts>
+            "strengths": [what the message does well],
+            "improvements": [how the message could better align with the target concept],
+            "differentiation_tips": [how to better differentiate from competing concepts]
         }}
     }}
     """

@@ -1,0 +1,9 @@
+streamlit
+sentence-transformers
+together
+openai
+matplotlib
+numpy
+python-dotenv
+scikit-learn
+pandas

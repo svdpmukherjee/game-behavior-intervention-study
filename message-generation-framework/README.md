@@ -1,5 +1,7 @@
 # Message Generator App - User Guide
 
+https://svdpmukherjee-game-behav-message-generation-frameworkapp-hnwgcs.streamlit.app/
+
 ## Overview
 
 The Message Generator App is a human-in-the-loop tool designed to help researchers and practitioners craft messages that closely align with specific psychological concepts. It leverages AI language models to generate and evaluate messages while incorporating your expert feedback throughout the process.

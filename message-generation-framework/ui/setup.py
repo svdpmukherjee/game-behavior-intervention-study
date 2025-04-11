@@ -152,9 +152,12 @@ def display_setup_view():
             unsafe_allow_html=True
         )
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
+        # Create separate containers for each message characteristic with visible boundaries
+        # 3.1 Message Focus
+        with st.container(border=True):
+            st.markdown('<div class="parameter-header">Message Focus</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-description">Select the specific aspect of the concept to emphasize in your message</div>', unsafe_allow_html=True)
+            
             # Message focus (formerly diversity focus)
             custom_focuses = get_custom_focuses()
             focus_ids = [focus["id"] for focus in custom_focuses]
@@ -172,7 +175,7 @@ def display_setup_view():
             
             # Display full focus text
             st.text_area(
-                "Which end-goal message should focus on?",
+                "Focus Description",
                 value=selected_focus_text,
                 height=70,
                 disabled=False,
@@ -200,7 +203,12 @@ def display_setup_view():
                     with cols[1]:
                         if st.button("Delete", key=f"del_focus_{focus['id']}"):
                             delete_message_focus(focus["id"])
-                    
+        
+        # 3.2 Message Style
+        with st.container(border=True):
+            st.markdown('<div class="parameter-header">Message Style</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-description">Select the structural format for your message</div>', unsafe_allow_html=True)
+            
             # Message Style
             custom_styles = get_custom_styles()
             style_ids = [style["id"] for style in custom_styles]
@@ -246,14 +254,18 @@ def display_setup_view():
                     with cols[1]:
                         if st.button("Delete", key=f"del_style_{style['id']}"):
                             delete_message_style(style["id"])
-        
-        with col2:
+            
+        # 3.3 Message Tone
+        with st.container(border=True):
+            st.markdown('<div class="parameter-header">Message Tone</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-description">Set the emotional quality and style of your message</div>', unsafe_allow_html=True)
+            
             # Tone selection
             custom_tones = get_custom_tones()
             tone_ids = [tone["id"] for tone in custom_tones]
             
             selected_tone_id = st.selectbox(
-                "Tone/Style",
+                "Tone",
                 options=tone_ids,
                 help="Desired tone for the message",
                 key="tone_selector"
@@ -265,7 +277,7 @@ def display_setup_view():
             
             # Display tone description if needed
             st.text_area(
-                "Which tone the message should have?",
+                "Tone Description",
                 value=selected_tone_text,
                 height=70,
                 disabled=False,
@@ -293,10 +305,15 @@ def display_setup_view():
                     with cols[1]:
                         if st.button("Delete", key=f"del_tone_{tone['id']}"):
                             delete_message_tone(tone["id"])
+        
+        # 3.4 Message Length
+        with st.container(border=True):
+            st.markdown('<div class="parameter-header">Message Length</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-description">Adjust the number of sentences in your generated message</div>', unsafe_allow_html=True)
             
             # Add Message Length setting
             message_length = st.slider(
-                "Message Length (in sentences)",
+                "Number of Sentences",
                 min_value=1,
                 max_value=8,
                 value=3,
@@ -304,6 +321,10 @@ def display_setup_view():
                 help="Select the desired length of the generated message in sentences",
                 key="message_length_slider"
             )
+            
+            # Add visual indicator for length classification
+            length_category = "Short" if message_length <= 2 else ("Medium" if message_length <= 5 else "Long")
+            st.markdown(f'<div class="length-indicator">Length Category: <span class="length-{length_category.lower()}">{length_category}</span> ({message_length} sentences)</div>', unsafe_allow_html=True)
     
     # 4. Model Selection
     with st.container(border=True):
@@ -317,12 +338,11 @@ def display_setup_view():
         # Get available models based on API keys
         available_models = get_available_models()
         
-        # Create 4 columns for model selection (generator model, gen params, evaluator model, eval params)
-        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+        # Create 2 columns for model selection with nested columns for parameters
+        col1, col2 = st.columns(2)
         
         with col1:
-            # st.subheader("Generator Model")
-            st.markdown("#### Generator Model") 
+            st.markdown('<div class="parameter-header">Generator Model</div>', unsafe_allow_html=True)
             
             # Flatten available models list for selection
             generator_options = []
@@ -340,10 +360,9 @@ def display_setup_view():
                     help="Model for generating messages",
                     key="generator_model_select"
                 )
-        
-        with col2:
-            # st.subheader("Generator Parameters")
-            st.markdown("#### Generator Parameters")
+            
+            # Generator parameters
+            st.markdown('<div class="parameter-subheader">Generator Parameters</div>', unsafe_allow_html=True)
             
             # Temperature slider
             generator_temp = st.slider(
@@ -367,9 +386,8 @@ def display_setup_view():
                 key="generator_top_p_slider"
             )
         
-        with col3:
-            # st.subheader("Evaluator Model")
-            st.markdown("#### Evaluator Model")
+        with col2:
+            st.markdown('<div class="parameter-header">Evaluator Model</div>', unsafe_allow_html=True)
             
             # Flatten available models list for selection
             evaluator_options = []
@@ -387,10 +405,9 @@ def display_setup_view():
                     help="Model for evaluating messages",
                     key="evaluator_model_select"
                 )
-        
-        with col4:
-            # st.subheader("Evaluator Parameters")
-            st.markdown("#### Evaluator Parameters")
+            
+            # Evaluator parameters
+            st.markdown('<div class="parameter-subheader">Evaluator Parameters</div>', unsafe_allow_html=True)
             
             # Temperature slider (lower default for evaluation)
             evaluator_temp = st.slider(
@@ -413,8 +430,6 @@ def display_setup_view():
                 help="Controls diversity by limiting to top tokens that add up to probability mass P",
                 key="evaluator_top_p_slider"
             )
-    st.markdown('</div>', unsafe_allow_html=True)
-    
     
     # Submit button
     if st.button("Start Workflow", type="primary", key="start_workflow_btn"):

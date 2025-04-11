@@ -1,7 +1,5 @@
 # Message Generator App - User Guide
 
-https://svdpmukherjee-game-behav-message-generation-frameworkapp-hnwgcs.streamlit.app/
-
 ## Overview
 
 The Message Generator App is a human-in-the-loop tool designed to help researchers and practitioners craft messages that closely align with specific psychological concepts. It leverages AI language models to generate and evaluate messages while incorporating your expert feedback throughout the process.
@@ -44,11 +42,52 @@ The setup screen allows you to configure the following parameters:
 
 ### Message Characteristics
 
-- **Message Focus**: Choose what aspect of the concept to emphasize (e.g., personal growth, overcoming challenges)
-- **Message Style**: Select the structure for your message (question-answer, when-then, comparison, cause-effect)
-- **Tone**: Set the emotional quality (encouraging, informative, supportive, motivational, etc.)
-- **Message Length**: Adjust the number of sentences (1-8) in the generated message
-- All of these can be customized and saved for future use
+#### Message Focus
+
+Choose what aspect of the concept to emphasize:
+
+- "How this concept manifests in personal growth over time"
+- "How this concept helps people overcome specific challenges and obstacles"
+- "The universal experience of engaging with this concept"
+- "The long-term benefits of applying this concept consistently"
+- "How this concept relates to authentic skill development"
+- "The relationship between this concept and maintaining integrity"
+- "How this concept guides effective decision-making processes"
+- "Practical day-to-day applications of this concept"
+- "How this concept shapes perspectives on learning"
+- "The relationship between this concept and genuine satisfaction"
+
+#### Message Style
+
+Select the structural format for your message:
+
+- **Question-Answer Format**: Poses questions and provides insightful answers
+- **Conditional 'When-Then' Structure**: Uses "when X happens, then Y follows" pattern
+- **Comparison or Contrast Structure**: Presents ideas by comparing different approaches
+- **Cause-Effect Reasoning Format**: Explains relationships between actions and outcomes
+
+#### Tone
+
+Set the emotional quality and style:
+
+- **Encouraging**: Positive and supportive
+- **Informative**: Clear and educational
+- **Supportive**: Empathetic and understanding
+- **Motivational**: Energizing and inspiring
+- **Coaching**: Guiding and instructional
+- **Reflective**: Thoughtful and contemplative
+- **Straightforward**: Direct and clear
+- **Friendly**: Warm and approachable
+
+#### Message Length
+
+Adjust the number of sentences (1-8) in the generated message:
+
+- **Short** (1-2 sentences): Concise, focused messages
+- **Medium** (3-5 sentences): Balanced development of ideas
+- **Long** (6-8 sentences): Comprehensive exploration of concepts
+
+All of these characteristics can be customized and saved for future use.
 
 ### Model Selection
 

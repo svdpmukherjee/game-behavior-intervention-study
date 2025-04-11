@@ -47,6 +47,17 @@ def apply_custom_css():
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.05);
         }
+
+        /* Parameter containers - clearly defined boundaries */
+        [data-testid="stContainer"] > [data-testid="stContainer"] {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            padding: 1.2rem;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            background-color: #fafafa;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.03);
+        }
         
         /* Headers */
         .main-header {
@@ -64,10 +75,55 @@ def apply_custom_css():
         }
         
         .section-header {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             margin: 1.2rem 0 1rem 0;
             color: #2563EB;
+        }
+        
+        /* Parameter headers and descriptions */
+        .parameter-header {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+            color: #3B82F6;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+        }
+        
+        .parameter-subheader {
+            font-size: 0.95rem;
+            font-weight: bold;
+            margin: 1rem 0 0.5rem 0;
+            color: #4B5563;
+        }
+        
+        .parameter-description {
+            font-size: 0.85rem;
+            color: #6B7280;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        /* Visual indicators for message length */
+        .length-indicator {
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .length-short {
+            color: #10B981;
+            font-weight: bold;
+        }
+        
+        .length-medium {
+            color: #F59E0B;
+            font-weight: bold;
+        }
+        
+        .length-long {
+            color: #EF4444;
+            font-weight: bold;
         }
         
         /* Explanation text */
@@ -192,9 +248,15 @@ def apply_custom_css():
         }
         
         .expander-container {
-        display: inline-block;
-        max-width: 60px;  /* Adjust based on how narrow you want it */
-    }
-    
+            display: inline-block;
+            max-width: 60px;  /* Adjust based on how narrow you want it */
+        }
+        
+        /* Action button section styling */
+        .action-buttons-section {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e0e0e0;
+        }
     </style>
     """, unsafe_allow_html=True)

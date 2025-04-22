@@ -260,3 +260,18 @@ def apply_custom_css():
         }
     </style>
     """, unsafe_allow_html=True)
+
+def apply_message_editing_css():
+    """Apply specific CSS for message editing features."""
+    st.markdown("""
+    <style>
+        /* Enhanced styling for the editable message textarea */
+        [data-testid="stTextArea"] textarea[aria-label="Message"] {
+            font-size: 18px !important;
+            line-height: 1.5 !important;
+            padding: 12px !important;
+            background-color: #fbffda !important;
+            border-left: 3px solid #2563EB !important;
+        }
+    </style>
+    """, unsafe_allow_html=True)

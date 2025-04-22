@@ -6,11 +6,11 @@ used for message generation.
 
 # Task contexts shared resources by generator and evaluator
 TASK_CONTEXTS = [
+    """Participants are faced with problem-solving scenarios that test their abilities. How they approach these problems varies based on their personal goals and values.""",
+    
     """People are working on tasks that require persistence and skill development. Some might take shortcuts, while others invest in mastering the challenge properly through honest effort and commitment to improvement.""",
 
     """Individuals are engaging with learning activities where they can develop expertise over time. Their approach to these activities reflects their values and motivations, with some choosing authentic skill development and others looking for easier paths.""",
-
-    """Participants are faced with problem-solving scenarios that test their abilities. How they approach these problems varies based on their personal goals and ethics, with a choice between genuine mastery and taking shortcuts.""",
 
     """People are working through a series of challenges that build upon one another. Their commitment to honest effort determines both their skill growth and self-perception, creating opportunities for authentic achievement or temptations to cut corners.""",
 
@@ -19,12 +19,12 @@ TASK_CONTEXTS = [
 
 # Diversity focus options for message variation
 MESSAGE_FOCUSES = [
+    "The relationship between this concept and maintaining integrity",
     "How this concept manifests in personal growth over time",
     "How this concept helps people overcome specific challenges and obstacles",
     "The universal experience of engaging with this concept",
     "The long-term benefits of applying this concept consistently",
     "How this concept relates to authentic skill development",
-    "The relationship between this concept and maintaining integrity",
     "How this concept guides effective decision-making processes",
     "Practical day-to-day applications of this concept",
     "How this concept shapes perspectives on learning",
@@ -40,10 +40,10 @@ MESSAGE_STYLE = [
 
 # Tone options for message generation
 TONES = [
+    "Motivational",
     "Encouraging",
     "Informative",
     "Supportive",
-    "Motivational",
     "Coaching",
     "Reflective",
     "Straightforward",
@@ -55,7 +55,7 @@ ALL_conceptS = {
     # SDT concepts
     "Autonomy": {
         "theory": "Self-Determination Theory",
-        "description": "Autonomy refers to the intrinsic motivation arising from an individual's experience of volition and self-regulation, with a sense of ownership over their choices and actions. It emphasizes acting according to personal values without external pressure.",
+        "description": "Autonomy is the psychological need to experience one’s actions as self-endorsed and originating from the self. It involves an internal locus of causality, a sense of volition, and perceived choice over one’s behaviors.",
         "examples": [
             "I've noticed you seem most engaged when working on projects you've chosen yourself. Having the freedom to direct your own learning journey tends to keep that motivation going strong. Even when faced with challenges, you stick with it because it feels like your own path, not something imposed on you.",
             "What I find most fulfilling about this type of work is being able to chart my own course. When I can approach challenges in my own way, I feel much more invested in finding solutions. It's not about avoiding guidance, but rather having space to make meaningful choices about how to proceed.",
@@ -81,7 +81,7 @@ ALL_conceptS = {
     },
     "Competence": {
         "theory": "Self-Determination Theory",
-        "description": "Competence refers to the innate need to feel effective and capable in activities, driven by a desire to master challenges through effort and persistence. It includes both task performance ability and the satisfaction from overcoming obstacles and learning new skills.",
+        "description": "Competence is the psychological need to feel effective in one’s pursuits and interactions with the environment. It reflects the desire to use and extend one’s abilities by seeking out and mastering challenges.",
         "examples": [
             "The satisfaction you get from mastering something difficult is unlike anything else. When you persist through the challenging parts of learning a new skill, you build both capability and confidence. I've seen how your persistence with that difficult project has sharpened your problem-solving abilities in ways that quick fixes never could.",
             "Remember that feeling when you finally solved that tricky problem after multiple attempts? That sense of accomplishment came from working through the difficulty, not from finding an easy way around it. The growth happens in those moments of struggle when you're pushing beyond what you already know.",
@@ -107,7 +107,7 @@ ALL_conceptS = {
     },
     "Relatedness": {
         "theory": "Self-Determination Theory",
-        "description": "Relatedness refers to the inherent human need for social connection, belonging, and feeling understood by others. It encompasses feelings of companionship, acceptance, and validation essential for psychological well-being and motivation.",
+        "description": "Relatedness is the psychological need to form close emotional bonds and secure, caring connections with others. It involves feeling understood, valued, and involved in mutually supportive relationships.",
         "examples": [
             "The most rewarding projects I've worked on have always been those where I felt truly connected to my teammates. Having that sense of belonging makes it easier to share ideas, ask questions, and take creative risks. When we support each other through challenges, we not only solve problems better but also enjoy the process more.",
             "Have you noticed how different it feels to work on a task when you feel connected to the people around you? There's something energizing about knowing others value your contribution. Even difficult challenges become more manageable when you feel like you're part of a supportive community that recognizes your efforts.",
@@ -135,7 +135,7 @@ ALL_conceptS = {
     # CDT concepts
     "Self-concept": {
         "theory": "Cognitive Dissonance Theory",
-        "description": "Self-concept refers to an individual's cognitive representation of themselves, encompassing perceived identity, values, and traits. It involves the dynamic interplay between self-image, goals, and behaviors, influencing self-perception in relation to others and the world.",
+        "description": "Self-concept refers to a person's self-perceptions formed through experience and interpretations of one's environment.",
         "examples": [
             "I've always seen myself as someone who values quality work, so when I rush through assignments just to get them done, it doesn't sit right with me. The times I feel most satisfied with my contributions are when I've given them the attention they deserve, in line with the kind of professional I aim to be.",
             "You approach problems so thoughtfully, taking time to understand them deeply before offering solutions. That careful consideration is such a core part of who you are. When you stay true to that thoughtful approach, even under pressure, your work reflects the values you hold most important.",
@@ -162,7 +162,7 @@ ALL_conceptS = {
 
     "Cognitive inconsistency": {
         "theory": "Cognitive Dissonance Theory",
-        "description": "Cognitive inconsistency refers to recognizing the discrepancy between one's cognitions, values, or goals and their current behavior or choices. It represents the initial stage of cognitive dissonance where individuals become aware of conflicting information within themselves.",
+        "description": "Cognitive inconsistency refers to a contradictory relationship between two related cognitions, where one (e.g., a behavior) implies the opposite of the other (e.g., a belief).",
         "examples": [
             "I've noticed something interesting about my study habits lately. I tell myself and others that I value thorough understanding, yet I sometimes rush through readings just to finish them. These two approaches exist side by side in my routine without really bothering me much. It's just an observation about how I operate.",
             "Have you ever found yourself saying you want to master a skill properly, while simultaneously looking for shortcuts? I've caught myself doing this with learning programming—claiming I want deep knowledge while skipping foundational concepts. I can see both patterns in my behavior without feeling particularly troubled by it.",
@@ -188,7 +188,7 @@ ALL_conceptS = {
     },
     "Dissonance arousal": {
         "theory": "Cognitive Dissonance Theory",
-        "description": "Dissonance arousal refers to the emotional discomfort or tension that arises when self-perception is threatened by inconsistency between actions, behaviors, or cognitions. It captures the motivational drive to resolve cognitive dissonance triggered by incongruence between values, goals, and behavior.",
+        "description": "Dissonance arousal refers to the psychological state in which individuals experience discomfort when confronted with conflicting or inconsistent cognitions (e.g. beliefs and behaviors).",
         "examples": [
             "Every time I rush through an assignment I claimed was important to me, I feel this growing sense of unease that's hard to shake. The gap between how I want to approach my work and how I actually handled it creates this uncomfortable tension that follows me even after I've submitted it. It's like my mind won't let me simply move on.",
             "Have you experienced that nagging discomfort when you take a shortcut on something you believe should be done thoroughly? That feeling intensifies when others praise work that you know doesn't reflect your best effort. The clash between your actions and your standards creates a persistent internal pressure that's difficult to ignore.",
@@ -214,7 +214,7 @@ ALL_conceptS = {
     },
     "Dissonance reduction": {
         "theory": "Cognitive Dissonance Theory",
-        "description": "Dissonance reduction is the psychological process of reconciling conflicting cognitions or behaviors to mitigate discomfort from perceived inconsistencies. It involves deliberate reconfiguration of thoughts, attitudes, or behaviors to restore consonance and alleviate dissonant states.",
+        "description": "Dissonance reduction is the psychological process that motivates individuals to resolve the discomfort caused by inconsistencies between related cognitions (e.g., beliefs and behaviors), aiming to restore internal consistency or consonance.",
         "examples": [
             "I used to feel conflicted about spending so much time on work projects while claiming family was my priority. I've resolved this by redefining success as making meaningful contributions in both areas, rather than maximizing either one. Now I set clearer boundaries and fully engage wherever I am without the gnawing sense of neglecting something important. This balanced perspective has replaced my previous inner conflict.",
             "The tension between wanting to speak up in meetings and fearing judgment was making me dread team discussions. I've reframed my participation as offering potentially helpful perspectives rather than demonstrating expertise. This shift allows me to contribute ideas without feeling they must be perfectly formulated. The mental conflict has dissolved as I focus on adding value rather than proving worth.",
@@ -242,7 +242,7 @@ ALL_conceptS = {
     # SNT concepts
     "Descriptive Norms": {
         "theory": "Social Norm Theory",
-        "description": "Descriptive Norms refer to the perception of what is typical or common behavior in a group, emphasizing observation and understanding of others' actions as a guide for individual behavior. This focuses on how individuals perceive and internalize others' behaviors.",
+        "description": "Descriptive norms refer to the prevalent or common behaviors within a group and reflect individuals' perceptions of the likelihood that others engage in these behaviors.",
         "examples": [
             "I've noticed that most people in our study group spend time reviewing their notes before sharing their thoughts. This approach seems to lead to more insightful discussions. Many students also form smaller practice groups outside class to work through difficult concepts together.",
             "In my experience, successful graduate students typically set aside dedicated time for deep work without distractions. Most of them break large projects into manageable chunks rather than cramming at the deadline. I've also observed that they're not afraid to ask questions when they're unsure about something.",
@@ -268,7 +268,7 @@ ALL_conceptS = {
     },
     "Injunctive Norms": {
         "theory": "Social Norm Theory",
-        "description": "Injunctive Norms refer to community-level standards that dictate what behavior is considered \"right\" or \"acceptable,\" focusing on collective expectations and moral obligations guiding individual actions. They emphasize the \"should\" and \"ought\" aspects of behavior.",
+        "description": "Injunctive norms refer to individuals' perceptions of what behaviors are considered acceptable or unacceptable in a given context, motivating actions through the anticipation of social rewards or punishments.",
         "examples": [
             "On our software development team, we believe that code reviews should be thorough rather than cursory. Team members should provide specific, constructive feedback rather than simply approving changes. We expect everyone to welcome code improvement suggestions rather than defending imperfect solutions. Following these principles ensures our codebase remains maintainable and robust.",
             "In our graduate program, students should engage with assigned readings deeply enough to form their own perspectives. During discussions, everyone is expected to build on others' contributions rather than just waiting to speak. We value questions that explore conceptual boundaries over those with simple factual answers. These standards foster the intellectual growth that defines our academic community.",
@@ -294,7 +294,7 @@ ALL_conceptS = {
     },
     "Social Sanctions": {
         "theory": "Social Norm Theory",
-        "description": "Social Sanctions refer to the perceived consequences associated with conforming to or deviating from social norms, including both positive and negative outcomes. This emphasizes the subjective experience of being judged by others in relation to one's behavior.",
+        "description": "Social sanctions include a variety of verbal and nonverbal reactions to norm transgressions designed to dissuade individuals from engaging in a behavior.",
         "examples": [
             "Research scientists who thoroughly document their methodologies tend to receive more collaboration invitations and citation mentions. Those who take shortcuts in their protocols or documentation often find their work questioned or overlooked in literature reviews. I've watched how Dr. Kim's meticulous attention to reproducibility has led to her methods being adopted across multiple laboratories.",
             "Customer service representatives who take time to truly understand customer needs before suggesting solutions receive significantly higher satisfaction ratings and more personal requests from returning customers. Those who rush to close tickets quickly often generate repeat calls and declining feedback scores. Notice how clients specifically ask for Michael when they have complex issues because of his thorough approach.",
@@ -320,7 +320,7 @@ ALL_conceptS = {
     },
     "Reference Group Identification": {
         "theory": "Social Norm Theory",
-        "description": "Reference Group Identification captures the extent to which individuals define themselves by membership in a particular social group, prioritizing alignment with its values and norms over personal preferences. This emphasizes the self-referential process of identifying with a specific collective.",
+        "description": "Reference group identification refers to the psychological process through which individuals who strongly identify with a social group align their self-perceptions, beliefs, attitudes and behaviors with the group’s norms.",
         "examples": [
             "As engineers in this company, we take pride in documenting our code thoroughly rather than just making quick fixes. When I'm deciding how to approach a challenging bug, I think about our team's reputation for maintainable solutions, and that guides my choices even when deadlines are tight.",
             "Being part of this academic community means embracing intellectual curiosity and methodical investigation. When faced with complex research questions, I remember our shared commitment to rigorous methods over expedient conclusions. This identity as careful scholars influences how I approach even routine tasks.",
@@ -348,7 +348,7 @@ ALL_conceptS = {
     # SET concepts
     "Performance accomplishments": {
         "theory": "Self-Efficacy Theory",
-        "description": "Performance accomplishments refer to the belief that one's past successes serve as concrete evidence of capability to perform specific tasks or behaviors. This emphasizes the direct connection between prior accomplishments and future performance, allowing individuals to infer competence from their track record.",
+        "description": "Performance accomplishment refers to the mastery experiences one gains when taking on a new challenge and successfully completing it.",
         "examples": [
             "Remember last month when you solved that database optimization problem everyone was stuck on? You worked through each component methodically until you found the bottleneck. That success wasn't luck—it was evidence of your analytical skills. Those same abilities will help you tackle this new challenge.",
             "You've already mastered three programming languages through consistent practice and application. Each time you thought the learning curve was too steep, you broke it down into manageable parts and persisted. Your track record of learning technical skills through dedication is concrete evidence you can handle this new framework too.",
@@ -374,7 +374,7 @@ ALL_conceptS = {
     },
     "Vicarious experience": {
         "theory": "Self-Efficacy Theory",
-        "description": "Vicarious experience refers to acquiring confidence and motivation by observing others' successful experiences, achievements, and behaviors. It emphasizes how witnessing peers overcome challenges enhances one's own belief in their capacity for similar success.",
+        "description": "Vicarious experience refers to the process through which individuals enhance their belief in their own capabilities to master tasks by observing people similar to themselves succeed through sustained effort.",
         "examples": [
             "Watch how Eliza approaches these complex design problems. She starts by sketching multiple rough concepts before committing to one direction. Even when she encounters technical limitations, she systematically works through each constraint rather than abandoning her vision. Seeing her methodical process has completely changed how I approach my own creative challenges.",
             "My colleague Marco had never used this statistical software before joining our team last year. He spent time observing how our senior analysts structured their queries and organized their data pipelines. Within six months, he was implementing these same techniques in his own analyses. Watching his rapid progress showed me that these skills are definitely learnable with the right approach.",
@@ -400,7 +400,7 @@ ALL_conceptS = {
     },
     "Verbal persuasion": {
         "theory": "Self-Efficacy Theory",
-        "description": "Verbal persuasion refers to encouragement, feedback, and expressions of confidence from others that influence an individual's belief in their capabilities. It emphasizes how external validation and guidance can strengthen one's conviction in their ability to succeed at specific tasks.",
+        "description": "Verbal persuasion refers to the process of receiving encouraging verbal feedback that strengthen an individual's belief in their ability to succeed in a task.",
         "examples": [
             "The way you analyzed that complex data set showed remarkable attention to detail and pattern recognition. Your methodical approach to validating findings before drawing conclusions demonstrates exactly the kind of careful thinking this project needs. I've seen how quickly you pick up new analytical methods, which makes me confident you'll excel with this new visualization challenge.",
             "Your presentations always connect technical concepts to practical applications so effectively. You have a gift for making complex ideas accessible without oversimplifying them. The questions you ask reveal deep understanding of underlying principles. These communication strengths will make you particularly effective in the cross-functional role we discussed.",
@@ -426,13 +426,12 @@ ALL_conceptS = {
     },
     "Emotional arousal": {
         "theory": "Self-Efficacy Theory",
-        "description": "Emotional Arousal refers to the intense, personally relevant emotional states experienced during and after successful or challenging tasks. It encompasses positive emotions like excitement, pride, and satisfaction directly tied to perceived mastery and accomplishment.",
+        "description": "Emotional arousal refers to the emotional states that individuals experience in response to challenging situations, which can influence the beliefs in their ability to succeed in a task.",
         "examples": [
             "Pay attention to that feeling of mental clarity you experience after working through a complex problem step by step. That sense of intellectual sharpness is telling you something important about how meaningful challenges affect your cognitive state. This positive mental energy becomes a resource you can draw on when facing future obstacles.",
             "Notice the distinctive satisfaction that comes after expressing an idea precisely, especially when you've taken time to refine your thinking. That internal sense of clarity feels qualitatively different from the temporary relief of just completing a task. These emotional rewards guide us toward the kinds of deep engagement that foster genuine growth.",
             "There's a unique feeling of confidence that emerges when you've mastered something that initially seemed beyond your capabilities. This isn't just momentary happiness but a fundamental shift in how you perceive challenges. Each time you experience this earned confidence, it becomes easier to approach new difficult situations with optimism.",
             "The calm centeredness you feel when fully engaged in challenging work—what some call 'flow'—signals an optimal learning state. This feeling of absorbed focus, when you're neither bored nor overwhelmed, indicates you're working at the edge of your capabilities where the most growth happens. Learning to recognize and cultivate this state can transform how you approach complex tasks."
-
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Emotional arousal emphasizes affective responses.",

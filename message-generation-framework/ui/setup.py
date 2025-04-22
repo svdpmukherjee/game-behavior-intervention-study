@@ -11,6 +11,7 @@ from ui.common import (
     add_task_context, add_message_focus, add_message_tone, add_message_style,
     delete_task_context, delete_message_focus, delete_message_tone, delete_message_style
 )
+from datetime import datetime
 
 def display_setup_view():
     """Display the workflow setup view."""
@@ -155,31 +156,20 @@ def display_setup_view():
         # Create separate containers for each message characteristic with visible boundaries
         # 3.1 Message Focus
         with st.container(border=True):
-            st.markdown('<div class="parameter-header">Message Focus</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">3.1 Message Focus</div>', unsafe_allow_html=True)
             st.markdown('<div class="parameter-description">Select the specific aspect of the concept to emphasize in your message</div>', unsafe_allow_html=True)
             
             # Message focus (formerly diversity focus)
             custom_focuses = get_custom_focuses()
-            focus_ids = [focus["id"] for focus in custom_focuses]
             
-            selected_focus_id = st.selectbox(
+            # Modified to show focus text directly in dropdown
+            focus_options = [focus["text"] for focus in custom_focuses]
+            
+            selected_focus_text = st.selectbox(
                 "Message Focus",
-                options=focus_ids,
+                options=focus_options,
                 help="Specific focus area for the message",
                 key="focus_selector"
-            )
-            
-            # Find the selected focus
-            selected_focus_obj = next((focus for focus in custom_focuses if focus["id"] == selected_focus_id), None)
-            selected_focus_text = selected_focus_obj["text"] if selected_focus_obj else ""
-            
-            # Display full focus text
-            st.text_area(
-                "Focus Description",
-                value=selected_focus_text,
-                height=70,
-                disabled=False,
-                key="focus_full_text"
             )
             
             # Button to add new focus
@@ -206,31 +196,20 @@ def display_setup_view():
         
         # 3.2 Message Style
         with st.container(border=True):
-            st.markdown('<div class="parameter-header">Message Style</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">3.2 Message Style</div>', unsafe_allow_html=True)
             st.markdown('<div class="parameter-description">Select the structural format for your message</div>', unsafe_allow_html=True)
             
             # Message Style
             custom_styles = get_custom_styles()
-            style_ids = [style["id"] for style in custom_styles]
             
-            selected_style_id = st.selectbox(
+            # Modified to show style text directly in dropdown
+            style_options = [style["text"] for style in custom_styles]
+            
+            selected_style_text = st.selectbox(
                 "Message Style",
-                options=style_ids,
+                options=style_options,
                 help="Structural format for the message",
                 key="style_selector"
-            )
-            
-            # Find the selected style
-            selected_style_obj = next((style for style in custom_styles if style["id"] == selected_style_id), None)
-            selected_style_text = selected_style_obj["text"] if selected_style_obj else ""
-            
-            # Display style description
-            st.text_area(
-                "Style Description",
-                value=selected_style_text,
-                height=70,
-                disabled=False,
-                key="style_full_text"
             )
             
             # Button to add new style
@@ -257,7 +236,7 @@ def display_setup_view():
             
         # 3.3 Message Tone
         with st.container(border=True):
-            st.markdown('<div class="parameter-header">Message Tone</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">3.3 Message Tone</div>', unsafe_allow_html=True)
             st.markdown('<div class="parameter-description">Set the emotional quality and style of your message</div>', unsafe_allow_html=True)
             
             # Tone selection
@@ -308,7 +287,7 @@ def display_setup_view():
         
         # 3.4 Message Length
         with st.container(border=True):
-            st.markdown('<div class="parameter-header">Message Length</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">3.4 Message Length</div>', unsafe_allow_html=True)
             st.markdown('<div class="parameter-description">Adjust the number of sentences in your generated message</div>', unsafe_allow_html=True)
             
             # Add Message Length setting
@@ -325,6 +304,22 @@ def display_setup_view():
             # Add visual indicator for length classification
             length_category = "Short" if message_length <= 2 else ("Medium" if message_length <= 5 else "Long")
             st.markdown(f'<div class="length-indicator">Length Category: <span class="length-{length_category.lower()}">{length_category}</span> ({message_length} sentences)</div>', unsafe_allow_html=True)
+            
+        # 3.5 Number of Messages to Generate
+        with st.container(border=True):
+            st.markdown('<div class="parameter-header">3.5 Number of Messages</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-description">Set how many messages you want to generate for this concept</div>', unsafe_allow_html=True)
+            
+            # Add number of messages setting
+            num_messages = st.number_input(
+                "Number of Messages",
+                min_value=1,
+                max_value=10,
+                value=1,
+                step=1,
+                help="Select how many messages you want to generate for this concept",
+                key="num_messages_input"
+            )
     
     # 4. Model Selection
     with st.container(border=True):
@@ -342,7 +337,7 @@ def display_setup_view():
         col1, col2 = st.columns(2)
         
         with col1:
-            st.markdown('<div class="parameter-header">Generator Model</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">4.1 Generator Model</div>', unsafe_allow_html=True)
             
             # Flatten available models list for selection
             generator_options = []
@@ -387,7 +382,7 @@ def display_setup_view():
             )
         
         with col2:
-            st.markdown('<div class="parameter-header">Evaluator Model</div>', unsafe_allow_html=True)
+            st.markdown('<div class="parameter-header">4.2 Evaluator Model</div>', unsafe_allow_html=True)
             
             # Flatten available models list for selection
             evaluator_options = []
@@ -399,9 +394,13 @@ def display_setup_view():
                 st.warning("No models available. Please check your API keys.")
                 evaluator_model = ""
             else:
+                # Set default to gpt-4o if available
+                default_index = evaluator_options.index("gpt-4o") if "gpt-4o" in evaluator_options else 0
+                
                 evaluator_model = st.selectbox(
                     "Select Evaluator Model",
                     options=evaluator_options,
+                    index=default_index,
                     help="Model for evaluating messages",
                     key="evaluator_model_select"
                 )
@@ -430,22 +429,77 @@ def display_setup_view():
                 help="Controls diversity by limiting to top tokens that add up to probability mass P",
                 key="evaluator_top_p_slider"
             )
-    
+            
+    # Add MongoDB management section
+    with st.container(border=True):
+        # st.markdown('<div class="section-header">Database Management</div>', unsafe_allow_html=True)
+        # st.markdown(
+        #     '<div class="section-explanation">Manage message database settings and operations.</div>',
+        #     unsafe_allow_html=True
+        # )
+        
+        if 'mongodb_service' in st.session_state:
+            # Get message count
+            all_messages = st.session_state.mongodb_service.get_all_messages()
+            
+            # st.markdown(f"**Current database contains {len(all_messages)} messages**")
+            
+            st.markdown('<div class="section-header">We Need an User ID</div>', unsafe_allow_html=True)
+            user_id = st.session_state.get('user_id', '')
+            new_user_id = st.text_input(
+                "Enter Your Name (Required) and Press Enter",
+                value=user_id,
+                help="Enter your first name or username (required to proceed)",
+                key="user_id_input"
+            )
+
+            # Store user ID in lowercase
+            if new_user_id:
+                st.session_state.user_id = new_user_id.lower()
+            else:
+                # st.warning("Please enter a User ID to proceed. This is required for message tracking.")
+                pass
+
+            # Add a check for User ID before enabling the Start Workflow button
+            has_valid_user_id = bool(st.session_state.get('user_id', ''))
+            
+            # Add warning and confirmation for clearing database
+            if st.button("Clear All Messages from Database", type="secondary", key="clear_db_btn", disabled=True):
+                if st.session_state.get("confirm_clear_db"):
+                    deleted_count = st.session_state.mongodb_service.delete_all_messages()
+                    st.success(f"Successfully deleted {deleted_count} messages from the database.")
+                    st.session_state.confirm_clear_db = False
+                    st.rerun()
+                else:
+                    st.session_state.confirm_clear_db = True
+                    st.warning("⚠️ Are you sure? Click again to confirm deletion of ALL messages from the database. This action cannot be undone.")
+                    
     # Submit button
-    if st.button("Start Workflow", type="primary", key="start_workflow_btn"):
+    if st.button("Generate Message", 
+             type="primary", 
+             key="start_workflow_btn",
+             disabled=not has_valid_user_id):  # Disable if no valid user ID
+    
+        # Validate User ID first
+        if not st.session_state.get('user_id'):
+            st.error("Please enter a User ID to continue.")
+            return
+        
         # Find the actual text for selected items
         custom_contexts = get_custom_contexts()
-        custom_focuses = get_custom_focuses()
         custom_tones = get_custom_tones()
-        custom_styles = get_custom_styles()
         
+        # For focus and style, we're now using the text directly
         selected_context_text = next((ctx["text"] for ctx in custom_contexts if ctx["id"] == selected_context_id), "")
-        selected_focus_text = next((focus["text"] for focus in custom_focuses if focus["id"] == selected_focus_id), "")
         selected_tone_text = next((tone["text"] for tone in custom_tones if tone["id"] == selected_tone_id), "")
-        selected_style_text = next((style["text"] for style in custom_styles if style["id"] == selected_style_id), "")
         
-        # Get the message length from the slider
+        # Get values directly from the UI
+        selected_focus_text = st.session_state.focus_selector
+        selected_style_text = st.session_state.style_selector
+        
+        # Get the message length and number of messages from the UI
         message_length = st.session_state.get("message_length_slider", 3)
+        num_messages = st.session_state.get("num_messages_input", 3)
         
         if not selected_concept or not selected_context_text:
             st.error("Please select a concept and context.")
@@ -464,7 +518,8 @@ def display_setup_view():
                 evaluator_temp=evaluator_temp,
                 generator_top_p=generator_top_p,
                 evaluator_top_p=evaluator_top_p,
-                message_length=message_length  # Pass the message length to the workflow
+                message_length=message_length,
+                num_messages=num_messages
             )
             
             if success:

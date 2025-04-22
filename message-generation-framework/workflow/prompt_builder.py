@@ -60,7 +60,8 @@ def create_single_message_prompt(
     previous_message: Optional[str] = None,
     human_feedback: Optional[Union[str, Dict[str, Any]]] = None,
     llm_evaluation: Optional[Dict[str, Any]] = None,
-    final_messages: Optional[List[str]] = None
+    final_messages: Optional[List[str]] = None,
+    all_concept_messages: Optional[List[str]] = None
 ) -> str:
     """
     Create a prompt for generating a single message based on workflow state.
@@ -190,6 +191,24 @@ def create_single_message_prompt(
         5. Consider a different narrative flow or rhetorical structure
         
         The message should be recognizably distinct from the previous messages even while communicating the same underlying concept.
+        """
+    
+    # Add cross-user diversity instruction
+    if all_concept_messages:
+        generation_prompt += "\n\nVERY IMPORTANT: Create a message that is COMPLETELY DIFFERENT from these messages created by other users:"
+        for i, other_msg in enumerate(all_concept_messages[:5], 1):  # Show up to 5 examples
+            generation_prompt += f"\n{i}. \"{other_msg}\""
+        
+        generation_prompt += """
+        
+        Your message MUST be substantially different from ALL of these previously created messages.
+        Use completely different:
+        - Examples and scenarios
+        - Metaphors and analogies
+        - Sentence structures and patterns
+        - Opening and closing approaches
+        
+        The goal is to create a message that communicates the same concept but in a way that has no significant semantic overlap with existing messages.
         """
     
     return generation_prompt

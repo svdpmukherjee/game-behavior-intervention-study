@@ -53,6 +53,7 @@ class MessageWorkflow:
         self.tone = tone
         self.message_style = message_style
         self.message_length = 3 
+        self.num_messages = 3  # Default number of messages to generate
         
         # Service functions
         self.generate_text = generate_text
@@ -140,6 +141,12 @@ class MessageWorkflow:
         Returns:
             The generated message
         """
+        # Get existing messages for this concept from MongoDB if available
+        existing_concept_messages = []
+        if 'mongodb_service' in st.session_state:
+            existing_concept_messages = st.session_state.mongodb_service.get_messages_by_concept(self.concept_name)
+            logger.info(f"Retrieved {len(existing_concept_messages)} existing messages for concept: {self.concept_name}")
+        
         # Create the prompt based on workflow state
         prompt = create_single_message_prompt(
             concept_name=self.concept_name,
@@ -153,7 +160,8 @@ class MessageWorkflow:
             previous_message=self.message_history[-1] if self.message_history else None,
             human_feedback=self.feedback_history[-1] if self.feedback_history else None,
             llm_evaluation=self.evaluation_history[-1] if self.evaluation_history else None,
-            final_messages=self.final_messages
+            final_messages=self.final_messages,
+            all_concept_messages=existing_concept_messages
         )
         
         # Generate the message
@@ -192,6 +200,17 @@ class MessageWorkflow:
                         
                         # Add specific instruction to increase diversity
                         prompt += f"\n\nIMPORTANT: Your message is too similar to previously accepted messages. Please make it significantly more different using new phrasing, structure, and examples, while still maintaining alignment with the concept {self.concept_name}."
+                        continue
+                
+                # Check similarity with messages from the database
+                if len(existing_concept_messages) > 0 and 'similarity_service' in st.session_state:
+                    cross_user_similarity = st.session_state.similarity_service.check_message_diversity(
+                        message, existing_concept_messages
+                    )
+                    
+                    if not cross_user_similarity["is_diverse"] and attempt < max_attempts:
+                        logger.warning(f"Attempt {attempt}: Generated message too similar to messages from other users (similarity: {cross_user_similarity['max_similarity']:.2f}). Regenerating...")
+                        prompt += f"\n\nIMPORTANT: Your message is too similar to messages already created by other users. Make it significantly more different by using entirely new phrasing, structure, and examples."
                         continue
                 
                 # If we reach here, either the message is acceptable or we've tried the maximum attempts
@@ -349,6 +368,64 @@ class MessageWorkflow:
         # Get the final message
         final_message = self.message_history[-1]
         
+        # Calculate diversity metrics
+        diversity_metrics = None
+        
+        # Save to MongoDB if service is available
+        if 'mongodb_service' in st.session_state:
+            # Get user ID from session state or generate one
+            user_id = st.session_state.get('user_id', 'anonymous_user')
+            
+            # Get all previous messages from this concept from MongoDB
+            previous_messages = st.session_state.mongodb_service.get_messages_by_concept(self.concept_name)
+            
+            # Calculate diversity metrics compared to all previous messages for this concept
+            if previous_messages and 'similarity_service' in st.session_state:
+                diversity_metrics = st.session_state.similarity_service.check_message_diversity(
+                    final_message, previous_messages
+                )
+                
+                # Log the diversity metrics
+                logger.info(f"Message diversity metrics against all previous messages for {self.concept_name}: {diversity_metrics}")
+                
+                # Also check against our current final messages for this session
+                if len(self.final_messages) > 0:
+                    session_diversity = st.session_state.similarity_service.check_message_diversity(
+                        final_message, self.final_messages
+                    )
+                    
+                    # Combine metrics
+                    if diversity_metrics:
+                        diversity_metrics["session_max_similarity"] = session_diversity.get("max_similarity", 0)
+                        diversity_metrics["session_average_similarity"] = session_diversity.get("average_similarity", 0)
+            else:
+                # If no previous messages in the database, check against our current final messages
+                if len(self.final_messages) > 0 and 'similarity_service' in st.session_state:
+                    diversity_metrics = st.session_state.similarity_service.check_message_diversity(
+                        final_message, self.final_messages
+                    )
+                    
+                    # Add field to indicate this is only session-based
+                    if diversity_metrics:
+                        diversity_metrics["only_session_metrics"] = True
+            
+            # Save message with metadata and diversity metrics
+            message_id = st.session_state.mongodb_service.save_message(
+                message=final_message,
+                concept_name=self.concept_name,
+                user_id=user_id,
+                context=self.context,
+                focus=self.diversity_focus,
+                tone=self.tone,
+                style=self.message_style,
+                message_length=self.message_length,
+                iterations=self.current_iteration,
+                diversity_metrics=diversity_metrics
+            )
+            
+            if message_id:
+                logger.info(f"Message saved to MongoDB concept collection: {self.concept_name} with ID: {message_id}")
+        
         # Add to final messages list
         self.final_messages.append(final_message)
         
@@ -381,6 +458,8 @@ class MessageWorkflow:
             "diversity_focus": self.diversity_focus,
             "tone": self.tone,
             "message_style": self.message_style,
+            "message_length": self.message_length,
+            "num_messages": self.num_messages,
             "current_message_number": self.current_message_number,
             "current_iteration": self.current_iteration,
             "message_history": self.message_history,

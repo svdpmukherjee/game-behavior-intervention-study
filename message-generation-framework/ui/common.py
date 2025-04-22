@@ -14,14 +14,23 @@ MESSAGE_STYLES = [
     "Create a message that uses cause-effect reasoning format",
 ]
 
+# Define short descriptions for task contexts
+TASK_CONTEXT_DESCRIPTIONS = [
+    "Problem-solving scenarios",
+    "Persistence & skill tasks",
+    "Learning & expertise",
+    "Progressive challenges",
+    "Skill development"
+]
+
 def get_custom_contexts():
     """Get task contexts from session state or default list."""
     if "custom_contexts" not in st.session_state:
-        # Create task context labels
+        # Create task context labels with short descriptions
         labeled_contexts = []
-        for i, context in enumerate(TASK_CONTEXTS, 1):
+        for i, (context, description) in enumerate(zip(TASK_CONTEXTS, TASK_CONTEXT_DESCRIPTIONS), 1):
             labeled_contexts.append({
-                "id": f"Predefined Task {i}",
+                "id": description,  # Use short description as ID
                 "text": context
             })
         st.session_state.custom_contexts = labeled_contexts
@@ -73,9 +82,13 @@ def add_task_context():
     
     with st.form("add_task_form", clear_on_submit=True):
         new_text = st.text_area("Enter a new task context", height=100, key="new_task_text")
+        new_id = st.text_input("Short description (3-4 words)", key="new_task_id", 
+                               help="This will appear in the dropdown menu")
         submit = st.form_submit_button("Add Task Context")
         
         if submit and new_text:
+            if not new_id:
+                new_id = f"Custom Task {len(custom_contexts) + 1}"
             custom_contexts.append({
                 "id": new_id,
                 "text": new_text

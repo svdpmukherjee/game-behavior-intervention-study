@@ -20,7 +20,7 @@ from ui.results import display_results_view
 from ui.styling import apply_custom_css
 from services.similarity import SemanticSimilarityService
 from workflow.state_manager import (
-    initialize_services, reset_session_state, save_results_to_file
+    initialize_services, initialize_mongodb, reset_session_state, save_results_to_file
 )
 
 # Configure logging
@@ -42,7 +42,7 @@ st.set_page_config(
     page_title="Message Generator App",
     page_icon="💬",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 def api_key_setup():
@@ -57,6 +57,8 @@ def api_key_setup():
     # Load API keys from environment or session state
     together_key = os.getenv("TOGETHER_API_KEY") or st.session_state.get("together_api_key", "")
     openai_key = os.getenv("OPENAI_API_KEY") or st.session_state.get("openai_api_key", "")
+    mongodb_uri = os.getenv("MONGODB_URI") or st.session_state.get("mongodb_uri", "")
+    mongodb_db_name = os.getenv("MONGODB_DB_NAME") or st.session_state.get("mongodb_db_name", "message_generator")
     
     # Check if keys are already in session state
     if "together_api_key" not in st.session_state:
@@ -64,6 +66,12 @@ def api_key_setup():
     
     if "openai_api_key" not in st.session_state:
         st.session_state.openai_api_key = openai_key
+        
+    if "mongodb_uri" not in st.session_state:
+        st.session_state.mongodb_uri = mongodb_uri
+        
+    if "mongodb_db_name" not in st.session_state:
+        st.session_state.mongodb_db_name = mongodb_db_name
     
     # Create API key input fields
     together_api_key = st.text_input(
@@ -82,18 +90,49 @@ def api_key_setup():
         key="openai_api_key_input"
     )
     
+    # MongoDB section
+    with st.expander("Database Settings (MongoDB)", expanded=not bool(os.getenv("MONGODB_URI"))):
+        # MongoDB URI field - always enabled
+        uri_input = st.text_input(
+            "MongoDB URI",
+            type="password" if mongodb_uri else "default",
+            value=st.session_state.mongodb_uri,
+            help="Connection URI for MongoDB (e.g., mongodb://username:password@host:port/)",
+            key="mongodb_uri_input"
+        )
+        
+        # Database name field - always enabled
+        db_name_input = st.text_input(
+            "MongoDB Database Name",
+            value=st.session_state.mongodb_db_name,
+            help="Name of the MongoDB database to use",
+            key="mongodb_db_name_input"
+        )
+        
+        # Collection info message - explaining the automatic collection creation
+        st.info("Collections will be automatically created based on concept names. Each concept will have its own collection.")
+        
+        # Show a note if environment variables are being used as default values
+        # if os.getenv("MONGODB_URI") or os.getenv("MONGODB_DB_NAME"):
+        #     st.info("Default values loaded from environment variables. You can change them if needed.")
+
     # Update session state with input values
     st.session_state.together_api_key = together_api_key
     st.session_state.openai_api_key = openai_api_key
-    
+    st.session_state.mongodb_uri = uri_input
+    st.session_state.mongodb_db_name = db_name_input
+
     # Initialize services if keys are provided
     if together_api_key or openai_api_key:
         with st.spinner("Initializing services..."):
             initialize_services(together_api_key, openai_api_key)
-        return True
-    else:
-        st.warning("Please enter at least one API key to continue.")
-        return False
+            
+            # Initialize MongoDB if URI is provided
+            if uri_input:
+                initialize_mongodb(uri_input, db_name_input)
+                logger.info(f"MongoDB initialized with database: {db_name_input}")
+            else:
+                st.warning("MongoDB URI not provided. Message storage will be unavailable.")
 
 def lazy_load_similarity_model():
     """Lazy load the similarity model only when needed."""

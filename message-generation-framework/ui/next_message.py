@@ -18,10 +18,17 @@ def display_next_message_view():
     
     with st.container(border=True):
         st.markdown('<div class="sub-header">Message Accepted</div>', unsafe_allow_html=True)
-        st.success(f"Message #{workflow.current_message_number - 1} has been finalized!")
+        st.success(f"Message #{workflow.current_message_number - 1} of {workflow.num_messages} has been finalized!")
         
         # Display accepted message
         st.markdown('<div class="message-box">' + workflow.final_messages[-1] + '</div>', unsafe_allow_html=True)
+        
+        # Display concept definition for reference
+        with st.expander("View Concept Definition", expanded=True):
+            # Get concept definition from session state if available
+            custom_def_key = f"custom_definition_{workflow.concept_name}"
+            concept_definition = st.session_state.get(custom_def_key, workflow.concept_info.get("description", ""))
+            st.markdown(f"**{workflow.concept_name}**: {concept_definition}")
         
         st.markdown('<div class="section-header">Choose How to Proceed</div>', unsafe_allow_html=True)
         
@@ -44,7 +51,7 @@ def display_next_message_view():
         if len(workflow.final_messages) > 1:
             with st.expander("View Previous Messages", expanded=False):
                 for i, msg in enumerate(workflow.final_messages[:-1], 1):
-                    st.markdown(f"**Message {i}**")
+                    st.markdown(f"**Message {i} of {workflow.num_messages}**")
                     st.markdown(f'<div class="message-box">{msg}</div>', unsafe_allow_html=True)
         
         # Option to start completely new

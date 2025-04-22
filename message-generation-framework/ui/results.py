@@ -4,8 +4,39 @@ Contains functions for displaying the final results view.
 """
 
 import streamlit as st
-from utils.helpers import export_messages_to_file
+import base64
+import json
+from datetime import datetime
 from workflow.state_manager import save_results_to_file, reset_session_state
+
+def export_messages_as_text(messages, concept_name):
+    """
+    Export messages as a text file and create a download link.
+    
+    Args:
+        messages: List of messages to export
+        concept_name: Name of the concept for filename
+        
+    Returns:
+        HTML for download link
+    """
+    if not messages:
+        return None
+    
+    # Create content
+    content = ""
+    for i, message in enumerate(messages, 1):
+        content += f"Message {i}:\n{message}\n\n"
+    
+    # Create filename
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{concept_name}_messages_{timestamp}.txt"
+    
+    # Create download link
+    b64 = base64.b64encode(content.encode()).decode()
+    href = f'<a href="data:text/plain;base64,{b64}" download="{filename}">Download Messages as Text</a>'
+    
+    return href
 
 def display_results_view():
     """Display the final results view."""
@@ -18,7 +49,7 @@ def display_results_view():
     workflow = st.session_state.workflow
     
     with st.container(border=True):
-        st.markdown('<div class="sub-header">Workflow Complete! 🎉</div>', unsafe_allow_html=True)
+        # st.markdown('<div class="sub-header">Workflow Complete!</div>', unsafe_allow_html=True)
         st.success(f"You've successfully generated {len(workflow.final_messages)} messages for the {workflow.concept_name} concept!")
         
         # Display iterations summary
@@ -41,7 +72,7 @@ def display_results_view():
             st.markdown("**Message Parameters**")
             st.markdown(f"- **Focus:** {workflow.diversity_focus}")
             st.markdown(f"- **Tone:** {workflow.tone}")
-            st.markdown(f"- **Style:** {workflow.message_style.split(' ')[-1] if workflow.message_style else 'Default'}")
+            st.markdown(f"- **Style:** {workflow.message_style}")
     
     # Display final messages
     with st.container(border=True):
@@ -59,19 +90,21 @@ def display_results_view():
         
         with col1:
             if st.button("Export Messages as Text", type="primary", use_container_width=True, key="export_text_btn"):
-                export_path = export_messages_to_file(workflow.final_messages, workflow.concept_name)
-                if export_path:
-                    st.success(f"Messages exported to: {export_path}")
+                # Create download link for messages as text
+                download_link = export_messages_as_text(workflow.final_messages, workflow.concept_name)
+                if download_link:
+                    st.markdown(download_link, unsafe_allow_html=True)
                 else:
-                    st.error("Failed to export messages.")
+                    st.error("Failed to create download link for messages.")
         
         with col2:
             if st.button("Save Complete Results", type="secondary", use_container_width=True, key="save_results_btn"):
+                # Save complete results and provide download link
                 save_path = save_results_to_file()
                 if save_path:
-                    st.success(f"Results saved to: {save_path}")
+                    st.success("Results prepared for download.")
                 else:
-                    st.error("Failed to save results.")
+                    st.error("Failed to prepare results for download.")
         
         # Start new workflow button
         if st.button("Start New Workflow", type="primary", use_container_width=True, key="new_workflow_results_btn"):

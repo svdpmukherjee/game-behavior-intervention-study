@@ -9,7 +9,8 @@ import os
 from datetime import datetime
 from typing import Dict, Any, Optional
 from functools import lru_cache
-
+import base64
+from services.mongodb_service import MongoDBService
 import streamlit as st
 
 from data.concepts import ALL_conceptS, TASK_CONTEXTS, MESSAGE_FOCUSES, TONES
@@ -77,6 +78,41 @@ def initialize_services(together_api_key: Optional[str] = None, openai_api_key: 
     # Store current keys for future comparison
     st.session_state.current_together_key = together_api_key
     st.session_state.current_openai_key = openai_api_key
+    
+def initialize_mongodb(uri: Optional[str] = None, db_name: Optional[str] = None):
+    """
+    Initialize MongoDB service and store it in session state.
+    
+    Args:
+        uri: MongoDB connection URI
+        db_name: Name of the database
+    """
+    if not uri:
+        # Use default URI if not provided
+        uri = st.session_state.get('mongodb_uri', os.getenv("MONGODB_URI", 'mongodb://localhost:27017/'))
+    
+    if not db_name:
+        # Use default database name if not provided
+        db_name = st.session_state.get('mongodb_db_name', os.getenv("MONGODB_DB_NAME", 'message_generator'))
+    
+    # Store values in session state
+    st.session_state.mongodb_uri = uri
+    st.session_state.mongodb_db_name = db_name
+    
+    # Initialize service if not already in session state or if connection details have changed
+    current_uri = st.session_state.get('current_mongodb_uri')
+    current_db_name = st.session_state.get('current_mongodb_db_name')
+    
+    if ('mongodb_service' not in st.session_state or 
+        current_uri != uri or 
+        current_db_name != db_name):
+        # No collection name is provided - collections will be created based on concept names
+        st.session_state.mongodb_service = MongoDBService(uri, db_name)
+        logger.info(f"MongoDB service initialized with database: {db_name}")
+    
+    # Store current values for future comparison
+    st.session_state.current_mongodb_uri = uri
+    st.session_state.current_mongodb_db_name = db_name
 
 def initialize_workflow(
     concept_name: str,
@@ -90,7 +126,8 @@ def initialize_workflow(
     evaluator_temp: float = 0.2,
     generator_top_p: float = 0.95,
     evaluator_top_p: float = 0.95,
-    message_length: int = 3
+    message_length: int = 3,
+    num_messages: int = 3
 ) -> bool:
     """
     Initialize a new message generation workflow and store it in session state.
@@ -107,6 +144,8 @@ def initialize_workflow(
         evaluator_temp: Temperature setting for evaluation
         generator_top_p: Top P setting for generation
         evaluator_top_p: Top P setting for evaluation
+        message_length: Number of sentences per message
+        num_messages: Number of messages to generate
         
     Returns:
         True if workflow was successfully initialized, False otherwise
@@ -156,7 +195,9 @@ def initialize_workflow(
         evaluator_config=evaluator_config
     )
     
+    # Set additional parameters
     workflow.message_length = message_length
+    workflow.num_messages = num_messages
     
     # Store in session state
     st.session_state.workflow = workflow
@@ -166,7 +207,7 @@ def initialize_workflow(
 
 def save_results_to_file() -> Optional[str]:
     """
-    Save the workflow results to a file.
+    Save the workflow results to a file and provide download link.
     
     Returns:
         Path to the saved file, or None if saving failed
@@ -185,6 +226,7 @@ def save_results_to_file() -> Optional[str]:
         "tone": workflow.tone,
         "message_style": workflow.message_style,
         "message_length": workflow.message_length,
+        "num_messages": workflow.num_messages,
         "generator_model": workflow.generator_config["model"],
         "evaluator_model": workflow.evaluator_config["model"],
         "generator_settings": {
@@ -200,18 +242,28 @@ def save_results_to_file() -> Optional[str]:
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    # Create output directory if it doesn't exist
-    output_dir = os.path.join("results")
-    os.makedirs(output_dir, exist_ok=True)
+    # Convert to JSON string
+    json_str = json.dumps(results, indent=2)
     
-    # Save results to file
+    # Create filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{workflow.concept_name}_results_{timestamp}.json"
-    filepath = os.path.join(output_dir, filename)
     
+    # Create download link
+    b64 = base64.b64encode(json_str.encode()).decode()
+    href = f'<a href="data:application/json;base64,{b64}" download="{filename}">Download Results JSON</a>'
+    
+    # Display download link
+    st.markdown(href, unsafe_allow_html=True)
+    
+    # For compatibility, still save locally if possible
     try:
+        output_dir = os.path.join("results")
+        os.makedirs(output_dir, exist_ok=True)
+        filepath = os.path.join(output_dir, filename)
+        
         with open(filepath, "w") as f:
-            json.dump(results, f, indent=2)
+            f.write(json_str)
         logger.info(f"Results saved to {filepath}")
         return filepath
     except Exception as e:
@@ -243,7 +295,13 @@ def reset_session_state():
         'custom_contexts',
         'custom_focuses',
         'custom_tones',
-        'custom_styles'
+        'custom_styles',
+        'user_id',
+        'mongodb_uri',
+        'mongodb_db_name',
+        'current_mongodb_uri',
+        'current_mongodb_db_name',
+        'mongodb_service'
     ]
     
     # Extract values to preserve

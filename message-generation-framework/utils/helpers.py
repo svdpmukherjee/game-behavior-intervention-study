@@ -6,6 +6,7 @@ Contains utility functions for the application.
 import json
 import logging
 import os
+import base64
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
@@ -97,28 +98,42 @@ def create_evaluation_visualization(evaluation: Dict[str, Any], target_concept: 
 
 def export_messages_to_file(messages: List[str], concept_name: str) -> Optional[str]:
     """
-    Export a list of messages to a file.
+    Export a list of messages to a file and provide download link.
     
     Args:
         messages: List of messages to export
         concept_name: Name of the concept for filename
         
     Returns:
-        Path to the exported file, or None if export failed
+        HTML for download link or path to exported file
     """
     if not messages:
         return None
     
-    # Create output directory if it doesn't exist
-    output_dir = os.path.join("exports")
-    os.makedirs(output_dir, exist_ok=True)
+    # Create content
+    content = ""
+    for i, message in enumerate(messages, 1):
+        content += f"Message {i}:\n{message}\n\n"
     
     # Create filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{concept_name}_messages_{timestamp}.txt"
-    filepath = os.path.join(output_dir, filename)
     
+    # Create download link
+    b64 = base64.b64encode(content.encode()).decode()
+    href = f'<a href="data:text/plain;base64,{b64}" download="{filename}">Download Messages as Text</a>'
+    
+    # Display download link
+    st.markdown(href, unsafe_allow_html=True)
+    
+    # For compatibility, also try to save locally
     try:
+        # Create output directory if it doesn't exist
+        output_dir = os.path.join("exports")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filepath = os.path.join(output_dir, filename)
+        
         with open(filepath, "w") as f:
             for i, message in enumerate(messages, 1):
                 f.write(f"Message {i}:\n{message}\n\n")
@@ -141,14 +156,7 @@ def display_competing_concepts(evaluation_vis_data: Dict[str, Any]):
     target = evaluation_vis_data["target"]
     competing = evaluation_vis_data["competing"]
     
-    # Create two columns
-    # col1, col2 = st.columns([1, 2])
-    
-    # with col1:
-    #     st.metric("Target Score", f"{target['score']}%", delta=None)
-    
-    # with col2:
-                    # Create a horizontal bar for the competing concepts
+    # Create a horizontal bar for the competing concepts
     if competing:
         # Create a simple markdown table
         st.markdown("**Top competing concepts:**")
@@ -158,7 +166,5 @@ def display_competing_concepts(evaluation_vis_data: Dict[str, Any]):
             table_rows.append(f"| {concept['name']} | {concept['score']}% |")
         
         if table_rows:
-            # st.markdown("| concept | Score |")
-            # st.markdown("| --- | --- |")
             for row in table_rows:
                 st.markdown(row)

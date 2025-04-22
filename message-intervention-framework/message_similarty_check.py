@@ -16,7 +16,6 @@ messages = [
     "I think about the times I've struggled and still managed to succeed. Those moments prove to me that I have what it takes to handle tough situations. When I'm faced with a new challenge, I remind myself of the times I've come out on top through my own effort. This helps me trust that I can do it again, and that gives me the courage to keep going.",
     "What makes you think you can learn something new? \nIt's because you've already learned things before, right? \nYou can look back and see that you figured out tough stuff, and that shows you can do it again. \nDoesn't that make you feel more confident to take on the next challenge?",
     "When you work hard to develop a new skill, then you start to notice real progress. Your past achievements become a kind of map that shows you where you've been and what you can do. If you've successfully learned something before, then you can trust that you have the ability to learn it again. When you look back at what you've accomplished, then you can feel proud of your genuine growth over time."
-  
     # (Include all messages here)
 ]
 

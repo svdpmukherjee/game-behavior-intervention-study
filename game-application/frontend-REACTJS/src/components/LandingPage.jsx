@@ -131,7 +131,9 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                   <span className="font-semibold">{item.label}</span>{" "}
                   <span className="text-gray-500">
                     {item.showWords
-                      ? `(${item.words} word${item.words !== 1 ? "s" : ""}, `
+                      ? `(${item.words} set${
+                          item.words !== 1 ? "s" : ""
+                        } of scrambled letters, `
                       : "("}
                     {item.time} minutes)
                   </span>

@@ -61,7 +61,7 @@ const RewardDisplay = ({ rewards, maxReward }) => {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2 rounded-lg w-3/5 bg-gray-50 border-gray-200 m-auto">
+      <div className="space-y-2 rounded-lg w-4/5 bg-gray-50 border-gray-200 m-auto">
         {Object.entries(rewards)
           .sort(([a], [b]) => Number(b) - Number(a))
           .map(([length, reward]) => (
@@ -70,7 +70,7 @@ const RewardDisplay = ({ rewards, maxReward }) => {
               className="flex items-center p-2 bg-white rounded-lg shadow-sm transition-shadow border border-gray-100 space-x-12"
             >
               <span className="text-md font-medium text-gray-800">
-                {length}-letter word
+                each {length}-letter word
               </span>
               <div className="flex-1 flex items-center gap-2">
                 <div className="flex items-center ml-2">

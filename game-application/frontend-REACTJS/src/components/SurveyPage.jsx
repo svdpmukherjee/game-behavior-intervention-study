@@ -15,7 +15,7 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
 
   const handleSurveyCodeSubmit = () => {
     const correctCode =
-      import.meta.env.VITE_SURVEY_COMPLETION_CODE || "C10O7AUO";
+      import.meta.env.VITE_SURVEY_COMPLETION_CODE || "CNXYKZN9";
     if (surveyCode.trim().toLowerCase() === correctCode.toLowerCase()) {
       setCodeError(false);
       onComplete();

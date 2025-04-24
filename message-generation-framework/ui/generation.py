@@ -10,6 +10,15 @@ from ui.styling import apply_message_editing_css
 def display_generation_view():
     """Display the message generation and evaluation view."""
     apply_message_editing_css()
+    st.markdown(
+        """
+        <script>
+            window.scrollTo(0, 0);
+        </script>
+        """, 
+        unsafe_allow_html=True
+    )
+    
     if 'workflow' not in st.session_state:
         st.error("Workflow not initialized. Please set up the workflow first.")
         st.session_state.current_view = "setup"

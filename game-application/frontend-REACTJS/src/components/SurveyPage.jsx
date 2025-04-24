@@ -14,7 +14,8 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
   const [surveyOpened, setSurveyOpened] = useState(false);
 
   const handleSurveyCodeSubmit = () => {
-    const correctCode = import.meta.env.SURVEY_COMPLETION_CODE || "12345";
+    const correctCode =
+      import.meta.env.VITE_SURVEY_COMPLETION_CODE || "C10O7AUO";
     if (surveyCode.trim().toLowerCase() === correctCode.toLowerCase()) {
       setCodeError(false);
       onComplete();
@@ -25,7 +26,7 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
 
   const handleOpenSurvey = () => {
     const surveyLink =
-      import.meta.env.SURVEY_LINK ||
+      import.meta.env.VITE_SURVEY_LINK ||
       "http://ulsurvey.uni.lu/index.php/537995?lang=en";
     window.open(surveyLink, "_blank");
     setSurveyOpened(true);

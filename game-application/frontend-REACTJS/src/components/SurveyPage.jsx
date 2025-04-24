@@ -12,15 +12,6 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
   const [surveyCode, setSurveyCode] = useState("");
   const [codeError, setCodeError] = useState(false);
   const [surveyOpened, setSurveyOpened] = useState(false);
-  const [copied, setCopied] = useState(false);
-
-  // Copy message ID to clipboard
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(messageId).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
 
   const handleSurveyCodeSubmit = () => {
     const correctCode = import.meta.env.SURVEY_COMPLETION_CODE || "12345";
@@ -33,10 +24,10 @@ const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
   };
 
   const handleOpenSurvey = () => {
-    window.open(
-      "https://docs.google.com/document/d/1uPpdUBzOcKAkjVPtTVwCOwDVnUZxlo3cxlmYeupQHWc/edit?usp=sharing",
-      "_blank"
-    );
+    const surveyLink =
+      import.meta.env.SURVEY_LINK ||
+      "http://ulsurvey.uni.lu/index.php/537995?lang=en";
+    window.open(surveyLink, "_blank");
     setSurveyOpened(true);
   };
 

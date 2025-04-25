@@ -4,16 +4,18 @@ import { Info, ArrowRight, AlertTriangle } from "lucide-react";
 const MessageDisplay = ({ message, onMessageShown }) => {
   const [isReady, setIsReady] = useState(false);
   const [hasRead, setHasRead] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(20);
+  const [remainingTime, setRemainingTime] = useState(10);
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
   const [visibleSentences, setVisibleSentences] = useState([]);
   const [hasStartedReading, setHasStartedReading] = useState(false);
   const [isAllSentencesVisible, setIsAllSentencesVisible] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
 
-  const minReadTime = 20000; // 20 seconds minimum reading time
+  const minReadTime = 10000; // 20 seconds minimum reading time
   const messageStartTime = useRef(new Date());
-  const sentenceDelay = 2000; // 2 seconds between sentences appearing
+  const sentenceDelay = 1000; // 1 second between sentences appearing
+  const loaderRemovalDelay = 1000; // 1 second delay before removing loader after last sentence
 
   // Store sentences from the message
   const sentences = useRef([]);
@@ -22,8 +24,8 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   // Define the fade-in animation style
   const fadeInStyle = `
     @keyframes slowFadeIn {
-      0% { opacity: 0; ; }
-      100% { opacity: 1; ; }
+      0% { opacity: 0; }
+      100% { opacity: 1; }
     }
   `;
 
@@ -59,6 +61,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
       setVisibleSentences([]);
       setIsAllSentencesVisible(false);
+      setShowLoader(false);
 
       // Clear any existing timers
       sentenceTimers.current.forEach((timer) => clearTimeout(timer));
@@ -72,6 +75,9 @@ const MessageDisplay = ({ message, onMessageShown }) => {
       // Start the message timer when reading begins
       messageStartTime.current = new Date();
 
+      // Show the loader immediately
+      setShowLoader(true);
+
       // Reveal sentences one by one with delay
       sentences.current.forEach((sentence, index) => {
         const timer = setTimeout(() => {
@@ -79,7 +85,11 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
           // Check if this is the last sentence
           if (index === sentences.current.length - 1) {
-            setIsAllSentencesVisible(true);
+            // Keep loader visible for a bit longer after the last sentence
+            setTimeout(() => {
+              setShowLoader(false);
+              setIsAllSentencesVisible(true);
+            }, loaderRemovalDelay);
           }
         }, index * sentenceDelay);
 
@@ -188,8 +198,28 @@ const MessageDisplay = ({ message, onMessageShown }) => {
               </button>
             </div>
           ) : (
-            <div className="space-y-5 min-h-70 shadow-sm p-4">
-              <p className="text-gray-400 italic">Hello! Did You Know?</p>
+            <div className="space-y-5 min-h-80 shadow-sm p-4">
+              <p className="text-gray-400">Hello!</p>
+
+              {/* Fixed position loading indicator right after Hello! */}
+              <div className="h-2 pl-3">
+                {showLoader && (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "100ms" }}
+                    ></div>
+                    <div
+                      className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    ></div>
+                    <div
+                      className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
+                      style={{ animationDelay: "600ms" }}
+                    ></div>
+                  </div>
+                )}
+              </div>
 
               {/* Sentences that appear one by one */}
               {visibleSentences.map((sentence, index) => (
@@ -197,32 +227,13 @@ const MessageDisplay = ({ message, onMessageShown }) => {
                   key={index}
                   className="text-lg text-gray-800 pl-8"
                   style={{
-                    //  textIndent: "1.5em",
-                    animation: "slowFadeIn 1.5s ease-in-out",
+                    animation: "slowFadeIn 2s ease-in-out",
                     opacity: 1,
                   }}
                 >
                   {sentence}
                 </p>
               ))}
-
-              {/* Loading indicator for next sentence */}
-              {hasStartedReading && !isAllSentencesVisible && (
-                <div className="flex items-center gap-2 mt-4 pl-8">
-                  <div
-                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0ms" }}
-                  ></div>
-                  <div
-                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  ></div>
-                  <div
-                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "600ms" }}
-                  ></div>
-                </div>
-              )}
             </div>
           )}
         </div>
@@ -253,7 +264,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           `}
         >
           {!hasStartedReading ? (
-            "Please view the message first"
+            ""
           ) : isReady && isAllSentencesVisible ? (
             <>
               I am ready, Let's continue <ArrowRight className="w-5 h-5" />

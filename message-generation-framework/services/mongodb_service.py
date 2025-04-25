@@ -54,18 +54,22 @@ class MongoDBService:
             self.db = None
     
     def save_message(self, 
-                message: str, 
-                concept_name: str, 
-                user_id: str,
-                context: str = "",
-                focus: str = "",
-                tone: str = "",
-                style: str = "",
-                message_length: int = 0,
-                iterations: int = 0,
-                diversity_metrics: dict = None) -> Optional[str]:
+              message: str, 
+              concept_name: str, 
+              user_id: str,
+              context: str = "",
+              focus: str = "",
+              tone: str = "",
+              style: str = "",
+              message_length: int = 0,
+              iterations: int = 0,
+              evaluation_score: int = 0,
+              diversity_metrics: dict = None,
+              competing_concepts: list = None,
+              generator_model: str = "",
+              evaluator_model: str = "") -> Optional[str]:
         """
-        Save a message to MongoDB with diversity metrics.
+        Save a message to MongoDB with evaluation score, diversity metrics, and competing concepts.
         
         Args:
             message: The message text
@@ -77,7 +81,11 @@ class MongoDBService:
             style: Message style
             message_length: Number of sentences
             iterations: Number of iterations to create the message
+            evaluation_score: Score given by the evaluator LLM (0-100)
             diversity_metrics: Metrics about message's diversity compared to previous messages
+            competing_concepts: Top competing concepts with their scores
+            generator_model: The model used to generate the message
+            evaluator_model: The model used to evaluate the message
             
         Returns:
             ID of the saved message or None if saving failed
@@ -94,23 +102,24 @@ class MongoDBService:
             collection.create_index([("user_id", pymongo.ASCENDING)])
             collection.create_index([("timestamp", pymongo.DESCENDING)])
             
-            # Create document
+            # Create document with the required order of fields
             doc = {
-                "message": message,
-                "concept_name": concept_name,
                 "user_id": user_id,
-                "context": context,
-                "focus": focus,
-                "tone": tone,
-                "style": style,
+                "concept_name": concept_name,
+                "task_context": context,
+                "message_focus": focus,
+                "message_tone": tone,
+                "message_style": style,
                 "message_length": message_length,
+                "generator_model": generator_model,
+                "evaluator_model": evaluator_model,
                 "iterations": iterations,
+                "message": message,
+                "evaluation_score": evaluation_score,
+                "competing_concepts": competing_concepts if competing_concepts else [],
+                "diversity_metrics": diversity_metrics if diversity_metrics else {},
                 "timestamp": datetime.now()
             }
-            
-            # Add diversity metrics if provided
-            if diversity_metrics:
-                doc["diversity_metrics"] = diversity_metrics
             
             # Insert document
             result = collection.insert_one(doc)

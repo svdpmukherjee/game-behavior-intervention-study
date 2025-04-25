@@ -101,7 +101,7 @@ def create_single_message_prompt(
             formatted_human_feedback = human_feedback  # Legacy string format
     
     # Create the sentence length instruction
-    sentence_instruction = f"Create ONE message that is {message_length} sentences long."
+    sentence_instruction = f"Create ONE message that is approximately {message_length} sentences long."
     
     # If this is the first iteration, create an initial generation prompt
     if current_iteration == 1:
@@ -116,52 +116,54 @@ def create_single_message_prompt(
         
         Message Style: "{message_style}"
         
-        {sentence_instruction} Use natural, conversational language that sounds like something a real person would say in everyday conversation. The message should encourage honest effort and authentic skill development without explicitly mentioning the concept by name.
+        {sentence_instruction} Create a message that sounds like natural spoken conversation. The message should motivate honest effort without ever naming or referencing the psychological concept directly.
         
-        IMPORTANT: 
-        1. Do NOT mention the name of the concept or any technical psychological terminology in your message. Use ordinary language that communicates the essence of the concept without naming it.
-        2. Keep each sentence of your message SHORT for better readability. Break longer ideas into multiple short sentences.
-        3. AVOID complex vocabulary, long words, jargon, or academic phrasing from your message.
-        4. The language of the sentences of your message should be at approximately an 6th-grade reading level
-        
-        For reference, here are examples of messages that exemplify {concept_name}:
+        IMPORTANT:
+        1. Write as if speaking directly to someone working on a challenging task - be encouraging and supportive.
+        2. Use simple, everyday language - no psychological terminology, jargon, or academic phrasing.
+        3. Keep each sentence of your message SHORT for better readability. Break longer ideas into multiple short sentences. Use contractions (don't, you're, it's) like people do in real speech.
+        4. Sound like a supportive friend, coach, or mentor having a casual conversation.
+
+        For reference, here are examples that effectively communicate {concept_name} in natural language:
         {examples_text}
-        
-        Your message should be original and different from these examples while maintaining alignment with the concept. It should sound like natural human speech - the kind of message a friend, mentor, or teacher might share.
-        
-        Be sure to use your own unique phrasing, structure, and examples rather than closely following the provided examples. Aim for a message that captures the essence of the concept but expresses it in a fresh, distinctive way.
+
+        Your message should capture the essence of {concept_name} but with your own unique approach - different examples, structure, and phrasing than those provided above. Make it sound authentic and conversational while still effectively conveying the core principle.
         """
     else:
         # This is a refinement iteration, include previous message and feedback
         generation_prompt = f"""
         Refine the following message for the psychological concept "{concept_name}":
-        
+
         Previous message: "{previous_message}"
-        
+
+        {sentence_instruction} CRITICAL: Maintain the casual, conversational tone of the original message while addressing the feedback below. Your refined message should still sound like a supportive friend speaking naturally.
+
+        IMPORTANT:
+        1. Write as if speaking directly to someone working on a challenging task - be encouraging and supportive.
+        2. Use simple, everyday language - no psychological terminology, jargon, or academic phrasing.
+        3. Keep each sentence of your message SHORT for better readability. Break longer ideas into multiple short sentences. Use contractions (don't, you're, it's) like people do in real speech.
+        4. Sound like a supportive friend, coach, or mentor having a casual conversation.
+
+        For reference, here are examples that effectively communicate {concept_name} in natural language:
+        {examples_text}
+
+        Now, address these feedback points while maintaining the conversational tone:
+
         Human feedback (prioritize this feedback):
         {formatted_human_feedback}
-        
+
         Evaluator feedback (use as supplementary guidance):
         - Score: {llm_evaluation['score']}%
         - Strengths: {llm_evaluation['feedback']['strengths']}
         - Improvements: {llm_evaluation['feedback']['improvements']}
         - Differentiation tips: {llm_evaluation['feedback']['differentiation_tips']}
-        
-        {sentence_instruction} Use natural, conversational language that sounds like something a real person would say. The message should encourage honest effort and authentic skill development.
-        
-        IMPORTANT: 
-        1. Do NOT mention the name of the concept or any technical psychological terminology in your message. Use ordinary language that communicates the essence of the concept without naming it.
-        2. Keep each sentence of your message SHORT for better readability. Break longer ideas into multiple short sentences.
-        3. AVOID complex vocabulary, long words, jargon, or academic phrasing from your message.
-        4. The language of the sentences of your message should be at approximately an 6th-grade reading level
-        
-        Focus specifically on addressing the human feedback while maintaining the strengths identified. Human feedback takes priority over evaluator feedback when there are differences.
-        
+
         Remember to maintain:
         - The core concept: {concept_name} (without mentioning it explicitly)
         - Message Focus: {diversity_focus}
         - Tone: {tone}
         - Message Style: {message_style}
+        - CONVERSATIONAL LANGUAGE: Even if addressing academic concept points, express them in casual, everyday speech
         """
         
     if isinstance(human_feedback, dict) and llm_evaluation:

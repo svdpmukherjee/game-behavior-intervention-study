@@ -368,6 +368,26 @@ class MessageWorkflow:
         # Get the final message
         final_message = self.message_history[-1]
         
+        # Get the final evaluation
+        final_evaluation = self.evaluation_history[-1] if self.evaluation_history else None
+        
+        # Extract evaluation score
+        evaluation_score = 0
+        if final_evaluation and 'score' in final_evaluation:
+            evaluation_score = final_evaluation['score']
+        
+        # Extract top competing concepts if available
+        competing_concepts = []
+        if final_evaluation and 'ratings' in final_evaluation:
+            # Get all concepts except the target concept
+            concept_scores = [(concept, score) for concept, score in final_evaluation['ratings'].items() 
+                            if concept != self.concept_name]
+            # Sort by score in descending order and take top 3
+            concept_scores.sort(key=lambda x: x[1], reverse=True)
+            competing_concepts = [{"name": concept, "score": score} for concept, score in concept_scores[:3]]
+            
+            logger.info(f"Extracted top competing concepts: {competing_concepts}")
+        
         # Calculate diversity metrics
         diversity_metrics = None
         
@@ -409,7 +429,7 @@ class MessageWorkflow:
                     if diversity_metrics:
                         diversity_metrics["only_session_metrics"] = True
             
-            # Save message with metadata and diversity metrics
+            # Save message with metadata, diversity metrics, competing concepts, and evaluation score
             message_id = st.session_state.mongodb_service.save_message(
                 message=final_message,
                 concept_name=self.concept_name,
@@ -420,7 +440,11 @@ class MessageWorkflow:
                 style=self.message_style,
                 message_length=self.message_length,
                 iterations=self.current_iteration,
-                diversity_metrics=diversity_metrics
+                evaluation_score=evaluation_score,
+                diversity_metrics=diversity_metrics,
+                competing_concepts=competing_concepts,
+                generator_model=self.generator_config["model"],
+                evaluator_model=self.evaluator_config["model"]
             )
             
             if message_id:

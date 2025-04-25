@@ -57,10 +57,10 @@ ALL_conceptS = {
         "theory": "Self-Determination Theory",
         "description": "Autonomy is the psychological need to experience one’s actions as self-endorsed and originating from the self. It involves an internal locus of causality, a sense of volition, and perceived choice over one’s behaviors.",
         "examples": [
-            "I've noticed you seem most engaged when working on projects you've chosen yourself. Having the freedom to direct your own learning journey tends to keep that motivation going strong. Even when faced with challenges, you stick with it because it feels like your own path, not something imposed on you.",
-            "What I find most fulfilling about this type of work is being able to chart my own course. When I can approach challenges in my own way, I feel much more invested in finding solutions. It's not about avoiding guidance, but rather having space to make meaningful choices about how to proceed.",
-            "The teams that consistently deliver exceptional results are those where members have a real say in how they approach problems. When people feel ownership over their process rather than just following orders, their creativity and dedication naturally increase. This sense of personal agency makes even difficult tasks feel worthwhile.",
-            "Have you noticed how your motivation changes when you're working on something you genuinely chose versus something that feels forced upon you? The quality of your engagement is completely different when the decision to pursue something comes from within."
+            "I notice you really dive into projects you choose yourself. Having that freedom keeps you motivated. Even when things get tough, you stick with it because it's your own path.",
+            "What I love about this job is choosing my own approach. When I can tackle problems my way, I'm much more invested. It's not about avoiding help, just having space to make my own choices.",
+            "The best teams are ones where people have a say in how they work. When folks feel ownership instead of just following orders, they get more creative. Having that personal choice makes even hard work feel worthwhile.",
+            "Ever notice how different you feel when you're doing something you chose versus something forced on you? Your whole attitude changes when the decision comes from you."
         ],
         "differentiation": {
             "from_Competence": "Unlike Competence (skill development), Autonomy focuses on freedom of choice regardless of skill level.",
@@ -83,10 +83,10 @@ ALL_conceptS = {
         "theory": "Self-Determination Theory",
         "description": "Competence is the psychological need to feel effective in one’s pursuits and interactions with the environment. It reflects the desire to use and extend one’s abilities by seeking out and mastering challenges.",
         "examples": [
-            "The satisfaction you get from mastering something difficult is unlike anything else. When you persist through the challenging parts of learning a new skill, you build both capability and confidence. I've seen how your persistence with that difficult project has sharpened your problem-solving abilities in ways that quick fixes never could.",
-            "Remember that feeling when you finally solved that tricky problem after multiple attempts? That sense of accomplishment came from working through the difficulty, not from finding an easy way around it. The growth happens in those moments of struggle when you're pushing beyond what you already know.",
-            "I used to get frustrated when I couldn't solve something right away, but now I appreciate those challenges. Each time I work through a difficult problem, I develop tools that help me tackle the next one more effectively. The feeling of becoming more capable through honest effort is incredibly rewarding.",
-            "When you're learning a musical instrument, the daily practice might seem tedious, but it's building neural pathways that eventually make playing feel natural. What seemed impossible becomes possible through consistent effort. That gradual mastery process can't be shortcut, but it creates abilities that stay with you."
+            "That feeling when you finally master something tough? It's amazing. When you push through the hard parts of learning, you build real confidence. I've seen how your persistence is making you better at solving problems.",
+            "Remember when you solved that tough problem after trying so many times? That pride came from working through it, not finding an easy way out. The real growth happens when you're struggling with something new.",
+            "I used to hate when I couldn't solve things right away. Now I actually like those challenges. Each difficult problem teaches me something for the next one. It feels so good to improve through honest effort.",
+            "Learning an instrument means daily practice that seems boring. But it's building skills that eventually make playing feel natural. What seemed impossible becomes easy with time. You can't shortcut that process."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Competence emphasizes skill development regardless of choice freedom.",
@@ -109,10 +109,10 @@ ALL_conceptS = {
         "theory": "Self-Determination Theory",
         "description": "Relatedness is the psychological need to form close emotional bonds and secure, caring connections with others. It involves feeling understood, valued, and involved in mutually supportive relationships.",
         "examples": [
-            "The most rewarding projects I've worked on have always been those where I felt truly connected to my teammates. Having that sense of belonging makes it easier to share ideas, ask questions, and take creative risks. When we support each other through challenges, we not only solve problems better but also enjoy the process more.",
-            "Have you noticed how different it feels to work on a task when you feel connected to the people around you? There's something energizing about knowing others value your contribution. Even difficult challenges become more manageable when you feel like you're part of a supportive community that recognizes your efforts.",
-            "My productivity always increases when I work in an environment where I feel comfortable expressing my ideas and asking for input. That sense of being understood and valued by colleagues creates a foundation that makes creative work possible. The relationships we build through collaboration often become the most meaningful part of any project.",
-            "Think about a time when you felt truly part of a team working toward a shared goal. That feeling of connection probably gave you extra motivation to contribute your best work. When we feel understood and appreciated by others, we naturally want to invest more of ourselves in the collective effort."
+            "My best projects are always with teammates I connect with. Having that sense of belonging makes it easier to share ideas. When we support each other, we not only solve problems better - we enjoy it more.",
+            "Notice how different it feels to work with people you connect with? There's something energizing about knowing your contribution matters. Even tough challenges feel manageable when you're part of a supportive group.",
+            "I'm much more productive when I feel comfortable sharing my ideas. That feeling of being understood by colleagues creates the right foundation. Often the relationships become the most rewarding part of any project.",
+            "Think about a time when you felt truly part of a team. That connection probably made you want to give your best effort. When people appreciate us, we naturally want to contribute more."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (independence), Relatedness focuses on interdependence and connection with others.",
@@ -137,10 +137,10 @@ ALL_conceptS = {
         "theory": "Cognitive Dissonance Theory",
         "description": "Self-concept refers to a person's self-perceptions formed through experience and interpretations of one's environment.",
         "examples": [
-            "I've always seen myself as someone who values quality work, so when I rush through assignments just to get them done, it doesn't sit right with me. The times I feel most satisfied with my contributions are when I've given them the attention they deserve, in line with the kind of professional I aim to be.",
-            "You approach problems so thoughtfully, taking time to understand them deeply before offering solutions. That careful consideration is such a core part of who you are. When you stay true to that thoughtful approach, even under pressure, your work reflects the values you hold most important.",
-            "The craftsmanship you put into your projects speaks volumes about what matters to you. You're clearly someone who believes that if something's worth doing, it's worth doing thoroughly. That commitment to quality work isn't just about the outcome—it's about staying aligned with your personal standards.",
-            "What made you reconsider your approach to the project? I'm guessing it might be because taking shortcuts didn't align with your values as someone who takes pride in understanding things thoroughly. When our actions match our deeper principles, there's a certain harmony that feels right."
+            "I see myself as someone who cares about quality work. So when I rush through assignments, it feels wrong. I'm most satisfied when I give things the attention they deserve. That matches the kind of professional I want to be.",
+            "You're so thoughtful about problems. You take time to understand before offering solutions. That careful approach is core to who you are. When you stay true to that, even under pressure, your work reflects your values.",
+            "The care you put into your projects says a lot about you. You clearly believe if something's worth doing, it's worth doing right. That's not just about the result—it's about staying true to your standards.",
+            "What made you rethink your approach? I'm guessing those shortcuts didn't feel right for someone who values understanding things fully. When our actions match our deeper values, it just feels better."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Self-concept emphasizes how actions reflect identity regardless of choice freedom.",
@@ -164,10 +164,10 @@ ALL_conceptS = {
         "theory": "Cognitive Dissonance Theory",
         "description": "Cognitive inconsistency refers to a contradictory relationship between two related cognitions, where one (e.g., a behavior) implies the opposite of the other (e.g., a belief).",
         "examples": [
-            "I've noticed something interesting about my study habits lately. I tell myself and others that I value thorough understanding, yet I sometimes rush through readings just to finish them. These two approaches exist side by side in my routine without really bothering me much. It's just an observation about how I operate.",
-            "Have you ever found yourself saying you want to master a skill properly, while simultaneously looking for shortcuts? I've caught myself doing this with learning programming—claiming I want deep knowledge while skipping foundational concepts. I can see both patterns in my behavior without feeling particularly troubled by it.",
-            "You might notice that you encourage teammates to take time for quality work, yet you often submit your own contributions at the last minute. This isn't necessarily a problem—just an observation about two different patterns that exist in your approach to collaborative projects.",
-            "I realize that I claim to value evidence-based decision-making, yet I sometimes go with my initial instinct without researching thoroughly. These contradictory approaches both show up in my work regularly. It's interesting to observe these different tendencies coexisting in my daily routine."
+            "I've noticed something funny about how I study. I tell everyone I value deep understanding. Yet I sometimes skim readings just to finish quickly. These two habits exist side by side without bothering me much. Just an interesting quirk.",
+            "Don't you sometimes say you want to master a skill properly while looking for shortcuts? I catch myself doing this with coding. I claim to want deep knowledge while skipping the basics. I notice both patterns without feeling troubled about it.",
+            "You encourage teammates to take time for quality work. Yet you often submit your own stuff last minute. This isn't necessarily bad - just two different patterns in how you approach group projects.",
+            "I say I value evidence-based decisions. Yet I sometimes go with my gut without doing research. These contradictory approaches both show up in my work regularly. It's interesting to see these patterns coexist."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Cognitive inconsistency emphasizes contradictions regardless of choice freedom.",
@@ -190,10 +190,10 @@ ALL_conceptS = {
         "theory": "Cognitive Dissonance Theory",
         "description": "Dissonance arousal refers to the psychological state in which individuals experience discomfort when confronted with conflicting or inconsistent cognitions (e.g. beliefs and behaviors).",
         "examples": [
-            "Every time I rush through an assignment I claimed was important to me, I feel this growing sense of unease that's hard to shake. The gap between how I want to approach my work and how I actually handled it creates this uncomfortable tension that follows me even after I've submitted it. It's like my mind won't let me simply move on.",
-            "Have you experienced that nagging discomfort when you take a shortcut on something you believe should be done thoroughly? That feeling intensifies when others praise work that you know doesn't reflect your best effort. The clash between your actions and your standards creates a persistent internal pressure that's difficult to ignore.",
-            "I feel increasingly anxious when I present work as entirely my own after receiving substantial help. Each time someone compliments my 'independent' achievement, that knot in my stomach tightens. The disconnect between my public image and private reality creates a tension that keeps building until I address it somehow.",
-            "That feeling of discord when your actions don't align with your values can be really unsettling, can't it? I notice how that tension stays with me, creating a persistent undercurrent of stress that affects my focus on new tasks. My mind keeps circling back to the mismatch, making it difficult to fully engage elsewhere."
+            "Every time I rush through something important, I get this nagging feeling. The gap between how I want to work and how I actually did it creates this tension that follows me around. My mind won't let me just move on.",
+            "Don't you hate that uncomfortable feeling when you take shortcuts on something that deserves better? It gets worse when people praise work you know isn't your best. That mismatch between your actions and standards creates a pressure that's hard to ignore.",
+            "I feel so anxious when I present work as completely mine after getting lots of help. Each time someone compliments my 'independent' work, my stomach knots up. The gap between my public image and private reality keeps building until I address it.",
+            "That discord when your actions don't match your values feels awful, right? I notice how that tension stays with me, creating this constant stress. My mind keeps circling back to the mismatch, making it hard to focus on anything else."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Dissonance arousal emphasizes negative emotional states from conflicting cognitions.",
@@ -216,10 +216,10 @@ ALL_conceptS = {
         "theory": "Cognitive Dissonance Theory",
         "description": "Dissonance reduction is the psychological process that motivates individuals to resolve the discomfort caused by inconsistencies between related cognitions (e.g., beliefs and behaviors), aiming to restore internal consistency or consonance.",
         "examples": [
-            "I used to feel conflicted about spending so much time on work projects while claiming family was my priority. I've resolved this by redefining success as making meaningful contributions in both areas, rather than maximizing either one. Now I set clearer boundaries and fully engage wherever I am without the gnawing sense of neglecting something important. This balanced perspective has replaced my previous inner conflict.",
-            "The tension between wanting to speak up in meetings and fearing judgment was making me dread team discussions. I've reframed my participation as offering potentially helpful perspectives rather than demonstrating expertise. This shift allows me to contribute ideas without feeling they must be perfectly formulated. The mental conflict has dissolved as I focus on adding value rather than proving worth.",
-            "I struggled with the contradiction between valuing environmental sustainability and my frequent air travel for work. I've reconciled this by committing to carbon offsets and maximizing impact during each trip to reduce overall travel needs. Rather than seeing perfect consistency as the goal, I now view effective harm reduction as an acceptable approach. This pragmatic compromise has resolved my previous discomfort.",
-            "The conflict between my desire for creative excellence and meeting deadlines was causing constant stress. I've developed a new framework that treats constraints as creative catalysts rather than limitations. By establishing clear quality thresholds for different project components, I can focus perfectionism where it matters most. This selective approach has resolved my previous all-or-nothing thinking."
+            "I used to feel torn about working long hours while saying family comes first. I've fixed this by redefining success as making meaningful contributions in both areas. Now I set clearer boundaries and fully engage wherever I am. This balanced view has replaced my inner conflict.",
+            "I dreaded team meetings because I wanted to speak up but feared judgment. Now I see my role as offering helpful perspectives rather than showing expertise. This lets me share ideas without feeling they must be perfect. The anxiety has disappeared as I focus on adding value.",
+            "I struggled with flying often while claiming to care about the environment. I've resolved this by buying carbon offsets and combining trips to reduce travel. Rather than perfect consistency, I see harm reduction as acceptable. This practical compromise settled my previous guilt.",
+            "The conflict between wanting creative excellence and meeting deadlines caused constant stress. Now I see constraints as creative catalysts, not limitations. I focus my perfectionism only where it matters most. This targeted approach has replaced my all-or-nothing thinking."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Dissonance reduction emphasizes resolving cognitive conflicts.",
@@ -244,10 +244,10 @@ ALL_conceptS = {
         "theory": "Social Norm Theory",
         "description": "Descriptive norms refer to the prevalent or common behaviors within a group and reflect individuals' perceptions of the likelihood that others engage in these behaviors.",
         "examples": [
-            "I've noticed that most people in our study group spend time reviewing their notes before sharing their thoughts. This approach seems to lead to more insightful discussions. Many students also form smaller practice groups outside class to work through difficult concepts together.",
-            "In my experience, successful graduate students typically set aside dedicated time for deep work without distractions. Most of them break large projects into manageable chunks rather than cramming at the deadline. I've also observed that they're not afraid to ask questions when they're unsure about something.",
-            "Looking around the workshop, you'll see that most participants sketch out their ideas before building prototypes. Many experienced makers test their designs multiple times and refine them based on what they learn. It's also common to see people documenting their process as they go.",
-            "The developers I've worked with who advance quickly in their careers tend to study code written by more experienced engineers. Many spend time understanding existing systems before making changes. It's also pretty standard to see them writing tests for their code to ensure it works as expected."
+            "Most people in our study group review their notes before speaking up. This leads to much better discussions. Many students also form smaller practice groups outside class to work through tough concepts together.",
+            "Successful grad students usually set aside focused time without distractions. Most break big projects into smaller chunks rather than cramming. They're also not afraid to ask questions when they don't understand something.",
+            "Looking around this workshop, you'll see most people sketch ideas before building prototypes. Many experienced makers test their designs multiple times. It's also common to see them documenting their process as they go.",
+            "The developers who advance quickly typically study code from senior engineers. Many take time to understand systems before changing them. Most also write tests for their code to make sure it works properly."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (personal choice), Descriptive Norms focus on what most people actually do as a behavioral guide.",
@@ -270,10 +270,10 @@ ALL_conceptS = {
         "theory": "Social Norm Theory",
         "description": "Injunctive norms refer to individuals' perceptions of what behaviors are considered acceptable or unacceptable in a given context, motivating actions through the anticipation of social rewards or punishments.",
         "examples": [
-            "On our software development team, we believe that code reviews should be thorough rather than cursory. Team members should provide specific, constructive feedback rather than simply approving changes. We expect everyone to welcome code improvement suggestions rather than defending imperfect solutions. Following these principles ensures our codebase remains maintainable and robust.",
-            "In our graduate program, students should engage with assigned readings deeply enough to form their own perspectives. During discussions, everyone is expected to build on others' contributions rather than just waiting to speak. We value questions that explore conceptual boundaries over those with simple factual answers. These standards foster the intellectual growth that defines our academic community.",
-            "Athletes in our training program should prioritize proper technique over immediate performance gains. Everyone is expected to maintain complete training logs rather than relying on memory. Coaches and experienced athletes should model a balance between pushing limits and respecting recovery needs. These expectations create an environment where sustainable excellence can flourish.",
-            "At this hospital, staff should document patient interactions clearly enough that any team member can understand the situation. We expect everyone to acknowledge knowledge gaps rather than making assumptions. All personnel should verify critical information directly rather than relying on secondhand reports. These standards protect both patients and practitioners while fostering a culture of continuous improvement."
+            "On our dev team, code reviews should be thorough, not quick check-offs. Team members should give specific, helpful feedback. Everyone should welcome suggestions instead of defending imperfect code. These principles keep our codebase strong.",
+            "In our program, students should engage deeply with readings to form their own views. During discussions, everyone should build on others' ideas, not just wait for their turn. We value questions that explore concepts, not just facts. These standards help everyone grow.",
+            "Athletes here should focus on proper technique over quick results. Everyone should keep complete training logs. Coaches should balance pushing limits with respecting recovery needs. These expectations create an environment where everyone improves long-term.",
+            "At this hospital, staff should document patient interactions clearly. We expect everyone to admit what they don't know rather than guessing. All personnel should verify critical information firsthand. These standards protect patients and practitioners."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom from external influence), Injunctive Norms focus on external social expectations.",
@@ -296,10 +296,10 @@ ALL_conceptS = {
         "theory": "Social Norm Theory",
         "description": "Social sanctions include a variety of verbal and nonverbal reactions to norm transgressions designed to dissuade individuals from engaging in a behavior.",
         "examples": [
-            "Research scientists who thoroughly document their methodologies tend to receive more collaboration invitations and citation mentions. Those who take shortcuts in their protocols or documentation often find their work questioned or overlooked in literature reviews. I've watched how Dr. Kim's meticulous attention to reproducibility has led to her methods being adopted across multiple laboratories.",
-            "Customer service representatives who take time to truly understand customer needs before suggesting solutions receive significantly higher satisfaction ratings and more personal requests from returning customers. Those who rush to close tickets quickly often generate repeat calls and declining feedback scores. Notice how clients specifically ask for Michael when they have complex issues because of his thorough approach.",
-            "Students who consistently contribute thoughtful, well-prepared comments in seminars receive more detailed feedback on their written work from professors. Those who speak without clear preparation tend to get more generalized responses. I've observed how professors invest extra time mentoring students like Alicia who demonstrate consistent intellectual engagement through careful preparation.",
-            "Architects who thoroughly research environmental and community factors before finalizing designs tend to win more competitive bids and referrals. Those who prioritize aesthetic appeal without considering practical implementation often face costly revisions and damaged relationships with contractors. The reputation Tim has built through his comprehensive approach has clients waiting months for his availability."
+            "Scientists who document their methods thoroughly get more collaboration invitations and citations. Those who take shortcuts often find their work questioned. I've watched how Dr. Kim's careful approach has led to her methods being adopted across multiple labs.",
+            "Customer service reps who really understand customer needs before offering solutions get higher ratings. Those who rush to close tickets quickly generate repeat calls and bad feedback. Notice how people specifically ask for Michael when they have complex issues.",
+            "Students who contribute thoughtful comments in seminars receive more detailed feedback on their papers. Those who speak without preparation get more generic responses. Professors invest extra time mentoring students like Alicia who consistently come prepared.",
+            "Architects who research environmental and community factors before finalizing designs win more bids. Those who focus only on looks without considering practical aspects face costly revisions. Tim's reputation for thorough work has clients waiting months for him."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom from influence), Social Sanctions focus on external judgments and consequences.",
@@ -322,10 +322,10 @@ ALL_conceptS = {
         "theory": "Social Norm Theory",
         "description": "Reference group identification refers to the psychological process through which individuals who strongly identify with a social group align their self-perceptions, beliefs, attitudes and behaviors with the group’s norms.",
         "examples": [
-            "As engineers in this company, we take pride in documenting our code thoroughly rather than just making quick fixes. When I'm deciding how to approach a challenging bug, I think about our team's reputation for maintainable solutions, and that guides my choices even when deadlines are tight.",
-            "Being part of this academic community means embracing intellectual curiosity and methodical investigation. When faced with complex research questions, I remember our shared commitment to rigorous methods over expedient conclusions. This identity as careful scholars influences how I approach even routine tasks.",
-            "What connects us as craftspeople in this workshop is our dedication to mastering traditional techniques while finding our personal expression. The satisfaction of upholding these shared values motivates me through tedious practice sessions. When I'm tempted to take shortcuts, I remember that's not who we are as a guild.",
-            "Our team's identity is built around our commitment to user-centered design processes. This shared value shapes how we evaluate our work—not just by whether it functions correctly, but by how well it serves real people's needs. Being part of a group that prioritizes empathetic design influences my approach to every project."
+            "As engineers here, we take pride in documenting our code fully, not just making quick fixes. When I'm deciding how to tackle a tough bug, I think about our team's reputation for solid solutions. That guides my choices even under tight deadlines.",
+            "Being part of this academic community means embracing curiosity and thorough investigation. When facing complex questions, I remember our shared commitment to rigorous methods. This identity as careful scholars influences even my routine tasks.",
+            "What connects us as craftspeople is our dedication to mastering traditional techniques. The satisfaction of upholding these shared values keeps me going through tedious practice. When I'm tempted to take shortcuts, I remember that's not who we are.",
+            "Our team's identity is built around user-centered design. This shared value shapes how we evaluate our work - not just by whether it functions, but by how well it serves real people. Being part of a group that prioritizes empathetic design influences every project."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (independence), Reference Group Identification focuses on alignment with group values and identity.",
@@ -350,10 +350,10 @@ ALL_conceptS = {
         "theory": "Self-Efficacy Theory",
         "description": "Performance accomplishment refers to the mastery experiences one gains when taking on a new challenge and successfully completing it.",
         "examples": [
-            "Remember last month when you solved that database optimization problem everyone was stuck on? You worked through each component methodically until you found the bottleneck. That success wasn't luck—it was evidence of your analytical skills. Those same abilities will help you tackle this new challenge.",
-            "You've already mastered three programming languages through consistent practice and application. Each time you thought the learning curve was too steep, you broke it down into manageable parts and persisted. Your track record of learning technical skills through dedication is concrete evidence you can handle this new framework too.",
-            "Think about how you navigated that complex negotiation last quarter. You prepared thoroughly, anticipated objections, and adapted your approach as new information emerged. That successful outcome wasn't random—it demonstrated your strategic thinking. Those same capabilities will serve you well in this upcoming client meeting.",
-            "Your portfolio shows a clear progression from basic designs to increasingly complex projects, each building on skills you developed through deliberate practice. The quality improvement in your work over time isn't coincidental—it reflects your ability to learn from each project and apply those insights to new challenges."
+            "Remember when you solved that database problem everyone was stuck on? You worked through each part methodically until you found the issue. That wasn't luck—it was your analytical skills. Those same abilities will help you tackle this new challenge.",
+            "You've already mastered three programming languages through consistent practice. Each time you thought it was too hard, you broke it down and persisted. Your track record of learning technical skills shows you can handle this new framework too.",
+            "Think about how you handled that tough negotiation last quarter. You prepared thoroughly and adapted as new information came up. That success wasn't random—it showed your strategic thinking. Those same skills will serve you well in this upcoming meeting.",
+            "Your portfolio shows clear progress from basic designs to complex projects. The improvement in your work over time isn't coincidence—it reflects your ability to learn from each project. You apply those insights to each new challenge."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Performance accomplishments emphasizes specific past achievements.",
@@ -376,10 +376,10 @@ ALL_conceptS = {
         "theory": "Self-Efficacy Theory",
         "description": "Vicarious experience refers to the process through which individuals enhance their belief in their own capabilities to master tasks by observing people similar to themselves succeed through sustained effort.",
         "examples": [
-            "Watch how Eliza approaches these complex design problems. She starts by sketching multiple rough concepts before committing to one direction. Even when she encounters technical limitations, she systematically works through each constraint rather than abandoning her vision. Seeing her methodical process has completely changed how I approach my own creative challenges.",
-            "My colleague Marco had never used this statistical software before joining our team last year. He spent time observing how our senior analysts structured their queries and organized their data pipelines. Within six months, he was implementing these same techniques in his own analyses. Watching his rapid progress showed me that these skills are definitely learnable with the right approach.",
-            "Remember how Dr. Chen demonstrated that surgical technique last month? She broke down each movement into clear steps, explaining her decision-making throughout. Several residents who observed her have already successfully incorporated her approach into their procedures. Seeing their successful application of her methods makes me confident I can master this technique too.",
-            "My sister struggled with public speaking just like you do, but she found a way through it. She joined a speech club where she could watch others progress from nervous beginners to confident presenters. Seeing people with similar anxiety gradually build their skills through regular practice showed her a clear pathway to improvement. Now she mentors new members using the same step-by-step approach that worked for her."
+            "Watch how Eliza tackles these complex design problems. She starts with rough sketches before committing to one direction. When she hits technical limits, she works through each constraint step by step. Seeing her approach has changed how I handle my own creative challenges.",
+            "Marco had never used this software before joining our team last year. He watched how our senior analysts structured their work. Within six months, he was using these same techniques himself. Seeing his quick progress showed me these skills are definitely learnable.",
+            "Remember how Dr. Chen demonstrated that technique last month? She broke down each movement into clear steps. Several residents who watched her have already used her approach successfully. Seeing them apply her methods makes me confident I can master this too.",
+            "My sister struggled with public speaking just like you. She joined a speech club where she could see others progress from nervous to confident. Watching people with similar anxiety gradually improve showed her a clear path forward. Now she mentors new members herself."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (personal choice), Vicarious experience emphasizes learning from others' behaviors.",
@@ -402,10 +402,10 @@ ALL_conceptS = {
         "theory": "Self-Efficacy Theory",
         "description": "Verbal persuasion refers to the process of receiving encouraging verbal feedback that strengthen an individual's belief in their ability to succeed in a task.",
         "examples": [
-            "The way you analyzed that complex data set showed remarkable attention to detail and pattern recognition. Your methodical approach to validating findings before drawing conclusions demonstrates exactly the kind of careful thinking this project needs. I've seen how quickly you pick up new analytical methods, which makes me confident you'll excel with this new visualization challenge.",
-            "Your presentations always connect technical concepts to practical applications so effectively. You have a gift for making complex ideas accessible without oversimplifying them. The questions you ask reveal deep understanding of underlying principles. These communication strengths will make you particularly effective in the cross-functional role we discussed.",
-            "I've noticed how thoroughly you test your code before submitting it for review, which shows real commitment to quality. Your systematic approach to breaking down problems reflects the kind of thinking needed for architecture-level work. Based on how you've handled increasing complexity in recent projects, I believe you're ready for more advanced responsibilities.",
-            "The thoughtful questions you ask during discussions show you're already thinking at a strategic level. You have a natural ability to consider both technical constraints and business needs when proposing solutions. Your consistent follow-through on commitments demonstrates the reliability this leadership position requires."
+            "The way you analyzed that complex data set showed amazing attention to detail. Your methodical approach to validating findings demonstrates exactly what this project needs. I've seen how quickly you learn new methods, which makes me confident you'll excel with this challenge.",
+            "Your presentations always connect technical concepts to real applications so well. You have a gift for making complex ideas accessible. The questions you ask show deep understanding. These communication strengths will make you perfect for this cross-functional role.",
+            "I've noticed how thoroughly you test your code before submitting it. Your systematic approach to breaking down problems is exactly what we need. Based on how you've handled increasing complexity lately, I know you're ready for more advanced work.",
+            "The thoughtful questions you ask during discussions show you're thinking at a strategic level. You naturally consider both technical limits and business needs when suggesting solutions. Your consistent follow-through shows you're ready for this leadership role."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom from external influence), Verbal persuasion emphasizes the positive impact of others' encouragement.",
@@ -428,10 +428,10 @@ ALL_conceptS = {
         "theory": "Self-Efficacy Theory",
         "description": "Emotional arousal refers to the emotional states that individuals experience in response to challenging situations, which can influence the beliefs in their ability to succeed in a task.",
         "examples": [
-            "Pay attention to that feeling of mental clarity you experience after working through a complex problem step by step. That sense of intellectual sharpness is telling you something important about how meaningful challenges affect your cognitive state. This positive mental energy becomes a resource you can draw on when facing future obstacles.",
-            "Notice the distinctive satisfaction that comes after expressing an idea precisely, especially when you've taken time to refine your thinking. That internal sense of clarity feels qualitatively different from the temporary relief of just completing a task. These emotional rewards guide us toward the kinds of deep engagement that foster genuine growth.",
-            "There's a unique feeling of confidence that emerges when you've mastered something that initially seemed beyond your capabilities. This isn't just momentary happiness but a fundamental shift in how you perceive challenges. Each time you experience this earned confidence, it becomes easier to approach new difficult situations with optimism.",
-            "The calm centeredness you feel when fully engaged in challenging work—what some call 'flow'—signals an optimal learning state. This feeling of absorbed focus, when you're neither bored nor overwhelmed, indicates you're working at the edge of your capabilities where the most growth happens. Learning to recognize and cultivate this state can transform how you approach complex tasks."
+            "Pay attention to that mental clarity you feel after working through a complex problem step by step. That sharpness tells you something important about how challenges affect your thinking. This positive energy becomes a resource for future obstacles.",
+            "Notice that satisfaction when you express an idea precisely. That feeling of clarity is different from just finishing a task. These emotional rewards guide us toward deeper engagement that leads to real growth.",
+            "There's a unique confidence that comes after mastering something that seemed impossible at first. This isn't just momentary happiness but a fundamental shift. Each time you experience this earned confidence, new challenges feel less intimidating.",
+            "That calm focus you feel when fully engaged in challenging work signals an optimal learning state. This feeling, when you're neither bored nor overwhelmed, shows you're working at the edge of your abilities. Learning to recognize this state can transform how you approach difficult tasks."
         ],
         "differentiation": {
             "from_Autonomy": "Unlike Autonomy (freedom of choice), Emotional arousal emphasizes affective responses.",

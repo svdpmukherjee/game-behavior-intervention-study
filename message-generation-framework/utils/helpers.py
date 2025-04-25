@@ -168,3 +168,49 @@ def display_competing_concepts(evaluation_vis_data: Dict[str, Any]):
         if table_rows:
             for row in table_rows:
                 st.markdown(row)
+
+def extract_competing_concepts(evaluation: Dict[str, Any], target_concept: str, limit: int = 3) -> List[Dict[str, Any]]:
+    """
+    Extract competing concepts from evaluation data.
+    
+    Args:
+        evaluation: Evaluation results
+        target_concept: Target psychological concept
+        limit: Maximum number of competing concepts to extract
+        
+    Returns:
+        List of competing concepts with their scores
+    """
+    if not evaluation or 'ratings' not in evaluation:
+        return []
+    
+    scores = evaluation.get("ratings", {})
+    
+    # Get all concepts except the target
+    competing = [(k, v) for k, v in scores.items() if k != target_concept]
+    
+    # Sort by score and take top 'limit'
+    competing.sort(key=lambda x: x[1], reverse=True)
+    competing = competing[:limit]
+    
+    # Format for storage
+    return [{"name": name, "score": score} for name, score in competing]
+    
+def get_competing_concepts_text(competing_concepts: List[Dict[str, Any]]) -> str:
+    """
+    Format competing concepts as a readable text string.
+    
+    Args:
+        competing_concepts: List of competing concepts with their scores
+        
+    Returns:
+        Formatted text representation
+    """
+    if not competing_concepts:
+        return "No competing concepts data available"
+    
+    result = []
+    for concept in competing_concepts:
+        result.append(f"{concept['name']}: {concept['score']}%")
+    
+    return ", ".join(result)

@@ -212,15 +212,10 @@ def display_generation_view():
                     st.session_state.confirm_reset = True
                     st.warning("Click again to confirm reset. All progress will be lost.")
     
-    # Display evaluation results MOVED DOWN after feedback section
+    # Display evaluation results after feedback section
     if current_evaluation:
         with st.container(border=True):
             st.markdown('<div class="section-header">In Case You are Interested About the Evaluation Results by Your Selected Evaluator Model</div>', unsafe_allow_html=True)
-            
-            # st.markdown(
-            #     '<div class="">Evaluation Results by Your Selected Evaluator Model.</div>',
-            #     unsafe_allow_html=True
-            # )
             
             score = current_evaluation["score"]
             score_class = "score-high" if score >= 80 else ("score-medium" if score >= 70 else "score-low")
@@ -234,16 +229,21 @@ def display_generation_view():
             with col1:
                 st.markdown(f'<div class="score-indicator {score_class}">{score}% Alignment Calculated between the Concept and the Generated Message</div>', unsafe_allow_html=True)
             
-            # with col2:
-            #     st.markdown(f"Generation time: {gen_time}")
-            
-            # with col3:
-            #     st.markdown(f"Evaluation time: {eval_time}")
-            
             # Create visualization of evaluation results
             eval_vis_data = create_evaluation_visualization(current_evaluation, workflow.concept_name)
             if eval_vis_data:
-                display_competing_concepts(eval_vis_data)
+                # Display top competing concepts
+                if eval_vis_data.get("competing", []):
+                    st.markdown("### Top competing concepts:")
+                    
+                    # Create a nice table to display competing concepts
+                    competing_data = [{"Concept": concept["name"], "Alignment Score": f"{concept['score']}%"} 
+                                    for concept in eval_vis_data["competing"][:3]]
+                    
+                    # Display as a dataframe for better styling
+                    import pandas as pd
+                    competing_df = pd.DataFrame(competing_data)
+                    st.dataframe(competing_df, hide_index=True, use_container_width=True)
             
             # Evaluation feedback
             with st.expander("View detailed evaluation feedback", expanded=False):

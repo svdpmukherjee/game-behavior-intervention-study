@@ -29,7 +29,11 @@ def display_generation_view():
     
     # Display current workflow info
     with st.container(border=True):
-        st.markdown(f'<div class="sub-header">Concept Selected - {workflow.concept_name}</div>', unsafe_allow_html=True)
+        # Get the concept number from session state
+        concept_number = st.session_state.get("concept_numbers", {}).get(workflow.concept_name, "")
+        concept_display = f"{concept_number}. {workflow.concept_name}" if concept_number else workflow.concept_name
+            
+        st.markdown(f'<div class="sub-header">Concept Selected - {concept_display}</div>', unsafe_allow_html=True)
         # st.markdown(
         #     '<div class="">You\'re now in the message generation phase. The AI will generate a message, '
         #     'which will be evaluated for alignment with your selected psychological concept. You can provide feedback '
@@ -54,7 +58,7 @@ def display_generation_view():
             st.markdown(
                 f"""
                 <div style='font-size: 18px; font-weight: bold; line-height: 1.6;'>
-                    {workflow.concept_name}: <span style='font-weight: normal;'>{concept_definition}</span>
+                    <span style='font-weight: normal;'>{concept_definition}</span>
                 </div>
                 """,
                 unsafe_allow_html=True

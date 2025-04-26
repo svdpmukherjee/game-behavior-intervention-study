@@ -23,6 +23,74 @@ def display_setup_view():
             concepts_by_theory[theory] = []
         concepts_by_theory[theory].append(concept)
     
+    # Create a mapping of concept names to their numbers
+    concept_numbers = {}
+    counter = 1
+    for theory, concepts in concepts_by_theory.items():
+        for concept in sorted(concepts):
+            concept_numbers[concept] = counter
+            counter += 1
+    
+    # Store this mapping in session state for later use
+    st.session_state.concept_numbers = concept_numbers
+    
+    # Create concept options with numbering
+    concept_options = []
+    for theory, concepts in concepts_by_theory.items():
+        for concept in sorted(concepts):
+            number = concept_numbers[concept]
+            concept_options.append(f"{number}. {concept} ({theory})")
+    
+    # Store this mapping in session state for later use
+    st.session_state.concept_numbers = concept_numbers
+
+    
+    with st.container(border=True):
+        # st.markdown('<div class="section-header">Database Management</div>', unsafe_allow_html=True)
+        # st.markdown(
+        #     '<div class="section-explanation">Manage message database settings and operations.</div>',
+        #     unsafe_allow_html=True
+        # )
+        
+        if 'mongodb_service' in st.session_state:
+            # Get message count
+            all_messages = st.session_state.mongodb_service.get_all_messages()
+            
+            # st.markdown(f"**Current database contains {len(all_messages)} messages**")
+            
+            st.markdown('<div class="section-header">We Need an User ID</div>', unsafe_allow_html=True)
+            user_id = st.session_state.get('user_id', '')
+            new_user_id = st.text_input(
+                "Enter Your Name (Required) and Press Enter",
+                value=user_id,
+                help="Enter your first name or username (required to proceed)",
+                key="user_id_input"
+            )
+
+            # Store user ID in lowercase
+            if new_user_id:
+                st.session_state.user_id = new_user_id.lower()
+            else:
+                # st.warning("Please enter a User ID to proceed. This is required for message tracking.")
+                pass
+
+            # Add a check for User ID before enabling the Start Workflow button
+            has_valid_user_id = bool(st.session_state.get('user_id', ''))
+            
+            # Add warning and confirmation for clearing database
+            # if st.button("Clear All Messages from Database", type="secondary", key="clear_db_btn", disabled=False):
+            #     if st.session_state.get("confirm_clear_db"):
+            #         deleted_count = st.session_state.mongodb_service.delete_all_messages()
+            #         st.success(f"Successfully deleted {deleted_count} messages from the database.")
+            #         st.session_state.confirm_clear_db = False
+            #         st.rerun()
+            #     else:
+            #         st.session_state.confirm_clear_db = True
+            #         st.warning("⚠️ Are you sure? Click again to confirm deletion of ALL messages from the database. This action cannot be undone.")
+               
+    with st.container(border=True):
+        display_completed_concepts()
+        
     # 1. concept Selection
     with st.container(border=True):
         st.markdown('<div class="section-header">1. Select Psychological concept</div>', unsafe_allow_html=True)
@@ -33,10 +101,12 @@ def display_setup_view():
         )
         
         # Create a friendly dropdown with theory grouping
-        concept_options = []
-        for theory, concepts in concepts_by_theory.items():
-            for concept in sorted(concepts):
-                concept_options.append(f"{concept} ({theory})")
+        # concept_options = []
+        # # counter = 1
+        # for theory, concepts in concepts_by_theory.items():
+        #     for concept in sorted(concepts):
+        #         concept_options.append(f"{counter}. {concept} ({theory})")
+                # counter += 1
         
         # Two-column layout for concept selection
         col1, col2 = st.columns([1, 2])
@@ -50,7 +120,13 @@ def display_setup_view():
             )
         
         # Extract concept name from the selected option
-        selected_concept = selected_concept_full.split(" (")[0] if selected_concept_full else ""
+        selected_concept = ""
+        if selected_concept_full:
+            try:
+                without_number = selected_concept_full.split(". ", 1)[1]
+                selected_concept = without_number.split(" (")[0].strip()
+            except:
+                selected_concept = selected_concept_full.split(" (")[0] if selected_concept_full else ""
         
         with col2:
             if selected_concept:
@@ -429,51 +505,7 @@ def display_setup_view():
                 help="Controls diversity by limiting to top tokens that add up to probability mass P",
                 key="evaluator_top_p_slider"
             )
-            
-    # Add MongoDB management section
-    with st.container(border=True):
-        # st.markdown('<div class="section-header">Database Management</div>', unsafe_allow_html=True)
-        # st.markdown(
-        #     '<div class="section-explanation">Manage message database settings and operations.</div>',
-        #     unsafe_allow_html=True
-        # )
-        
-        if 'mongodb_service' in st.session_state:
-            # Get message count
-            all_messages = st.session_state.mongodb_service.get_all_messages()
-            
-            # st.markdown(f"**Current database contains {len(all_messages)} messages**")
-            
-            st.markdown('<div class="section-header">We Need an User ID</div>', unsafe_allow_html=True)
-            user_id = st.session_state.get('user_id', '')
-            new_user_id = st.text_input(
-                "Enter Your Name (Required) and Press Enter",
-                value=user_id,
-                help="Enter your first name or username (required to proceed)",
-                key="user_id_input"
-            )
-
-            # Store user ID in lowercase
-            if new_user_id:
-                st.session_state.user_id = new_user_id.lower()
-            else:
-                # st.warning("Please enter a User ID to proceed. This is required for message tracking.")
-                pass
-
-            # Add a check for User ID before enabling the Start Workflow button
-            has_valid_user_id = bool(st.session_state.get('user_id', ''))
-            
-            # Add warning and confirmation for clearing database
-            if st.button("Clear All Messages from Database", type="secondary", key="clear_db_btn", disabled=True):
-                if st.session_state.get("confirm_clear_db"):
-                    deleted_count = st.session_state.mongodb_service.delete_all_messages()
-                    st.success(f"Successfully deleted {deleted_count} messages from the database.")
-                    st.session_state.confirm_clear_db = False
-                    st.rerun()
-                else:
-                    st.session_state.confirm_clear_db = True
-                    st.warning("⚠️ Are you sure? Click again to confirm deletion of ALL messages from the database. This action cannot be undone.")
-                    
+                 
     # Submit button
     if st.button("Generate Message", 
              type="primary", 
@@ -527,3 +559,80 @@ def display_setup_view():
                 st.rerun()
             else:
                 st.error("Failed to initialize workflow. Please check your settings and API keys.")
+
+def display_completed_concepts():
+    """Display concepts that the current user has already completed."""
+    # Get user ID from session state
+    user_id = st.session_state.get('user_id', '')
+    
+    if not user_id or 'mongodb_service' not in st.session_state:
+        return
+    
+    # Get completed concepts for this user
+    completed_concepts = st.session_state.mongodb_service.get_completed_concepts_by_user(user_id)
+    
+    if completed_concepts:
+        total_concepts = len(ALL_conceptS)
+        completed_count = len(completed_concepts)
+        remaining = total_concepts - completed_count
+        progress_percent = int((completed_count / total_concepts) * 100)
+        
+        # Create progress bar
+        st.markdown(f'<div class="section-header">Your Progress: {completed_count}/{total_concepts} concepts</div>', unsafe_allow_html=True)
+        st.progress(progress_percent/100)
+        # st.markdown(f"You have completed **{completed_count}/{total_concepts}** concepts (**{progress_percent}%**)")
+        
+        # Group completed concepts by theory
+        completed_by_theory = {}
+        for concept_name in completed_concepts:
+            theory = ALL_conceptS.get(concept_name, {}).get("theory", "Unknown Theory")
+            if theory not in completed_by_theory:
+                completed_by_theory[theory] = []
+            completed_by_theory[theory].append(concept_name)
+        
+        # Show completed concepts grouped by theory
+        with st.expander("View your completed concepts", expanded=False):
+            for theory, concepts in completed_by_theory.items():
+                concept_list = ", ".join([f"{c}" for c in concepts])
+                st.markdown(f"{theory} <span style='color:green'>({len(concepts)} completed)</span>: ***{concept_list}***", unsafe_allow_html=True)
+        
+        # Find uncompleted concepts
+        uncompleted = [concept for concept in ALL_conceptS if concept not in completed_concepts]
+        uncompleted_by_theory = {}
+        for concept in uncompleted:
+            theory = ALL_conceptS.get(concept, {}).get("theory", "Unknown Theory")
+            if theory not in uncompleted_by_theory:
+                uncompleted_by_theory[theory] = []
+            uncompleted_by_theory[theory].append(concept)
+            
+        with st.expander("View remaining concepts", expanded=False):
+            for theory, concepts in uncompleted_by_theory.items():
+            # Show remaining theory, concept and count
+                concept_list = ", ".join([f"{c}" for c in concepts])
+                st.markdown(f"{theory} <span style='color:red'>({len(concepts)} remaining)</span>: ***{concept_list}***", unsafe_allow_html=True)
+
+                
+        # Show all remaining concepts grouped by theory
+    # if remaining > 0:
+    #     st.markdown("### Remaining Concepts by Theory")
+        
+    #     # Find uncompleted concepts
+    #     uncompleted = [concept for concept in ALL_conceptS if concept not in completed_concepts]
+        
+    #     # Group uncompleted concepts by theory
+    #     uncompleted_by_theory = {}
+    #     for concept in uncompleted:
+    #         theory = ALL_conceptS.get(concept, {}).get("theory", "Unknown Theory")
+    #         if theory not in uncompleted_by_theory:
+    #             uncompleted_by_theory[theory] = []
+    #         uncompleted_by_theory[theory].append(concept)
+        
+    #     # Display remaining concepts by theory in a compact format
+    #     for theory, concepts in uncompleted_by_theory.items():
+    #         # Show remaining theory, concept and count
+    #         concept_list = ", ".join([f"{c}" for c in concepts])
+    #         st.markdown(f"{theory} <span style='color:red'>({len(concepts)} remaining)</span>: ***{concept_list}***", unsafe_allow_html=True)
+
+    else:
+        st.markdown('<div class="section-header">Welcome to Message Generation</div>', unsafe_allow_html=True)
+        st.markdown("You haven't completed any concepts yet. Start with selecting a concept below.")

@@ -76,13 +76,17 @@ def display_results_view():
     
     # Display final messages
     with st.container(border=True):
-        st.markdown('<div class="section-header">Message(s) Generated for the Concept</div>', unsafe_allow_html=True)
+        concept_number = getattr(workflow, "concept_number", None) or st.session_state.get("concept_numbers", {}).get(workflow.concept_name, "")
+        
+        concept_display = f"\"{concept_number}. {workflow.concept_name}\"" if concept_number else workflow.concept_name
+        
+        st.markdown(f'<div class="section-header">Final Message(s) for {workflow.concept_name}</div>', unsafe_allow_html=True)
         
         for i, message in enumerate(workflow.final_messages, 1):
             # st.markdown(f"**Message {i}**")
             st.markdown(f'<div class="message-box">{message}</div>', unsafe_allow_html=True)
         # Start new workflow button
-        if st.button("Move to the Next Concept", type="primary", use_container_width=True, key="new_workflow_results_btn"):
+        if st.button(f"Move to the Next Concept", type="primary", use_container_width=True, key="new_workflow_results_btn"):
             reset_session_state()
             st.rerun()
     

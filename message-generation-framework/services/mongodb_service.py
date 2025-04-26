@@ -257,3 +257,37 @@ class MongoDBService:
         except Exception as e:
             logger.error(f"Error deleting all collections from MongoDB: {e}")
             return 0
+        
+    def get_completed_concepts_by_user(self, user_id: str) -> list:
+        """
+        Get all concepts that a user has contributed messages to.
+        
+        Args:
+            user_id: ID of the user
+            
+        Returns:
+            List of concept names the user has contributed to
+        """
+        if self.db is None:
+            logger.error("MongoDB service not properly initialized")
+            return []
+        
+        try:
+            # Get all collection names (concepts)
+            collection_names = self.db.list_collection_names()
+            
+            completed_concepts = []
+            for concept_name in collection_names:
+                collection = self.db[concept_name]
+                
+                # Check if user has documents in this collection
+                count = collection.count_documents({"user_id": user_id})
+                if count > 0:
+                    completed_concepts.append(concept_name)
+            
+            logger.info(f"User {user_id} has completed {len(completed_concepts)} concepts")
+            return completed_concepts
+            
+        except Exception as e:
+            logger.error(f"Error retrieving completed concepts for user {user_id}: {e}")
+            return []

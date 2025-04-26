@@ -49,11 +49,12 @@ class MessageWorkflow:
         self.concept_name = concept_name
         self.concept_info = concept_info
         self.context = context
-        self.diversity_focus = diversity_focus  # We keep the variable name for compatibility
+        self.diversity_focus = diversity_focus
         self.tone = tone
         self.message_style = message_style
         self.message_length = 3 
-        self.num_messages = 3  # Default number of messages to generate
+        self.num_messages = 3
+        self.concept_number = None
         
         # Service functions
         self.generate_text = generate_text

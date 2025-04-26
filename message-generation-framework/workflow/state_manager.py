@@ -195,6 +195,9 @@ def initialize_workflow(
         evaluator_config=evaluator_config
     )
     
+    if "concept_numbers" in st.session_state and concept_name in st.session_state.concept_numbers:
+        workflow.concept_number = st.session_state.concept_numbers[concept_name]
+    
     # Set additional parameters
     workflow.message_length = message_length
     workflow.num_messages = num_messages

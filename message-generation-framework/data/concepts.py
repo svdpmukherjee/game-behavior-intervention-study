@@ -188,7 +188,7 @@ ALL_conceptS = {
     },
     "Dissonance arousal": {
         "theory": "Cognitive Dissonance Theory",
-        "description": "Dissonance arousal refers to the psychological state in which individuals experience discomfort when confronted with conflicting or inconsistent cognitions (e.g. beliefs and behaviors).",
+        "description": "Dissonance arousal refers to the psychological state in which individuals experience discomfort when confronted with conflicting or inconsistent cognitions (e.g., beliefs and behaviors).",
         "examples": [
             "Every time I rush through something important, I get this nagging feeling. The gap between how I want to work and how I actually did it creates this tension that follows me around. My mind won't let me just move on.",
             "Don't you hate that uncomfortable feeling when you take shortcuts on something that deserves better? It gets worse when people praise work you know isn't your best. That mismatch between your actions and standards creates a pressure that's hard to ignore.",

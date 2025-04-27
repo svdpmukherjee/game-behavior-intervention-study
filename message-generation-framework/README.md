@@ -1,4 +1,4 @@
-# Human-in-the-Loop Message Generation Workflow
+# AI-driven Message Generation Workflow with Human-in-the-Loop
 
 A Streamlit application for generating, evaluating and refining psychological concept-based messages with human feedback through a Human-in-the-Loop approach.
 

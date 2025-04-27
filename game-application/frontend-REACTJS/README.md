@@ -2,13 +2,13 @@
 
 https://puzzle-solving-game-study.vercel.app/
 
-# Frontend React.js Application
+## Frontend React.js Application
 
 This directory contains the React.js frontend for the anagram game study application.
 
-## Setup and Running
+### Setup and Running
 
-### Installation
+#### Installation
 
 1. Install dependencies:
 
@@ -29,7 +29,7 @@ This directory contains the React.js frontend for the anagram game study applica
    ```
    The frontend will be available at http://localhost:5173
 
-## Building for Production
+### Building for Production
 
 To build the application for production:
 
@@ -37,7 +37,7 @@ To build the application for production:
 npm run build
 ```
 
-## Application Flow
+### Application Flow
 
 The application guides users through a sequence of steps:
 
@@ -61,7 +61,7 @@ App.jsx (Entry point)
 └── ThankYouPage
 ```
 
-## Component Overview
+### Component Overview
 
 1. **App.jsx**: The main entry point that manages the overall flow and state of the application.
 
@@ -81,12 +81,12 @@ App.jsx (Entry point)
 
 9. **ThankYouPage**: Final page thanking participants for their contribution.
 
-### Utility Components
+#### Utility Components
 
 - **Container.jsx**: Provides consistent layout container for all pages
 - **EventTrack.jsx**: Tracks user behaviors like page visibility and mouse activity
 
-## Behavior Tracking System
+### Behavior Tracking System
 
 The application includes comprehensive event tracking to monitor participant behaviors:
 
@@ -98,7 +98,7 @@ The application includes comprehensive event tracking to monitor participant beh
 
 This tracking is implemented through the `EventTrack.jsx` component, which captures these behaviors and sends them to the backend for analysis.
 
-## Configuration
+### Configuration
 
 The application's API connection is configured in `vite.config.js`:
 

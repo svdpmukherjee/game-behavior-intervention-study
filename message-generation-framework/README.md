@@ -2,6 +2,8 @@
 
 A Streamlit application for generating, evaluating and refining psychological concept-based messages with human feedback through a Human-in-the-Loop approach.
 
+https://concepts-based-message-generator.streamlit.app/
+
 ## Overview
 
 This application helps researchers and practitioners craft messages that closely align with specific psychological concepts. It uses AI language models to generate and evaluate messages, while allowing human experts to provide feedback for refinement. The application follows an iterative process to ensure the messages effectively communicate the intended psychological concept in a natural, conversational manner.

@@ -9,8 +9,8 @@ game-behavior-intervention-study/
 ├── game-application/               # The actual game web application
 │   ├── frontend-REACTJS/           # React-based game interface
 │   └── backend-FASTAPI-MONGODB/    # FastAPI server with MongoDB integration
-├── message-intervention-framework/ # Framework for generating motivational messages for honest game playing
-└── game-behavior-analytics/        # Data analysis and visualization tools
+├── message-generation-framework/   # Framework for generating motivational messages for honest game playing
+└── game-behavior-analytics/        # Data analysis and visualization tools (will be added shortly)
 ```
 
 ## Components
@@ -32,20 +32,20 @@ A full-stack web application that implements a word puzzle solving game:
   - Event tracking
   - API endpoints for frontend interaction
 
-### 2. Message Intervention Framework (`message-intervention-framework/`)
+### 2. Message Generation Framework (`message-generation-framework/`)
 
-Creates, evaluates, and optimizes messages designed to reduce cheating behavior:
+Creates, evaluates and optimizes messages (with Human-in-the-Loop feedback) designed to reduce cheating behavior
 
-- **Generator**: Uses Llama 3.3 (70B) to create messages based on 15 psychological constructs from 4 behavioral theories:
+- **Generator**: Uses Llama 3.3 (70B) to create messages based on 15 psychological concepts from 4 behavioral theories:
 
   - Self-Determination Theory (SDT)
   - Cognitive Dissonance Theory (CDT)
   - Self-Efficacy Theory (SET)
   - Social Norm Theory (SNT)
 
-- **Evaluator**: Utilizes GPT-4o to assess message effectiveness in targeting specific psychological constructs
+- **Evaluator**: Utilizes GPT-4o to assess message effectiveness in targeting specific psychological concepts
 
-- **Optimizer**: Implements an iterative feedback loop to refine and improve message effectiveness
+- **Optimizer**: Implements an iterative feedback loop to refine and improve message effectiveness using LLM + human feedback
 
 ### 3. Game Behavior Analytics (`game-behavior-analytics/`)
 
@@ -80,15 +80,17 @@ Processes and analyzes game event data to understand player behavior:
 3. **Message Generation**
 
    ```bash
-   cd message-intervention-framework
+   cd message-generation-framework
+   conda activate <env_name>
    pip install -r requirements.txt
-   python run_optimizer.py
+   streamlit run app.py
    ```
 
 4. **Initialize Database**
 
    ```bash
    cd ../game-application/backend-FASTAPI-MONGODB
+   conda activate <env_name>
    pip install -r requirements.txt
    python init_database.py
    ```
@@ -97,7 +99,8 @@ Processes and analyzes game event data to understand player behavior:
 
    ```bash
    cd ../game-application/backend-FASTAPI-MONGODB
-   uvicorn app.main:app --reload
+   conda activate <env_name>
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 6. **Run Frontend Application**
@@ -108,20 +111,20 @@ Processes and analyzes game event data to understand player behavior:
    npm run dev
    ```
 
-7. **Analyze Collected Data**
+<!-- 7. **Analyze Collected Data**
    ```bash
    cd ../game-behavior-analytics
    pip install -r requirements.txt
    python scripts/run_analysis.py
-   ```
+   ``` -->
 
 ## Detailed Documentation
 
 Each component contains its own README with detailed setup and usage instructions:
 
 - `game-application/README.md` - Game setup and deployment
-- `message-intervention-framework/README.md` - Message generation and optimization
-- `game-behavior-analytics/README.md` - Data analysis and visualization
+- `message-generation-framework/README.md` - Message generation and optimization
+<!-- - `game-behavior-analytics/README.md` - Data analysis and visualization -->
 
 ## Citation
 

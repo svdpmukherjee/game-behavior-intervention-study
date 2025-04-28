@@ -154,6 +154,10 @@ def display_generation_view():
         
         with col1:
             if st.button("Refine the Message with My Feedback", type="primary", use_container_width=True, key=f"{unique_key_base}_refine_message_btn"):
+                # Update the message in workflow if it was edited
+                if edited_message != current_message:
+                    workflow.message_history[-1] = edited_message
+                
                 # Record structured feedback
                 workflow.record_structured_human_feedback(
                     rating,
@@ -186,6 +190,10 @@ def display_generation_view():
                     st.warning("This message is very similar to previous ones. Consider refining it further for more diversity.")
             
             if st.button("I Accept the Message", type=accept_button_type, use_container_width=True, key=f"{unique_key_base}_accept_message_btn"):
+                # Update the message in workflow if it was edited
+                if edited_message != current_message:
+                    workflow.message_history[-1] = edited_message
+                
                 # Record structured feedback
                 workflow.record_structured_human_feedback(
                     rating,

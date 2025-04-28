@@ -1,6 +1,5 @@
 """
-Generation view module with enhanced features.
-Contains functions for displaying the message generation and evaluation view.
+Generation view module contains functions for displaying the message generation and evaluation view.
 """
 
 import streamlit as st

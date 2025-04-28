@@ -4,7 +4,17 @@ https://puzzle-solving-game-study.vercel.app/
 
 ## Frontend React.js Application
 
-This directory contains the React.js frontend for the anagram game study application.
+This directory contains the React.js frontend for the anagram game study application, designed to investigate the effects of different intervention messages on user behavior while solving word puzzles.
+
+### A Scene from the Game
+
+![Play a word-puzzle game](src/assets/game_play.gif)
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Modern web browser
+- Backend API running (see backend directory README)
 
 ### Setup and Running
 
@@ -20,14 +30,15 @@ This directory contains the React.js frontend for the anagram game study applica
 
    ```bash
    # This code is used by the survey completion component
-   SURVEY_COMPLETION_CODE=your_survey_code
+   VITE_SURVEY_COMPLETION_CODE=your_survey_code
+   VITE_SURVEY_LINK=your_survey_link
    ```
 
 3. Start the development server:
    ```bash
    npm run dev
    ```
-   The frontend will be available at http://localhost:5173
+   The frontend will be available at http://localhost:5173 (normally if the port is not in use).
 
 ### Building for Production
 
@@ -44,47 +55,116 @@ The application guides users through a sequence of steps:
 ```
 App.jsx (Entry point)
 ├── LandingPage
-│       ├── RewardDisplay
-│       └── CoinIcon
-├── ProlificIdPage
-├── TutorialGame
-│       ├── GameBoard
-│       └── GameTimer
-├── TestPage (with message display)
+│       ├── RewardDisplay (Shows potential earnings structure)
+│       └── CoinIcon (Visual representation of rewards)
+├── ProlificIdPage (Collects participant ID)
+├── TutorialGame (Practice round)
+│       ├── GameBoard (Main game interface)
+│       └── GameTimer (Countdown timer)
+├── TestPage (Main game phase)
 │   └── AnagramGame
-│       ├── MessageDisplay
-│       ├── GameBoard
-│       └── GameTimer
-├── SurveyPage
-├── WordMeaningCheck
-├── DebriefPage
-└── ThankYouPage
+│       ├── MessageDisplay (Shows anti-cheating intervention message)
+│       ├── GameBoard (Main game interface)
+│       └── GameTimer (Countdown timer)
+├── SurveyPage (Post-game questionnaire)
+├── WordMeaningCheck (Word validation phase)
+├── DebriefPage (Study explanation)
+└── ThankYouPage (Completion page)
 ```
 
 ### Component Overview
 
-1. **App.jsx**: The main entry point that manages the overall flow and state of the application.
+#### Main Pages
 
-2. **LandingPage**: Presents introductory information about the study, including reward structure and participation details.
+1. **App.jsx**: Manages overall application state and navigation flow between phases.
 
-3. **ProlificIdPage**: Collects the participant's Prolific ID to initialize their session.
+2. **LandingPage**: Introduces the study with:
 
-4. **TutorialGame**: Provides a practice round for participants to learn the game mechanics.
+   - Explanation of game mechanics and rewards
+   - Privacy details and consent collection
+   - Device compatibility warnings
 
-5. **TestPage**: The main game component where participants solve anagrams and receive intervention messages.
+3. **ProlificIdPage**: Securely collects the participant's Prolific ID for:
 
-6. **SurveyPage**: Collects feedback from participants about their experience.
+   - Session initialization with the backend
+   - Tracking game progress across components
+   - Eventual reward distribution
 
-7. **WordMeaningCheck**: Asks participants to provide meanings for the words they created, used to assess potential cheating.
+4. **TutorialGame**: Provides a practice environment where participants:
 
-8. **DebriefPage**: Provides information about the study's purpose and results.
+   - Learn drag-and-drop letter arrangement
+   - Understand word validation process
+   - See time limit functionality in action
+   - Experience the reward system
 
-9. **ThankYouPage**: Final page thanking participants for their contribution.
+5. **TestPage**: Central experiment component where users:
 
-#### Utility Components
+   - Receive intervention messages based on psychological theories
+   - Solve multiple anagram puzzles
+   - Earn rewards based on word length and validity
+   - Have their behaviors monitored for research purposes
 
-- **Container.jsx**: Provides consistent layout container for all pages
-- **EventTrack.jsx**: Tracks user behaviors like page visibility and mouse activity
+6. **SurveyPage**: Collects feedback about:
+
+   - Game experience
+   - Reaction to intervention messages
+   - Self-reported behavior during gameplay
+
+7. **WordMeaningCheck**: Asks participants to provide meanings for created words to:
+
+   - Assess understanding of submitted words
+   - Gather data for potential cheating detection
+   - Evaluate word formation strategy
+
+8. **DebriefPage**: Explains:
+
+   - Study goals and methods
+   - How data will be used
+   - Total rewards earned
+   - Option to report external resource usage
+
+9. **ThankYouPage**: Finalizes the participant experience with:
+   - Confirmation of completion
+   - Instructions for returning to Prolific
+   - Researcher contact information
+
+#### Game-Specific Components
+
+- **GameBoard.jsx**: Core game interface with:
+
+  - Drag-and-drop letter arrangement
+  - Word submission system
+  - Validated word display
+  - Progress tracking
+
+- **GameTimer.jsx**: Visual countdown timer that:
+
+  - Shows remaining time
+  - Changes color when time is running low
+  - Triggers automatic submission when time expires
+
+- **MessageDisplay.jsx**: Presents intervention messages with:
+
+  - Typewriter animation effect for better engagement
+  - Minimum reading time enforcement
+  - Theory-based styling
+  - Message display timing tracking
+
+- **EventTrack.jsx**: Invisible component that monitors:
+  - Page visibility changes (tab switching)
+  - Mouse activity and inactivity periods
+  - Focus/blur events
+  - Timestamps for all tracked behaviors
+
+### Game Mechanics
+
+The anagram game challenges participants to create valid English words from scrambled letters:
+
+1. **Letter Arrangement**: Drag and drop letters from the available pool to the solution area
+2. **Word Validation**: Words must be 5+ letters and valid English words
+3. **Rewards**: Longer words earn more rewards (e.g., 8-letter words earn 15 pence)
+4. **Time Limit**: Each anagram has a fixed time limit (typically 3 minutes)
+5. **Multiple Anagrams**: Participants solve 2 separate anagrams during the main game
 
 ### Behavior Tracking System
 
@@ -97,6 +177,16 @@ The application includes comprehensive event tracking to monitor participant beh
 - **Submission patterns**: Analyzes patterns in word submissions that might indicate external help
 
 This tracking is implemented through the `EventTrack.jsx` component, which captures these behaviors and sends them to the backend for analysis.
+
+### Anti-Cheating System
+
+The application implements a sophisticated intervention system:
+
+1. **Message Display**: Shows theory-based messages designed to encourage honest gameplay
+2. **Message Tracking**: Records time spent reading intervention messages
+3. **Behavior Monitoring**: Tracks patterns that might indicate external resource use
+4. **Word Meaning Check**: Asks participants to explain their submitted words
+5. **Confession Opportunity**: Provides a non-judgmental chance to report external help usage
 
 ### Configuration
 

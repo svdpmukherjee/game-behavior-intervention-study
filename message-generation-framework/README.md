@@ -8,6 +8,12 @@ https://concepts-based-message-generator.streamlit.app/
 
 This application helps researchers and practitioners craft messages that closely align with specific psychological concepts. It uses AI language models to generate and evaluate messages, while allowing human experts to provide feedback for refinement. The application follows an iterative process to ensure the messages effectively communicate the intended psychological concept in a natural, conversational manner.
 
+### Workflow Visualization
+
+Here is the visualization of this workflow:
+
+![Generator-Evaluator Workflow](images/message_generator_workflow.png)
+
 ## Features
 
 - **Concept Selection**: Choose from multiple psychological concepts from different theories (Self-Determination Theory, Cognitive Dissonance Theory, Social Norm Theory, Self-Efficacy Theory)
@@ -307,9 +313,3 @@ The application allows you to create and manage:
 - Custom message styles
 
 Each of these can be added, edited, and deleted through the respective management sections (look for the 🔧 Manage buttons in each section).
-
-## License
-
-## Contributors
-
-ABC DEF

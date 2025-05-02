@@ -27,235 +27,18 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-# Custom CSS
-st.markdown("""
-<style>
-    .header-container {
-        padding: 1rem 0;
-        margin-bottom: 2rem;
-    }
-    .main-header {
-        font-size: 2rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        color: #1E3A8A;
-    }
-    .section-header {
-        font-size: 1.5rem;
-        font-weight: bold;
-        margin: 1.2rem 0 1rem 0;
-        color: #2563EB;
-    }
-    .message-box {
-        background-color: #F0FFFF;
-        border-radius: 0.5rem;
-        padding: 1.2rem;
-        margin: 0.8rem 0;
-        border: 1px solid #E0F7FA;
-    }
-    .progress-indicator {
-        font-size: 1.2rem;
-        margin: 1rem 0;
-        color: #2563EB;
-    }
-    .step-label {
-            color: gray;
-        }
-    .step-title {
-        color: gray;
-        font-weight: bold;
-        margin-left: 4px;
-    }
-    .step-stats {
-        color: #3399FF;  /* light blue */
-        margin-left: 8px;
-        font-weight: bold;
-    }
-    .stProgress > div > div > div {
-        background-color: #ADD8E6 !important;  /* light blue bar */
-    }
-    .concept-name {
-        font-weight: bold;
-        color: #2563EB;
-    }
-    .step-complete {
-        color: green;
-        font-weight: bold;
-    }
-    .evaluation-section {
-        margin-top: 2rem;
-        padding: 1.5rem;
-        border-radius: 10px;
-        border: 1px solid #e0e0e0;
-        background-color: #fafafa;
-    }
-    .result-box {
-        background-color: #E8F4F8;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin: 1rem 0;
-        border: 1px solid #B3E5FC;
-    }
-    .concept-header {
-        font-size: 1.3rem;
-        font-weight: bold;
-        margin: 1rem 0;
-        color: #1565C0;
-    }
-    .true-concept-reveal {
-        margin-top: 1.5rem;
-        padding: 1rem;
-        background-color: #ECFDF5;
-        border-left: 4px solid #10B981;
-        border-radius: 0.25rem;
-    }
-    .concept-definition {
-        margin-top: 0.5rem;
-        color: #37038c;
-    }
-    .message-separator {
-        margin: 2rem 0;
-        border-top: 1px dashed #E5E7EB;
-    }
-    .message-counter {
-        font-size: 1rem;
-        color: #6B7280;
-        margin-bottom: 1rem;
-    }
-    .transition-message {
-        margin: 2rem 0;
-        padding: 0.5rem;
-        background-color: #FEF3C7;
-        border-left: 4px solid #F59E0B;
-        font-size: 1.1rem;
-    }
-    .message-rating-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    .message-cell {
-        padding: 0.5rem;
-    }
-    .rating-cell {
-        padding: 0.5rem;
-        background-color: #F9FAFB;
-        border-radius: 0.5rem;
-    }
-    .intro-section {
-        margin: 2rem auto;
-        max-width: 800px;
-        padding: 2rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    .intro-step {
-        margin: 1.5rem 0;
-        padding: 1rem;
-        background-color: #e4fbfe;
-        border-radius: 8px;
-        border-left: 4px solid #3b82f6;
-    }
-    .start-button {
-        margin-top: 2rem;
-        padding: 0.75rem 1.5rem;
-        background-color: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-size: 1.1rem;
-        cursor: pointer;
-        text-align: center;
-    }
-    .concept-definitions-expander {
-        margin: 1rem 0;
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        background-color: #f9fafb;
-    }
-    .alignment-container {
-        background-color: #ECFDF5;
-        padding: 1rem;
-        border-radius: 0.25rem;
-        margin-top: 0.5rem;
-    }
-    .true-concept-reveal {
-        background-color: #f2faf9;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        font-family: 'Segoe UI', sans-serif;
-        margin-bottom: 20px;
-    }
+# Import CSS from external file
+def load_css(css_file):
+    with open(css_file, 'r') as f:
+        css = f.read()
+    st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
 
-    .true-concept-reveal h5 {
-        color: #2c3e50;
-        font-size: 18px;
-    }
-
-    .true-concept-reveal strong {
-        color: #1abc9c; /* Key color */
-    }
-
-    .concept-definition {
-        font-weight: 500;
-        margin-top: 10px;
-    }
-
-    .concept-definition::before {
-        content: "Concept Definition: ";
-        color: #2c3e50; /* Key color */
-        font-weight: 600;
-    }
-
-    .concept-definition {
-        color: #34495e; /* Value color */
-    }
-
-    .true-concept-reveal blockquote {
-        background: #FFFFFF;
-        border-left: 5px solid #1abc9c;
-        padding: 10px 15px;
-        margin: 20px 0 0;
-        font-style: italic;
-        color: #2c3e50;
-    }
-    .step2-container {
-        background-color: #f9fafb;
-        border-radius: 12px;
-        padding: 24px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.04);
-        margin-bottom: 30px;
-        font-family: 'Segoe UI', sans-serif;
-    }
-
-    .message-counter {
-        font-size: 1.1rem;
-        color: #4B5563; /* Slightly darker for better visibility */
-        margin-bottom: 8px;
-        font-weight: 600;
-    }
-
-    .concept-box {
-        background-color: #e0f7fa;
-        border-left: 6px solid #00bcd4;
-        padding: 15px;
-        border-radius: 8px;
-        color: #004d40;
-        font-size: 1rem;
-        font-weight: 500;
-        margin-bottom: 16px;
-    }
-
-    .instruction-header {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin-bottom: 16px;
-    }
-</style>
-""", unsafe_allow_html=True)
+# Load the CSS
+try:
+    load_css('styles.css')
+except FileNotFoundError:
+    # Fallback message if CSS file not found
+    st.warning("Custom CSS file not found. Using default styling.")
 
 # User Progress Tracker
 class UserProgressTracker:
@@ -778,8 +561,6 @@ def main():
         st.error("No messages found in the 'all_messages' collection.")
         return
     
-    # st.sidebar.info(f"Found {message_count} messages in collection.")
-    
     # Initialize progress tracker
     progress_tracker = UserProgressTracker(db, "all_messages", "eval_")
     
@@ -935,8 +716,6 @@ def main():
                 with st.expander("View Concept Definitions", expanded=False):
                     for concept, definition in st.session_state.concept_definitions.items():
                         st.markdown(f"**{concept}**: {definition}")
-                    # st.markdown("---")
-                    # st.markdown("*Use these definitions to help identify which concept the message communicates.*")
                 
                 st.markdown('<br/>', unsafe_allow_html=True)
                 
@@ -1005,13 +784,6 @@ def main():
                             </div>
                         """, unsafe_allow_html=True)
                         
-                        # st.markdown(f"""
-                        #     <div class="true-concept-reveal">
-                        #         <h5>This message was created for the concept by {creator_user_id}: <strong>{true_concept}</strong></h5>
-                        #         <div class="concept-definition">Note: {concept_definition}</div>
-                        #     </div>
-                        # """, unsafe_allow_html=True)
-                        
                         st.markdown('<br/>', unsafe_allow_html=True)
                         # Place the alignment rating in the same visual container
                         alignment_rating = st.slider(
@@ -1068,7 +840,6 @@ def main():
     elif not progress["step2"]["is_complete"]:
         # Display transition message if Step 1 was just completed
         if "showed_transition" not in st.session_state or not st.session_state.showed_transition:
-            # st.markdown('<div class="transition-message">', unsafe_allow_html=True)
             st.markdown(f"""
                         <div class="transition-message">
                             <h5>You have successfully completed Step 1!</h5>
@@ -1147,8 +918,6 @@ def main():
                         col1, col2 = st.columns([3, 2])  # Adjust ratio as needed for layout balance
     
                         with col1:
-                            # st.markdown(f"**Message {i+1}** (Created by: {creator_user_id})")
-                            # st.markdown(f"> **Message {i+1}** (Created by: {creator_user_id}): {message['message']}")
                             st.markdown(f"> **Message {i+1}**: {message['message']}")
                             # Display a horizontal rule
                             st.markdown("---")

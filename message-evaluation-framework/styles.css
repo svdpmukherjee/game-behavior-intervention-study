@@ -1,0 +1,237 @@
+/* Main Layout Styles */
+.header-container {
+  padding: 1rem 0;
+  margin-bottom: 2rem;
+}
+
+.main-header {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #1e3a8a;
+}
+
+.section-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 1.2rem 0 1rem 0;
+  color: #2563eb;
+}
+
+/* Progress Indicators */
+.progress-indicator {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+  color: #2563eb;
+}
+
+.step-label {
+  color: gray;
+}
+
+.step-title {
+  color: gray;
+  font-weight: bold;
+  margin-left: 4px;
+}
+
+.step-stats {
+  color: #3399ff;
+  margin-left: 8px;
+  font-weight: bold;
+}
+
+.stProgress > div > div > div {
+  background-color: #add8e6 !important;
+}
+
+.step-complete {
+  color: green;
+  font-weight: bold;
+}
+
+/* Message Containers */
+.message-box {
+  background-color: #f0ffff;
+  border-radius: 0.5rem;
+  padding: 1.2rem;
+  margin: 0.8rem 0;
+  border: 1px solid #e0f7fa;
+}
+
+.result-box {
+  background-color: #e8f4f8;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 1px solid #b3e5fc;
+}
+
+.message-counter {
+  font-size: 1.1rem;
+  color: #4b5563;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.message-separator {
+  margin: 2rem 0;
+  border-top: 1px dashed #e5e7eb;
+}
+
+/* Concept Styling */
+.concept-name {
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.concept-header {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 1rem 0;
+  color: #1565c0;
+}
+
+.concept-definition {
+  margin-top: 0.5rem;
+  color: #37038c;
+}
+
+.concept-definition::before {
+  content: "Concept Definition: ";
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.concept-box {
+  background-color: #e0f7fa;
+  border-left: 6px solid #00bcd4;
+  padding: 15px;
+  border-radius: 8px;
+  color: #004d40;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.concept-definitions-expander {
+  margin: 1rem 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+/* Evaluation Sections */
+.evaluation-section {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+.alignment-container {
+  background-color: #ecfdf5;
+  padding: 1rem;
+  border-radius: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.message-rating-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.message-cell {
+  padding: 0.5rem;
+}
+
+.rating-cell {
+  padding: 0.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+/* Intro and Step Sections */
+.intro-section {
+  margin: 2rem auto;
+  max-width: 800px;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.intro-step {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: #e4fbfe;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.start-button {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.transition-message {
+  margin: 2rem 0;
+  padding: 0.5rem;
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  font-size: 1.1rem;
+}
+
+/* True Concept Reveal */
+.true-concept-reveal {
+  background-color: #f2faf9;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  /* font-family: "Segoe UI", sans-serif; */
+  margin-bottom: 20px;
+}
+
+.true-concept-reveal h5 {
+  color: #2c3e50;
+  font-size: 18px;
+}
+
+.true-concept-reveal strong {
+  color: #1abc9c;
+}
+
+.true-concept-reveal blockquote {
+  background: #ffffff;
+  border-left: 5px solid #1abc9c;
+  padding: 10px 15px;
+  margin: 20px 0 0;
+  font-style: italic;
+  color: #2c3e50;
+}
+
+/* Step 2 Container */
+.step2-container {
+  background-color: #f9fafb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 30px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.instruction-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 16px;
+}

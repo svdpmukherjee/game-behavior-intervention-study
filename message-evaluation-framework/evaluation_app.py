@@ -180,6 +180,80 @@ st.markdown("""
         border-radius: 0.25rem;
         margin-top: 0.5rem;
     }
+    .true-concept-reveal {
+        background-color: #f2faf9;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        font-family: 'Segoe UI', sans-serif;
+        margin-bottom: 20px;
+    }
+
+    .true-concept-reveal h5 {
+        color: #2c3e50;
+        font-size: 18px;
+    }
+
+    .true-concept-reveal strong {
+        color: #1abc9c; /* Key color */
+    }
+
+    .concept-definition {
+        font-weight: 500;
+        margin-top: 10px;
+    }
+
+    .concept-definition::before {
+        content: "Concept Definition: ";
+        color: #2c3e50; /* Key color */
+        font-weight: 600;
+    }
+
+    .concept-definition {
+        color: #34495e; /* Value color */
+    }
+
+    .true-concept-reveal blockquote {
+        background: #FFFFFF;
+        border-left: 5px solid #1abc9c;
+        padding: 10px 15px;
+        margin: 20px 0 0;
+        font-style: italic;
+        color: #2c3e50;
+    }
+    .step2-container {
+        background-color: #f9fafb;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+        margin-bottom: 30px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .message-counter {
+        font-size: 1.1rem;
+        color: #4B5563; /* Slightly darker for better visibility */
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .concept-box {
+        background-color: #e0f7fa;
+        border-left: 6px solid #00bcd4;
+        padding: 15px;
+        border-radius: 8px;
+        color: #004d40;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .instruction-header {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 16px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -601,7 +675,7 @@ def admin_interface(db):
                     st.session_state.entered_pass = ""
                     st.rerun()
     # else:
-    #     st.sidebar.markdown("🔒 *Admin controls are currently disabled.*")
+    #     st.sidebar.markdown("*Admin controls are currently disabled.*")
 
 def get_concept_definitions_from_db(db):
     """Get concept definitions from database"""
@@ -732,7 +806,7 @@ def main():
     if not st.session_state.intro_completed:
         st.markdown(f"""
             <div class="">
-                <h2>Welcome to the Message Evaluation Process!</h2>
+                <h2>Welcome to the Message Evaluation Process</h2>
                 
             </div>
         """, unsafe_allow_html=True)
@@ -740,33 +814,34 @@ def main():
         
         st.markdown(f"""
             <div class="intro-step" style="padding: 1em; solid #ccc; border-radius: 5px;">
-                <h5>Step 1: Concept Identification and Alignment Rating</h5>
+                <h5>Step 1: Match Messages to Theoretical Concepts</h5>
             </div>
         """, unsafe_allow_html=True)
 
         st.markdown("""
         In this first step, you will:
-        - view messages created by others
-        - **identify which concept you think each message communicates** (definitions are provided)
-        - after submitting your guess, you will see the concept the message was originally intended to convey
+        - view the messages created by others, one by one
+        - **identify which concept you think each message communicates** *(definitions are provided)*
+        - after submitting your guess, you will see the concept the message was **originally intended** to convey
         - rate how well the message fits its **intended concept**
         
-        This helps us assess how clearly messages communicate their concepts.
+        This step helps us understand how clearly messages communicate their concepts.
+        ***After completing Step 1, move to Step 2***.
         """)
 
         st.markdown(f"""
             <div class="intro-step" style="padding: 1em; solid #ccc; border-radius: 5px;">
-                <h5>Step 2: Rating Messages by Concept</h5>
+                <h5>Step 2: Rate the Most Motivating Messages for Each Concept</h5>
             </div>
         """, unsafe_allow_html=True)
 
         st.markdown(""" 
-        In the second step, you will:
-        - see all messages for each concept grouped together
-        - **rate how effective each message would be in motivating you**, imagining yourself as a participant in the study
-        - provide any comments or feedback on the messages
-        
-        This helps us identify the most effective messages for each concept.
+            In this step, you will:
+            - see all messages created by others, grouped by concept  
+            - **rate how motivating each message would be for you to perform well**, imagining yourself as a participant in the study  
+            - share any comments or feedback you have about the messages  
+
+            Your responses will help us identify which messages work best for each concept.
         """)
         
         if st.button("Start Evaluation", use_container_width=True, key="start_evaluation"):
@@ -794,31 +869,49 @@ def main():
     
     # Get progress metrics for this user
     progress = progress_tracker.get_progress_metrics(selected_user_id)
-    
+
     # Display progress
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(
             f'<div class="progress-indicator">'
             f'<span class="step-label">Step 1:</span>'
-            f'<span class="step-title"> Concept Identification and Alignment Rating</span>'
-            f'<span class="step-stats"> {progress["step1"]["completed"]}/{progress["step1"]["total"]} ({progress["step1"]["percentage"]}%)</span>'
+            f'<span class="step-title"> Match Messages to Theoretical Concepts</span>'
+            f'<span class="step-stats"> {progress["step1"]["completed"]}/{progress["step1"]["total"]} messages ({progress["step1"]["percentage"]}% completed)</span>'
             f'</div>',
             unsafe_allow_html=True
         )
         st.progress(progress["step1"]["percentage"] / 100)
 
-    with col2:
-        st.markdown(
-            f'<div class="progress-indicator">'
-            f'<span class="step-label">Step 2:</span>'
-            f'<span class="step-title"> Rating Messages by Concept</span>'
-            f'<span class="step-stats"> {progress["step2"]["completed"]}/{progress["step2"]["total"]} ({progress["step2"]["percentage"]}%)</span>'
-            f'</div>',
-            unsafe_allow_html=True
-        )
-        st.progress(progress["step2"]["percentage"] / 100)
-    
+    # Only show Step 2 progress if Step 1 is complete
+    if progress["step1"]["is_complete"]:
+        with col2:
+            st.markdown(
+                f'<div class="progress-indicator">'
+                f'<span class="step-label">Step 2:</span>'
+                f'<span class="step-title"> Pick Most Motivating Messages for Each Concept</span>'
+                f'<span class="step-stats"> {progress["step2"]["completed"]}/{progress["step2"]["total"]} concepts ({progress["step2"]["percentage"]}% completed)</span>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            st.progress(progress["step2"]["percentage"] / 100)
+    else:
+        # Show a disabled or greyed out Step 2 indicator when Step 1 is not complete
+        with col2:
+            st.markdown(
+                f'<div class="progress-indicator" style="opacity: 0.5;">'
+                f'<span class="step-label">Step 2:</span>'
+                f'<span class="step-title"> Pick Most Motivating Messages for Each Concept</span>'
+                f'<span class="step-stats">(Complete Step 1 first)</span>'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            # Empty progress bar with custom CSS
+            st.markdown(
+                f'<div style="background-color: #E0E0E0; border-radius: 10px; height: 10px; opacity: 0.5; margin-top: 6px"></div>',
+                unsafe_allow_html=True
+            )
+
     # STEP 1: Concept Identification and Alignment Rating
     if not progress["step1"]["is_complete"]:
         # Get current message for evaluation
@@ -842,8 +935,8 @@ def main():
                 with st.expander("View Concept Definitions", expanded=False):
                     for concept, definition in st.session_state.concept_definitions.items():
                         st.markdown(f"**{concept}**: {definition}")
-                    st.markdown("---")
-                    st.markdown("*Use these definitions to help identify which concept the message communicates.*")
+                    # st.markdown("---")
+                    # st.markdown("*Use these definitions to help identify which concept the message communicates.*")
                 
                 st.markdown('<br/>', unsafe_allow_html=True)
                 
@@ -904,13 +997,14 @@ def main():
                         concept_definition = current_message.get("concept_definition", 
                                              st.session_state.concept_definitions.get(true_concept, "Definition not available"))
                         
-                        # Create a container for the concept reveal and alignment rating
                         st.markdown(f"""
                             <div class="true-concept-reveal">
                                 <h5>This message was originally created for the concept: <strong>{true_concept}</strong></h5>
-                                <div class="concept-definition">Note: {concept_definition}</div>
+                                <div class="concept-definition">{concept_definition}</div>
+                                <blockquote>"{current_message["message"]}"</blockquote>
                             </div>
                         """, unsafe_allow_html=True)
+                        
                         # st.markdown(f"""
                         #     <div class="true-concept-reveal">
                         #         <h5>This message was created for the concept by {creator_user_id}: <strong>{true_concept}</strong></h5>
@@ -1027,14 +1121,19 @@ def main():
                 concept_definition = concept_messages[0].get("concept_definition", 
                                      st.session_state.concept_definitions.get(current_concept, "Definition not available")) if concept_messages else st.session_state.concept_definitions.get(current_concept, "Definition not available")
                 
-                # Instruction for the grid layout
-                st.markdown("#### Rate each message based on how effective it would be at motivating you to perform well and your user experience? ")
-                    
-                # Display concept info
-                st.markdown(f'<div class="message-counter">Concept {current_index + 1} of {total_assigned}: {current_concept}</div>', unsafe_allow_html=True)
-                st.markdown(f"> ##### {concept_definition}", unsafe_allow_html=True)
-                
-                st.markdown('<br/>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="step2-container">
+                        <div class="instruction-header">
+                            Rate each message based on how effective it would be at motivating you to perform well and your user experience:
+                        </div>
+                        <div class="message-counter">
+                            Concept {current_index + 1} of {total_assigned}: <span style="color:#10b981;">{current_concept}</span>
+                        </div>
+                        <div class="concept-box">
+                            {concept_definition}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
                 
                 # Create a form for rating all messages for this concept
                 with st.form(key=f"step2_form_{current_concept}"):

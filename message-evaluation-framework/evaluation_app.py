@@ -1,5 +1,5 @@
 """
-Improved Message Evaluation Application.
+Message Evaluation Application.
 A Streamlit application for evaluating concept-based messages in a two-step process:
 1. Step 1: Users identify which concept a message communicates and rate its alignment
 2. Step 2: Users rate all messages for each concept

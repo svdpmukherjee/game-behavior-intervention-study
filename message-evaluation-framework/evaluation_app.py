@@ -746,13 +746,12 @@ def main():
 
         st.markdown("""
         In this first step, you will:
-        - see messages created by others one by one
-        - **identify which concept you think each message communicates**
-        - you can take help from the definitions of all concepts provided
-        - after submitting your guess, you will see the actual intended concept
-        - rate how well the message aligns with its **intended concept**
+        - view messages created by others
+        - **identify which concept you think each message communicates** (definitions are provided)
+        - after submitting your guess, you will see the concept the message was originally intended to convey
+        - rate how well the message fits its **intended concept**
         
-        This helps us understand if messages clearly convey their intended concepts.
+        This helps us assess how clearly messages communicate their concepts.
         """)
 
         st.markdown(f"""

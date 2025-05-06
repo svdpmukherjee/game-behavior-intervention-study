@@ -32,7 +32,7 @@ const StudyOverview = ({ onNext, studyConfig }) => (
           <span>
             You will be given{" "}
             <span className="font-semibold">{studyConfig.game_anagrams}</span>{" "}
-            sets of scrambled letters
+            set of scrambled letters
           </span>
         </li>
         <li className="flex items-start">
@@ -56,7 +56,7 @@ const StudyOverview = ({ onNext, studyConfig }) => (
           <span>
             Try to find{" "}
             <span className="font-semibold">as many words as possible</span>{" "}
-            from each set
+            from the set
           </span>
         </li>
         <li className="flex items-start">

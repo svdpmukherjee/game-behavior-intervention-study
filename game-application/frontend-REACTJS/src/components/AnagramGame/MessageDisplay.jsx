@@ -4,15 +4,16 @@ import { Info, ArrowRight, AlertTriangle } from "lucide-react";
 const MessageDisplay = ({ message, onMessageShown }) => {
   const [isReady, setIsReady] = useState(false);
   const [hasRead, setHasRead] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(10);
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
   const [visibleSentences, setVisibleSentences] = useState([]);
   const [hasStartedReading, setHasStartedReading] = useState(false);
   const [isAllSentencesVisible, setIsAllSentencesVisible] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
+  const [hasReadConfirmed, setHasReadConfirmed] = useState(false);
+  const [showGameInfo, setShowGameInfo] = useState(false);
 
-  const minReadTime = 10000; // 20 seconds minimum reading time
+  const minReadTime = 10000; // 10 seconds minimum reading time
   const messageStartTime = useRef(new Date());
   const sentenceDelay = 1000; // 1 second between sentences appearing
   const loaderRemovalDelay = 1000; // 1 second delay before removing loader after last sentence
@@ -108,16 +109,10 @@ const MessageDisplay = ({ message, onMessageShown }) => {
     if (message?.id && !isReady && hasStartedReading) {
       const timer = setTimeout(() => {
         setIsReady(true);
-        setRemainingTime(0);
       }, minReadTime);
-
-      const interval = setInterval(() => {
-        setRemainingTime((prev) => Math.max(0, prev - 1));
-      }, 1000);
 
       return () => {
         clearTimeout(timer);
-        clearInterval(interval);
       };
     }
   }, [message?.id, hasStartedReading]);
@@ -158,50 +153,69 @@ const MessageDisplay = ({ message, onMessageShown }) => {
     setHasStartedReading(true);
   };
 
-  // Determine the theory icon
-  const getTheoryIcon = () => {
-    return <Info className="h-6 w-6 text-blue-500" />;
+  // Handle checkbox change
+  const handleCheckboxChange = () => {
+    setHasReadConfirmed(!hasReadConfirmed);
+    if (!hasReadConfirmed) {
+      setShowGameInfo(true);
+    } else {
+      setShowGameInfo(false);
+    }
   };
 
-  // Determine header color based on theory
-  const getHeaderColor = () => {
-    return "bg-blue-100 text-blue-800";
+  // Handle continue button click
+  const handleContinue = () => {
+    const timeSpent = Math.round(
+      (new Date() - messageStartTime.current) / 1000
+    );
+    onMessageShown?.({
+      messageId: message.id,
+      messageText: message.text,
+      timeSpentOnMessage: timeSpent,
+      theory: message.theory,
+    });
   };
 
   return (
     <div className="space-y-6">
-      {/* Add the keyframes style to the component */}
       <style>{fadeInStyle}</style>
 
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 overflow-hidden">
-        {/* Message header */}
-        <div
-          className={`${getHeaderColor()} px-6 py-4 rounded-t-lg -mx-6 -mt-6 mb-6 flex items-center`}
-        >
-          <div className="mr-4">{getTheoryIcon()}</div>
-          <div>
-            <h3 className="text-xl font-semibold">
-              A Few Words From The Researcher Before You Start
+        {/* Message header*/}
+        <div className="bg-blue-50 px-6 py-4 rounded-t-lg -mx-6 -mt-6 mb-6 border-b border-blue-100">
+          <div className="flex items-center">
+            <h3 className="text-xl font-medium text-gray-800">
+              A Few Words From The Researcher
             </h3>
+          </div>
+          <div className="flex items-start mt-1">
+            <Info className="h-4 w-4 text-blue-600 mr-2 mt-0.5" />
+            <p className="text-sm text-blue-700">
+              Please read this message before proceeding
+            </p>
           </div>
         </div>
 
-        {/* Message content with sentence-by-sentence reveal */}
-        <div className="bg-gray-50 p-6 rounded-lg min-h-[180px] flex flex-col justify-center">
+        {/* Message content area */}
+        <div className="bg-gray-50 p-5 rounded-lg min-h-80">
           {!hasStartedReading ? (
-            <div className="flex flex-col items-center justify-center h-full">
+            <div className="flex flex-col items-center justify-center h-full py-10">
+              <p className="text-gray-600 text-center mb-12">
+                This message contains important information about your
+                puzzle-solving experience
+              </p>
               <button
                 onClick={handleStartReading}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg transform cursor-pointer"
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors cursor-pointer"
               >
                 Curious? See the message now!
               </button>
             </div>
           ) : (
-            <div className="space-y-5 min-h-80 shadow-sm p-4">
-              <p className="text-gray-400">Hello!</p>
+            <div className="space-y-5 min-h-60 p-4">
+              <p className="text-gray-600">Hello puzzle-solver!</p>
 
-              {/* Fixed position loading indicator right after Hello! */}
+              {/* Loading indicator for text appearing */}
               <div className="h-2 pl-3">
                 {showLoader && (
                   <div className="flex items-center gap-2">
@@ -225,7 +239,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
               {visibleSentences.map((sentence, index) => (
                 <p
                   key={index}
-                  className="text-lg text-gray-800 pl-8"
+                  className="text-gray-800 pl-4"
                   style={{
                     animation: "slowFadeIn 2s ease-in-out",
                     opacity: 1,
@@ -238,58 +252,49 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           )}
         </div>
 
-        {/* Next steps section */}
-        {isReady && (
-          <div className="mt-10 p-4 rounded-lg ">
-            <p className="text-gray-600 font-medium">Next Steps:</p>
-            <p className="text-gray-400 mt-2">
-              You will now solve {studyConfig.game_anagrams} similar word
-              puzzles with {gameTime} minutes for each
-            </p>
+        {/* Reading confirmation checkbox - only show after minimum read time */}
+        {isAllSentencesVisible && isReady && (
+          <div className="mt-4 px-3 py-2 bg-gray-50 rounded-lg">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="readCompletionCheckbox"
+                className="h-4 w-4 text-blue-600"
+                checked={hasReadConfirmed}
+                onChange={handleCheckboxChange}
+              />
+              <label
+                htmlFor="readCompletionCheckbox"
+                className="ml-2 text-gray-700 text-sm"
+              >
+                I have finished reading this message
+              </label>
+            </div>
           </div>
         )}
 
-        {/* Continue button */}
-        <button
-          onClick={() => setHasRead(true)}
-          disabled={!isReady || !isAllSentencesVisible || !hasStartedReading}
-          className={`
-            w-full mt-6 py-3 rounded-lg font-medium
-            transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer
-            ${
-              isReady && isAllSentencesVisible && hasStartedReading
-                ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-1"
-                : "bg-white text-gray-400 cursor-not-allowed"
-            }
-          `}
-        >
-          {!hasStartedReading ? (
-            ""
-          ) : isReady && isAllSentencesVisible ? (
-            <>
-              I am ready, Let's continue <ArrowRight className="w-5 h-5" />
-            </>
-          ) : isAllSentencesVisible ? (
-            <div className="text-center text-sm italic space-y-2">
-              <p className="font-medium text-gray-700">
-                Please make sure that you understand the message as it is very
-                important for the game.
-              </p>
+        {/* Game info - only show after checkbox is checked */}
+        {isReady &&
+          isAllSentencesVisible &&
+          hasReadConfirmed &&
+          showGameInfo && (
+            <div className="mt-4 p-3 rounded-lg text-gray-600 text-sm">
               <p>
-                You need to wait ({remainingTime} seconds) while the puzzles are
-                getting ready.
+                You will now solve {studyConfig.game_anagrams} word puzzle for{" "}
+                {gameTime} minutes.
               </p>
-            </div>
-          ) : (
-            <div className="text-center text-sm italic space-y-2">
-              <p className="font-medium text-gray-700">
-                Please make sure that you understand the message as it is very
-                important for the game.
-              </p>
-              <p>Please wait while the message is being revealed...</p>
             </div>
           )}
-        </button>
+
+        {/* Continue button - only show after checkbox is checked */}
+        {isReady && isAllSentencesVisible && hasReadConfirmed && (
+          <button
+            onClick={handleContinue}
+            className="w-full mt-5 py-3 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
+          >
+            Continue to puzzle game <ArrowRight className="w-5 h-5" />
+          </button>
+        )}
       </div>
     </div>
   );

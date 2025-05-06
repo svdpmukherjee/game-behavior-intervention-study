@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import Container from "./Container";
 
-const SurveyPage = ({ onComplete, messageId = "T1C1" }) => {
+const SurveyPage = ({ onComplete, messageId = "autonomy" }) => {
   const [surveyCode, setSurveyCode] = useState("");
   const [codeError, setCodeError] = useState(false);
   const [surveyOpened, setSurveyOpened] = useState(false);

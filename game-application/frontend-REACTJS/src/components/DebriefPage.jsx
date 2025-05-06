@@ -392,12 +392,18 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                 same bonus amount. No matter how many words you found, you will
                 get the full possible reward.
               </p>
-              <p className="text-xl font-bold text-green-700">
+              {/* <p className="text-xl font-bold text-green-700">
                 Your final reward:{" "}
                 {studyConfig?.compensation?.max_reward_per_anagram *
                   studyConfig?.game_anagrams}{" "}
                 pence ({studyConfig?.compensation?.max_reward_per_anagram} pence
                 × {studyConfig?.game_anagrams} word puzzles)
+              </p> */}
+              <p className="text-xl font-bold text-green-700">
+                Your final reward:{" "}
+                {studyConfig?.compensation?.max_reward_per_anagram *
+                  studyConfig?.game_anagrams}{" "}
+                pence
               </p>
               <p className="text-sm text-gray-700 mt-4">
                 Thank you for helping with our research! Your participation is

@@ -1,99 +1,93 @@
 {
   "anti_cheating_messages": [
     {
-      "id": "T0C0M0",
-      "theory": "Control",
-      "text": "Thanks for your participation. Your puzzle-solving patterns are very important for our research. You are on the right track. Keep going!",
-      "shown_count": 0
-    },
-    {
-      "id": "T1C1M1",
+      "id": "autonomy_1",
       "theory": "Self-Determination Theory",
-      "text": "When you make choices that feel right to you, then you're more likely to stay motivated. People learn and grow more when they have the freedom to choose their own path. This freedom helps learners develop a sense of ownership over their progress. When choices are made without external pressure, then the outcome is more satisfying.",
+      "text": "Are you aware that it is up to you how you tackle these challenges? You have the choice on how to approach these challenges, on how much effort you put in and how much you value the results. The way you behave and tackle these challenges therefore reflect your personal choices.",
       "shown_count": 0
     },
     {
-      "id": "T1C2M1",
+      "id": "competence_1",
       "theory": "Self-Determination Theory",
-      "text": "When people work to solve problems on their own, they build strong foundations. This helps them master challenges and feel capable. As they tackle tough tasks, their skills grow, and they become more effective. By doing so, they create a sense of competence that comes from within, based on their actual abilities.",
+      "text": "Can you think of a time where you felt competent at doing a challenging task?  Doing challenging tasks can be frustrating at first but it's amazing how hard work can make you progress and become competent.",
       "shown_count": 0
     },
     {
-      "id": "T1C3M1",
+      "id": "relatedness_1",
       "theory": "Self-Determination Theory",
-      "text": "When people work alone, they might feel like they're on their own. But when they work with others, they feel supported and understood. This sense of connection is what makes the experience more meaningful, not just the end result. People grow and learn more when they feel like they're part of a community that values their efforts and contributions.",
+      "text": "Can you think about all the people that are impacted by how you behave? When you feel like your work is genuinely connected to others, it's amazing how much more meaningful it becomes.",
       "shown_count": 0
     },
     {
-      "id": "T2C1M1",
+      "id": "self_concept_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "What does it mean to truly master a challenge? It means putting in honest effort and being committed to improvement. You develop skills that reflect who you are as a person, and that's what makes your accomplishments meaningful. When people take the time to learn and grow, they build a sense of self that is rooted in their values and actions.",
+      "text": "Are you noticing how you approach problems in a way that feels uniquely yours? It's like you're drawing from a personal compass that guides your decisions. Trust that inner guide and let it steer you towards solutions that feel authentic and true to who you're becoming.",
       "shown_count": 0
     },
     {
-      "id": "T2C2M1",
+      "id": "cognitive_inconsistency_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "When learners aim for authentic skill development, they notice gaps between their goals and actions. Then, they see that their behaviors don't always match their values. People recognize these contradictions without feeling upset, and they exist alongside each other. This awareness helps learners understand their own approaches to developing skills.",
+      "text": "What's your gut telling you about how you're approaching these problems? Do you sense any contradictions in the ways you think or feel about your approach? It's worth reflecting on what's important to you and to act accordingly.",
       "shown_count": 0
     },
     {
-      "id": "T2C3M1",
+      "id": "dissonance_arousal_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "When people take shortcuts to complete tasks, they often feel a nagging tension inside. This happens because their actions don't match their values of doing good work. Then, they start to feel uneasy about the praise they receive for something that wasn't their best effort. When this tension builds up, it can be really hard to focus on new tasks and feel good about their work.",
+      "text": "What do you think happens when you look back on a project and realize it doesn't quite reflect who you are? Don't you feel like something's off, like a wrong note in a song you love? It's like your mind is trying to get your attention, to remind you that staying true to yourself is what makes your work truly meaningful.",
       "shown_count": 0
     },
     {
-      "id": "T2C4M1",
+      "id": "dissonance_reduction_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "When people feel conflicted about their approach, they resolve the tension by finding a balance. This balance comes from aligning their actions with their values. You see this when learners redefine what success means to them, making it about honest progress rather than perfect results. By doing so, they eliminate the discomfort of contradictory thoughts and actions.",
+      "text": "What are your values? Do you value honesty, dedication and effort? Are your actions perfectly aligned with your values? Tackle the next challenges while staying true to what matters most to you.",
       "shown_count": 0
     },
     {
-      "id": "T3C1M1",
+      "id": "descriptive_norms_1",
       "theory": "Social Norms Theory",
-      "text": "What do people usually do when working on challenges like these? They typically take their time and put in honest effort. You see that most learners review their work carefully before submitting, and they often find ways to stay focused without taking shortcuts. How do most people approach these tasks to achieve authentic skill growth?",
+      "text": "Think about the people you identify with, your peers or your community. How would most people within that group behave in this situation? Are your actions aligned with those of your community?",
       "shown_count": 0
     },
     {
-      "id": "T3C2M1",
+      "id": "injunctive_norms_1",
       "theory": "Social Norms Theory",
-      "text": "What makes a learning community strong? It's when people follow standards that value honest effort and authentic work. You should strive to meet these standards, even when it's harder, because that's what the community expects. By doing so, learners can build skills they can truly be proud of, without relying on shortcuts or unauthorized help.",
+      "text": "What would other people do if they were in your shoes? Which behaviors are acceptable and which ones are unacceptable? Are there behaviors that people should encourage and others that should be punished?",
       "shown_count": 0
     },
     {
-      "id": "T3C3M1",
+      "id": "social_sanctions_1",
       "theory": "Social Norms Theory",
-      "text": "What happens when people take shortcuts on tasks? They often miss out on opportunities because others notice their lack of effort. When learners put in honest work, they earn respect and recognition from their community. How will others perceive you if you prioritize authentic skill development over quick fixes?",
+      "text": "What would your peers think of you if they could see how much effort you put in completing this task well? Would they react negatively if your performance is seen as below your community’s standards?  How you approach tasks like these may affect how your peers see you.",
       "shown_count": 0
     },
     {
-      "id": "T3C4M1",
+      "id": "reference_group_identification_1",
       "theory": "Social Norms Theory",
-      "text": "What does it mean to be part of a community that values honest effort? It means you're part of a group that prioritizes authentic skill development over shortcuts. When faced with a challenge, you ask yourself: does this approach align with the values of our community? People who belong to this group take pride in upholding its standards, and that guides their choices.",
+      "text": "Are you aware that you are part of a community? It is a community of people dedicated to participate to the best of their abilities in challenging activities. You now have the opportunity to act as a member of that community.",
       "shown_count": 0
     },
     {
-      "id": "T4C1M1",
+      "id": "performance_accomplishments_1",
       "theory": "Self-Efficacy Theory",
-      "text": "What makes someone confident in their skills? It's their past successes. When people achieve something on their own, they prove to themselves that they have what it takes. This track record of success shows that they can handle new challenges because they've already overcome similar ones before.",
+      "text": "Can you remember a situation where you tackled a new challenge and were successful in completing it? Did you experience a sense of mastery? By tackling the challenges in this task you may again experience a sense of mastery and accomplishment.",
       "shown_count": 0
     },
     {
-      "id": "T4C2M1",
+      "id": "vicarious_experience_1",
       "theory": "Self-Efficacy Theory",
-      "text": "People who observe others overcoming challenges are more likely to believe in their own abilities. Seeing how others achieve success through genuine effort shows that it's possible to master skills without taking shortcuts. Unlike those who rely on quick fixes, learners who observe and imitate others' authentic approaches tend to develop more lasting confidence. By following the examples of those who have succeeded honestly, you can build a stronger foundation for your own skills.",
+      "text": "Can you imagine someone like you, investing themselves in doing this task well and succeeding? You can do that too! Through sustained effort you are capable of becoming a master of these tasks, just like them.",
       "shown_count": 0
     },
     {
-      "id": "T4C3M1",
+      "id": "verbal_persuasion_1",
       "theory": "Self-Efficacy Theory",
-      "text": "When people receive positive feedback on their work, they start to believe in their own capabilities. This feedback helps build confidence that they can handle specific tasks. You will see your own progress and growth when you put in honest effort and receive supportive comments from others. As you get more encouragement, you will become more confident in your ability to tackle challenging tasks.",
+      "text": "Do you have what it takes to succeed in this task? We’re sure you do! You have the grit, the determination and the focus to perform well on these difficult challenges.",
       "shown_count": 0
     },
     {
-      "id": "T4C4M1",
+      "id": "emotional_arousal_1",
       "theory": "Self-Efficacy Theory",
-      "text": "When people put in honest effort, they feel a surge of excitement and pride. This happens because their hard work leads to real accomplishments. As they achieve their goals, they experience a boost in confidence and a sense of fulfillment. This emotional response motivates them to continue growing and developing their skills in an authentic way.",
+      "text": "What kind of emotions do you experience when tackling difficult challenges? Do you feel a rush of excitement, or maybe a sense of frustration? Your emotions can be the fuel that drives you to keep pushing forward, and to succeed.",
       "shown_count": 0
     }
   ],
@@ -195,103 +189,6 @@
       }
     },
     "game_anagrams": [
-      {
-        "word": "RECRATED",
-        "solutions": {
-          "8": ["CRATERED", "RECRATED", "RETRACED", "TERRACED"],
-          "7": [
-            "CATERED",
-            "CATERER",
-            "CERATED",
-            "CREATED",
-            "REACTED",
-            "RECRATE",
-            "RERATED",
-            "RETRACE",
-            "RETREAD",
-            "TERRACE",
-            "TREADER"
-          ],
-          "6": [
-            "CARDER",
-            "CAREER",
-            "CARTED",
-            "CARTER",
-            "CERATE",
-            "CETERA",
-            "CRATED",
-            "CRATER",
-            "CREATE",
-            "DARTER",
-            "DEARER",
-            "DECARE",
-            "DERATE",
-            "ECARTE",
-            "READER",
-            "REARED",
-            "REDACT",
-            "REDATE",
-            "REDEAR",
-            "RERATE",
-            "REREAD",
-            "RETARD",
-            "RETEAR",
-            "TARRED",
-            "TEARED",
-            "TEARER",
-            "TERRAE",
-            "TRACED",
-            "TRACER",
-            "TRADER"
-          ],
-          "5": [
-            "ACRED",
-            "ACTED",
-            "ADRET",
-            "ARCED",
-            "ARETE",
-            "CADET",
-            "CADRE",
-            "CARED",
-            "CARER",
-            "CARET",
-            "CARTE",
-            "CATER",
-            "CEDAR",
-            "CEDER",
-            "CERED",
-            "CRATE",
-            "CREED",
-            "DARER",
-            "DATER",
-            "DERAT",
-            "DETER",
-            "DREAR",
-            "EARED",
-            "EATER",
-            "ECARD",
-            "ERECT",
-            "ERRED",
-            "RACED",
-            "RACER",
-            "RARED",
-            "RATED",
-            "RATER",
-            "REACT",
-            "RECTA",
-            "TARED",
-            "TARRE",
-            "TEAED",
-            "TERCE",
-            "TERRA",
-            "TERRE",
-            "TRACE",
-            "TRADE",
-            "TREAD",
-            "TREED"
-          ]
-        }
-      },
       {
         "word": "DECANTER",
         "solutions": {
@@ -433,13 +330,13 @@
       "5": 2
     },
     "time_settings": {
-      "tutorial_time": 90,
-      "game_time": 120,
-      "survey_time": 300
+      "tutorial_time": 60,
+      "game_time": 180,
+      "survey_time": 420
     },
     "study_compensation": {
       "prolific_rate": "£2.00",
-      "max_reward_per_anagram": 20
+      "max_reward_per_anagram": 25
     }
   }
 }

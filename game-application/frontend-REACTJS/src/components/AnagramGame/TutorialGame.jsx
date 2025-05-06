@@ -626,7 +626,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                 <div>
                   <p className="font-semibold text-gray-800">Time Limit</p>
                   <p className="text-xl font-bold text-gray-700">
-                    {tutorialTime} minutes to practice
+                    {tutorialTime} minute to practice
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
                     Game will automatically submit when time runs out

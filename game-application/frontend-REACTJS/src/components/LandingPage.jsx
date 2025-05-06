@@ -118,7 +118,7 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                 showWords: true,
               },
               {
-                label: "Quick survey",
+                label: "Survey",
                 time: studyConfig.timeSettings.survey_time / 60,
                 showWords: false,
               },

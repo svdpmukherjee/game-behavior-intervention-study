@@ -11,7 +11,7 @@ const ThankYouPage = ({ prolificId, startTime, endTime }) => {
   const duration = start && end ? Math.round((end - start) / 60000) : 0;
 
   // Get the completion code from environment variables
-  const completionCode = import.meta.env.VITE_STUDY_COMPLETION_CODE || "XXXXX";
+  const completionCode = import.meta.env.VITE_STUDY_COMPLETION_CODE;
 
   // Copy completion code to clipboard
   const copyToClipboard = () => {
@@ -23,7 +23,7 @@ const ThankYouPage = ({ prolificId, startTime, endTime }) => {
 
   // Handle return to Prolific
   const handleReturnToProlific = () => {
-    window.location.href = "https://app.prolific.co/submissions/complete";
+    window.location.href = import.meta.env.VITE_PROLIFIC_LINK_WITH_CODE;
   };
 
   return (

@@ -24,9 +24,7 @@ const SurveyPage = ({ onComplete, messageId = "autonomy" }) => {
   };
 
   const handleOpenSurvey = () => {
-    const surveyLink =
-      import.meta.env.VITE_SURVEY_LINK ||
-      "https://ulsurvey.uni.lu/index.php/775763?lang=en";
+    const surveyLink = import.meta.env.VITE_SURVEY_LINK;
     window.open(surveyLink, "_blank");
     setSurveyOpened(true);
   };

@@ -851,7 +851,7 @@ const WordMeaningCheck = ({
                   [currentWord.word]: e.target.value,
                 }))
               }
-              placeholder="What does this word mean to you? How would you use it in a sentence?"
+              placeholder="What does this word mean to you?"
             />
 
             <button
@@ -868,14 +868,14 @@ const WordMeaningCheck = ({
             </button>
 
             {/* Emergency skip button - hidden by default but accessible via tab or if there's a problem */}
-            <button
+            {/* <button
               onClick={forceCompletion}
               className="w-full mt-4 py-2 bg-gray-100 text-gray-400 rounded-lg font-medium transition-all duration-200 cursor-pointer opacity-0 hover:opacity-100 focus:opacity-100"
               aria-label="Skip if having problems"
               tabIndex={0}
             >
               Having trouble? Skip to next step
-            </button>
+            </button> */}
           </div>
         </div>
 

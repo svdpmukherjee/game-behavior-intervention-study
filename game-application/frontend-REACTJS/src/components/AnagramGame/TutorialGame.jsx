@@ -674,7 +674,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
             </div>
 
             {/* Skill Level Slider Section */}
-            <div className="mt-8 p-6 bg-red-50 rounded-lg border border-gray-200">
+            <div className="mt-24 p-6 bg-red-50 rounded-lg border border-gray-200">
               <h3 className="font-semibold text-gray-800 mb-4">
                 How would you rate your skill at word scramble game?
               </h3>

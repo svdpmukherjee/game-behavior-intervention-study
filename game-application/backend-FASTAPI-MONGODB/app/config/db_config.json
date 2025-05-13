@@ -9,7 +9,7 @@
     {
       "id": "competence_1",
       "theory": "Self-Determination Theory",
-      "text": "Can you think of a time where you felt competent at doing a challenging task?  Doing challenging tasks can be frustrating at first but it's amazing how hard work can make you progress and become competent.",
+      "text": "You know that feeling when you're working on something and it finally clicks? It's like you've unlocked a new level of understanding. Can you tap into that feeling and trust that you have what it takes to figure things out, even when it's tough?",
       "shown_count": 0
     },
     {
@@ -21,7 +21,7 @@
     {
       "id": "self_concept_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "Are you noticing how you approach problems in a way that feels uniquely yours? It's like you're drawing from a personal compass that guides your decisions. Trust that inner guide and let it steer you towards solutions that feel authentic and true to who you're becoming.",
+      "text": "So, you are working on something that's really pushing you. Can you think of what makes you, you – like, what sets you apart from others? When you make choices that honor those unique qualities, you feel like you are on the right path, like you are being true to yourself?",
       "shown_count": 0
     },
     {
@@ -33,19 +33,43 @@
     {
       "id": "dissonance_arousal_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "What do you think happens when you look back on a project and realize it doesn't quite reflect who you are? Don't you feel like something's off, like a wrong note in a song you love? It's like your mind is trying to get your attention, to remind you that staying true to yourself is what makes your work truly meaningful.",
+      "text": "What happens when you're working on something and you don't quite give it your all? You're gonna feel it, right - that uneasy feeling that you're not being true to yourself? It's like your actions and your values are at odds, and that tension is gonna stick with you until you find a way to make things right.",
       "shown_count": 0
     },
     {
       "id": "dissonance_reduction_1",
       "theory": "Cognitive Dissonance Theory",
-      "text": "What are your values? Do you value honesty, dedication and effort? Are your actions perfectly aligned with your values? Tackle the next challenges while staying true to what matters most to you.",
+      "text": "So, you're working on this tough problem and it's making you feel uneasy, right? It's like, you want to do what's right, but you're not sure if your actions are matching up with what you believe in. Can you find a way to align them, to make your actions and values feel more in sync, and wouldn't that feel amazing?",
+      "shown_count": 0
+    },
+    {
+      "id": "performance_accomplishments_1",
+      "theory": "Self-Efficacy Theory",
+      "text": "What's one challenge you've overcome that still makes you feel proud? It's a solid proof that you've got the skills to tackle anything that comes your way! You can tap into that same energy to crush this task, because it's not about what you've done - it's about what you're capable of.",
+      "shown_count": 0
+    },
+    {
+      "id": "vicarious_experience_1",
+      "theory": "Self-Efficacy Theory",
+      "text": "You're facing a challenge that's got you stumped. Can you recall a time when someone you know overcame a similar hurdle? Maybe it was a colleague who managed a tough project or a friend who mastered a new skill. Seeing how they broke it down and pushed through can be a huge confidence booster for you too.",
+      "shown_count": 0
+    },
+    {
+      "id": "verbal_persuasion_1",
+      "theory": "Self-Efficacy Theory",
+      "text": "Can I grab some pom-poms and cheer you on for a sec? You've got the skills, the hustle, and the kind of determination it takes to crush this task. Whatever the challenge is, trust your ability—you've absolutely got this!",
+      "shown_count": 0
+    },
+    {
+      "id": "emotional_arousal_1",
+      "theory": "Self-Efficacy Theory",
+      "text": "What kind of emotions do you experience when tackling difficult challenges? Do you feel a rush of excitement, or maybe a sense of frustration? Your emotions can be the fuel that drives you to keep pushing forward, and to succeed.",
       "shown_count": 0
     },
     {
       "id": "descriptive_norms_1",
       "theory": "Social Norms Theory",
-      "text": "Think about the people you identify with, your peers or your community. How would most people within that group behave in this situation? Are your actions aligned with those of your community?",
+      "text": "Can you think of a time when you saw someone tackle a difficult project with honesty and transparency? What did you think about their behavior? When we are working on something challenging, we often look to others who are doing it well, and we might find that they are all taking similar approaches, like being open about their mistakes or willing to learn from feedback.",
       "shown_count": 0
     },
     {
@@ -57,7 +81,7 @@
     {
       "id": "social_sanctions_1",
       "theory": "Social Norms Theory",
-      "text": "What would your peers think of you if they could see how much effort you put in completing this task well? Would they react negatively if your performance is seen as below your community’s standards?  How you approach tasks like these may affect how your peers see you.",
+      "text": "What is at stake when you are working on a tough project? You are not just building something, you are building a reputation. When you prioritize integrity and do things the right way, you are more likely to get recognition and respect from your peers and community.",
       "shown_count": 0
     },
     {
@@ -67,30 +91,187 @@
       "shown_count": 0
     },
     {
-      "id": "performance_accomplishments_1",
-      "theory": "Self-Efficacy Theory",
-      "text": "Can you remember a situation where you tackled a new challenge and were successful in completing it? Did you experience a sense of mastery? By tackling the challenges in this task you may again experience a sense of mastery and accomplishment.",
+      "id": "autonomy_2",
+      "theory": "Self-Determination Theory",
+      "text": "How do you feel when you're doing something that's truly your own? Even if it's not perfect, it still reflects your values and who you are. That sense of ownership keeps you true to yourself—because you're the one who decides how it happens.",
       "shown_count": 0
     },
     {
-      "id": "vicarious_experience_1",
+      "id": "competence_2",
+      "theory": "Self-Determination Theory",
+      "text": "Can you think of a time where you felt competent at doing a challenging task? Doing challenging tasks can be frustrating at first but it's amazing how hard work can make you progress and become competent.",
+      "shown_count": 0
+    },
+    {
+      "id": "relatedness_2",
+      "theory": "Self-Determination Theory",
+      "text": "What's the best part of having people who genuinely care about you? It's like having a safety net—you feel more confident to take risks and be your best self. Knowing they're there to support you makes it feel like you can handle anything that comes your way.",
+      "shown_count": 0
+    },
+    {
+      "id": "self_concept_2",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "Are you noticing how you approach problems in a way that feels uniquely yours? It's like you're drawing from a personal compass that guides your decisions. Trust that inner guide and let it steer you towards solutions that feel authentic and true to who you're becoming.",
+      "shown_count": 0
+    },
+    {
+      "id": "cognitive_inconsistency_2",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "Don't you ever find yourself caught between two mindsets when working on something? One part of you says, 'I want to do this right,' while the other says, 'Just get it done'. These opposing approaches can coexist and it's interesting to think about how they can shape the way you work.",
+      "shown_count": 0
+    },
+    {
+      "id": "dissonance_arousal_2",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "What is the first thing that comes to mind when you are proud of what you have accomplished? You feel good, right? But when you did something that does not quite live up to your own standards – doesn't that feeling of pride turn into something else, like a nagging voice that won't let you move on?",
+      "shown_count": 0
+    },
+    {
+      "id": "dissonance_reduction_2",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "What's holding you back from tackling this challenge head-on? Is it because you're worried that your approach might not perfectly reflect your values? Can you think of a way to adjust your strategy so that it feels more authentic, more like something you can proudly stand behind?",
+      "shown_count": 0
+    },
+    {
+      "id": "performance_accomplishments_2",
+      "theory": "Self-Efficacy Theory",
+      "text": "What's one thing you've worked on that you're really proud of? It's probably something that was tough at first, but you figured it out. Can you think of the effort you made in that situation that truly helped you succeed, and how you can apply that same approach to what you're working on now?",
+      "shown_count": 0
+    },
+    {
+      "id": "vicarious_experience_2",
       "theory": "Self-Efficacy Theory",
       "text": "Can you imagine someone like you, investing themselves in doing this task well and succeeding? You can do that too! Through sustained effort you are capable of becoming a master of these tasks, just like them.",
       "shown_count": 0
     },
     {
-      "id": "verbal_persuasion_1",
+      "id": "verbal_persuasion_2",
       "theory": "Self-Efficacy Theory",
-      "text": "Do you have what it takes to succeed in this task? We’re sure you do! You have the grit, the determination and the focus to perform well on these difficult challenges.",
+      "text": "Do you have what it takes to succeed in this task? We're sure you do! You have the grit, the determination and the focus to perform well on these difficult challenges.",
       "shown_count": 0
     },
     {
-      "id": "emotional_arousal_1",
+      "id": "emotional_arousal_2",
       "theory": "Self-Efficacy Theory",
-      "text": "What kind of emotions do you experience when tackling difficult challenges? Do you feel a rush of excitement, or maybe a sense of frustration? Your emotions can be the fuel that drives you to keep pushing forward, and to succeed.",
+      "text": "What happens when you're faced with a tough problem - do you feel more alert, more focused? You're not just reacting to the challenge, you're tapping into a inner drive that helps you push through. This energy, it's what helps you stay true to yourself and your goals, even when things get tough.",
+      "shown_count": 0
+    },
+    {
+      "id": "descriptive_norms_2",
+      "theory": "Social Norms Theory",
+      "text": "Think about the people you identify with, your peers or your community. How would most people within that group behave in this situation? Are your actions aligned with those of your community?",
+      "shown_count": 0
+    },
+    {
+      "id": "injunctive_norms_2",
+      "theory": "Social Norms Theory",
+      "text": "Imagine you are faced with a tough decision. Are you thinking about how others might view your actions, and how that might impact your relationships with them? It is about being mindful of the unwritten rules that guide our behavior, and letting those guide you towards choices that align with your values and principles.",
+      "shown_count": 0
+    },
+    {
+      "id": "social_sanctions_2",
+      "theory": "Social Norms Theory",
+      "text": "What would your peers think of you if they could see how much effort you put in completing this task well? Would they react negatively if your performance is seen as below your community's standards? How you approach tasks like these may affect how your peers see you.",
+      "shown_count": 0
+    },
+    {
+      "id": "reference_group_identification_2",
+      "theory": "Social Norms Theory",
+      "text": "Imagine trying to stay true to yourself while working on this tough project. What kind of crew do you want to identify with, and how do their values impact the choices you make? It is like, when you are part of a group that is all about innovation, you are more likely to take risks and try new things, because that is what your crew is all about.",
+      "shown_count": 0
+    },
+    {
+      "id": "autonomy_3",
+      "theory": "Self-Determination Theory",
+      "text": "You're in the midst of a tough project, and it's easy to feel stuck. But here's the thing: when you get to decide how you tackle it, you're more likely to own it. It's like you're the captain of your own ship, and that feeling of being in charge makes all the difference.",
+      "shown_count": 0
+    },
+    {
+      "id": "competence_3",
+      "theory": "Self-Determination Theory",
+      "text": "Imagine that you are stuck on one challenge, and it is really testing you. What do you do when you hit a roadblock - do you give up, or do you keep trying, learning from what did not work last time? When you persist and finally figure it out, you will realize that it was the process of trying, failing, and trying again that made you better at it.",
+      "shown_count": 0
+    },
+    {
+      "id": "relatedness_3",
+      "theory": "Self-Determination Theory",
+      "text": "Imagine being how it is like when you are surrounded by people you deeply care about? You know, the ones who make you feel like you are home? When you are with them, you're more likely to open up and share your ideas, and that is when the magic happens and you are building a true connection with others.",
+      "shown_count": 0
+    },
+    {
+      "id": "self_concept_3",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "What does it mean when your work feels authentic? It's like putting your stamp on it—saying, 'This is me, this is mine.' When you leave a piece of yourself in what you do, your work truly becomes meaningful and in return, it shapes and strengthens who you are.",
+      "shown_count": 0
+    },
+    {
+      "id": "cognitive_inconsistency_3",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "You're really invested in this project. What's going on when you switch between being meticulous and just getting things done? It's like you're balancing two different mindsets, and that's pretty interesting to notice.",
+      "shown_count": 0
+    },
+    {
+      "id": "dissonance_arousal_3",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "What do you think happens when you look back on a project and realize it doesn't quite reflect who you are? Don't you feel like something's off, like a wrong note in a song you love? It's like your mind is trying to get your attention, to remind you that staying true to yourself is what makes your work truly meaningful.",
+      "shown_count": 0
+    },
+    {
+      "id": "dissonance_reduction_3",
+      "theory": "Cognitive Dissonance Theory",
+      "text": "Can you find a way to bridge the gap between what you're doing and what you stand for? It's like finding a missing piece that makes everything click into place, where your actions and values are in harmony. Sometimes, just a small tweak is all it takes to move forward with confidence.",
+      "shown_count": 0
+    },
+    {
+      "id": "performance_accomplishments_3",
+      "theory": "Self-Efficacy Theory",
+      "text": "Can you remember a situation where you tackled a new challenge and were successful in completing it? Did you experience a sense of mastery? By tackling the challenges in this task you may again experience a sense of mastery and accomplishment.",
+      "shown_count": 0
+    },
+    {
+      "id": "vicarious_experience_3",
+      "theory": "Self-Efficacy Theory",
+      "text": "What do you think gives someone the courage to try something challenging? Is it seeing that others, who may have started out just like you, have been able to figure it out and achieve their goals? It is very encouraging watching others succeed can show us that we are capable of more than we think.",
+      "shown_count": 0
+    },
+    {
+      "id": "verbal_persuasion_3",
+      "theory": "Self-Efficacy Theory",
+      "text": "Can you think of a time when you were working on a project and someone's positive feedback really boosted your confidence? What was it about their words that made you feel like you were on the right track? It is that kind of encouragement that can help you stay committed to finding a solution that aligns with your values and goals.",
+      "shown_count": 0
+    },
+    {
+      "id": "emotional_arousal_3",
+      "theory": "Self-Efficacy Theory",
+      "text": "What's the feeling you get when you're fully immersed in a challenge? It's like your mind is racing, but in a good way - you're completely absorbed. Does that feeling of being 'in the zone' help you stay honest with yourself about what you're really working towards?",
+      "shown_count": 0
+    },
+    {
+      "id": "descriptive_norms_3",
+      "theory": "Social Norms Theory",
+      "text": "What's your approach when working on a tricky problem? You're likely to find that others in similar situations tend to take a step back, breathe, and prioritize their tasks. It's pretty common for people to stay focused on their values and goals, and that's what helps them maintain their integrity and find a solution that feels right to them.",
+      "shown_count": 0
+    },
+    {
+      "id": "injunctive_norms_3",
+      "theory": "Social Norms Theory",
+      "text": "What does it take to deliver work you can be proud of? It starts with staying true to the non-negotiables expected of you. Committing to those principles is what earns you both respect and trust.",
+      "shown_count": 0
+    },
+    {
+      "id": "social_sanctions_3",
+      "theory": "Social Norms Theory",
+      "text": "What's the secret to getting people to want to work with you? It's when you're transparent and own up to your mistakes. If you don't, you might find that people start to doubt your work and don't want to collaborate with you, but when you're honest and learn from your errors, you'll get more respect and better teamwork.",
+      "shown_count": 0
+    },
+    {
+      "id": "reference_group_identification_3",
+      "theory": "Social Norms Theory",
+      "text": "When you're stuck on a difficult project, what helps you decide how to move forward? Is it thinking about the kind of spirit and effort your team is known for? You're part of a group that prides itself on creative solutions, so that mindset guides your choices, even when it's tough.",
       "shown_count": 0
     }
   ],
+
   "game_config": {
     "tutorial_anagrams": {
       "word": "PRORATED",
@@ -190,7 +371,7 @@
     },
     "game_anagrams": [
       {
-        "word": "DECANTER",
+        "word": "ECENRDTA",
         "solutions": {
           "8": ["CANTERED", "CRENATED", "DECANTER", "RECANTED"],
           "7": [
@@ -331,8 +512,8 @@
     },
     "time_settings": {
       "tutorial_time": 60,
-      "game_time": 180,
-      "survey_time": 420
+      "game_time": 120,
+      "survey_time": 300
     },
     "study_compensation": {
       "prolific_rate": "£2.00",

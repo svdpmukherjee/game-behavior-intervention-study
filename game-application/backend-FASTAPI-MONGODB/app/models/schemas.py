@@ -58,7 +58,7 @@ class GameEventDetails(BaseModel):
     usedExternalResources: Optional[bool] = None
     wordsWithExternalHelp: Optional[List[WordWithAnagram]] = None
     totalWordsChecked: Optional[int] = None
-    # responseTimestamp: Optional[datetime] = None
+    skillLevel: Optional[int] = None
 
 class GameEvent(BaseModel):
     sessionId: str

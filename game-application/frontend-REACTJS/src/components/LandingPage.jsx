@@ -9,7 +9,6 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import Container from "./Container";
-import CoinIcon from "./CoinIcon";
 import RewardDisplay from "./RewardDisplay";
 import DeviceWarning from "./DeviceWarning";
 
@@ -142,8 +141,8 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
             ))}
           </ul>
           <p className="font-medium text-gray-700 mt-4">
-            Total time: {Math.ceil(totalTime / 60)} -{" "}
-            {Math.ceil(totalTime / 60) + 3} minutes
+            Total time: {Math.ceil(totalTime / 60) + 3} -{" "}
+            {Math.ceil(totalTime / 60) + 5} minutes
           </p>
         </div>
       </div>

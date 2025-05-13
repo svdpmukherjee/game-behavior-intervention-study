@@ -1,9 +1,48 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { memo } from "react";
 import MessageDisplay from "./MessageDisplay";
 import GameBoard from "./GameBoard";
 import EventTrack from "../shared/EventTrack";
 import { AlertTriangle } from "lucide-react";
 import Container from "../Container";
+
+// Helper function to compare arrays for prop changes
+const areArraysEqual = (a, b) => {
+  if (a.length !== b.length) return false;
+  return a.every((item, index) => item === b[index]);
+};
+
+// Memoized GameBoard to prevent unnecessary re-renders
+const MemoizedGameBoard = memo(GameBoard, (prevProps, nextProps) => {
+  // Compare complex arrays
+  const solutionEqual = areArraysEqual(prevProps.solution, nextProps.solution);
+  const availableLettersEqual = areArraysEqual(
+    prevProps.availableLetters,
+    nextProps.availableLetters
+  );
+  const validatedWordsEqual =
+    prevProps.validatedWords.length === nextProps.validatedWords.length &&
+    prevProps.validatedWords.every(
+      (word, idx) => word.word === nextProps.validatedWords[idx].word
+    );
+
+  // Compare primitive props
+  const primitivePropsEqual =
+    prevProps.currentWord === nextProps.currentWord &&
+    prevProps.wordIndex === nextProps.wordIndex &&
+    prevProps.totalWords === nextProps.totalWords &&
+    prevProps.timeLeft === nextProps.timeLeft &&
+    prevProps.totalTime === nextProps.totalTime &&
+    prevProps.isTimeUp === nextProps.isTimeUp;
+
+  // Only re-render if something meaningful changed
+  return (
+    solutionEqual &&
+    availableLettersEqual &&
+    validatedWordsEqual &&
+    primitivePropsEqual
+  );
+});
 
 const AnagramGame = ({
   prolificId,
@@ -12,23 +51,24 @@ const AnagramGame = ({
   onPhaseChange,
   onMessageIdCapture,
 }) => {
+  // Split large gameState into individual states for better performance
+  const [phase, setPhase] = useState("loading");
+  const [currentWord, setCurrentWord] = useState("");
+  const [solution, setSolution] = useState([]);
+  const [availableLetters, setAvailableLetters] = useState([]);
+  const [wordIndex, setWordIndex] = useState(0);
+  const [totalAnagrams, setTotalAnagrams] = useState(3);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const [validatedWords, setValidatedWords] = useState([]);
+  const [allValidatedWords, setAllValidatedWords] = useState([]);
+  const [currentMessage, setCurrentMessage] = useState(null);
+  const [isTimeUp, setIsTimeUp] = useState(false);
+  const [solutions, setSolutions] = useState({});
+  const [notification, setNotification] = useState(null);
+
+  // Additional state
   const [studyConfig, setStudyConfig] = useState(null);
-  const [gameState, setGameState] = useState({
-    phase: "loading", // loading -> anti-cheating-message -> play
-    currentWord: "",
-    solution: [],
-    availableLetters: [],
-    wordIndex: 0,
-    totalAnagrams: 3, // Will be updated from studyConfig
-    timeLeft: 0,
-    totalTime: 0,
-    validatedWords: [],
-    allValidatedWords: [], // Track words across all anagrams
-    currentMessage: null,
-    isTimeUp: false,
-    solutions: {},
-    notification: null,
-  });
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showOverview, setShowOverview] = useState(true);
@@ -37,19 +77,18 @@ const AnagramGame = ({
   const startTime = useRef(new Date());
   const timerRef = useRef(null);
   const isSubmitted = useRef(false);
-
-  // Add refs to track alert state and pending time-up submission
   const timeUpAlertShown = useRef(false);
   const pendingSubmission = useRef(false);
   const visibilityChangeHandled = useRef(false);
 
+  // Notify parent about phase changes
   useEffect(() => {
     if (onPhaseChange) {
-      onPhaseChange(gameState.phase);
+      onPhaseChange(phase);
     }
-  }, [gameState.phase, onPhaseChange]);
+  }, [phase, onPhaseChange]);
 
-  // Fetch study config on mount
+  // Fetch study configuration on mount
   useEffect(() => {
     const fetchStudyConfig = async () => {
       try {
@@ -58,10 +97,7 @@ const AnagramGame = ({
         );
         const config = await response.json();
         setStudyConfig(config);
-        setGameState((prev) => ({
-          ...prev,
-          totalAnagrams: config.game_anagrams,
-        }));
+        setTotalAnagrams(config.game_anagrams);
       } catch (error) {
         console.error("Error fetching study config:", error);
         setError("Failed to load game configuration");
@@ -70,17 +106,15 @@ const AnagramGame = ({
     fetchStudyConfig();
   }, []);
 
+  // Show notification with auto-dismiss
   const showNotification = useCallback((message, isError = false) => {
-    setGameState((prev) => ({
-      ...prev,
-      notification: { message, isError },
-    }));
+    setNotification({ message, isError });
     setTimeout(() => {
-      setGameState((prev) => ({ ...prev, notification: null }));
+      setNotification(null);
     }, 3000);
   }, []);
 
-  // Calculate reward based on study config
+  // Calculate reward based on study config - memoized
   const calculateReward = useCallback(
     (wordLength, isValid) => {
       if (!studyConfig?.rewards || !isValid) return 0;
@@ -89,7 +123,7 @@ const AnagramGame = ({
     [studyConfig]
   );
 
-  // Log game events
+  // Log game events - memoized
   const logGameEvent = useCallback(
     async (eventType, details = {}) => {
       try {
@@ -97,13 +131,13 @@ const AnagramGame = ({
           sessionId,
           prolificId,
           phase: "main_game",
-          anagramShown: gameState.currentWord,
+          anagramShown: currentWord,
           eventType,
           details: {
             ...details,
-            currentWord: gameState.currentWord,
-            timeLeft: gameState.timeLeft,
-            validatedWordsCount: gameState.validatedWords.length,
+            currentWord,
+            timeLeft,
+            validatedWordsCount: validatedWords.length,
           },
           timestamp: new Date().toISOString(),
         };
@@ -117,33 +151,28 @@ const AnagramGame = ({
         console.error("Event logging error:", error);
       }
     },
-    [
-      sessionId,
-      prolificId,
-      gameState.currentWord,
-      gameState.timeLeft,
-      gameState.validatedWords.length,
-    ]
+    [sessionId, prolificId, currentWord, timeLeft, validatedWords.length]
   );
 
+  // Event tracking callbacks - memoized
   const handleInactiveStart = useCallback(() => {
     console.log("handleInactiveStart called in index.jsx");
-    if (!isSubmitted.current && gameState.phase === "play") {
+    if (!isSubmitted.current && phase === "play") {
       console.log("Logging inactivity event");
       logGameEvent("mouse_inactive_start");
     } else {
       console.log("Inactivity event skipped:", {
         isSubmitted: isSubmitted.current,
-        phase: gameState.phase,
+        phase,
       });
     }
-  }, [logGameEvent, gameState.phase]);
+  }, [logGameEvent, phase]);
 
   const handleActiveReturn = useCallback(() => {
-    if (!isSubmitted.current && gameState.phase === "play") {
+    if (!isSubmitted.current && phase === "play") {
       logGameEvent("mouse_active");
     }
-  }, [logGameEvent, gameState.phase]);
+  }, [logGameEvent, phase]);
 
   const handlePageLeave = useCallback(
     ({ tabChangeCount, timestamp } = {}) => {
@@ -151,22 +180,22 @@ const AnagramGame = ({
         logGameEvent("page_leave", {
           tabChangeCount,
           timestamp,
-          currentWord: gameState.currentWord,
+          currentWord,
         });
       }
     },
-    [logGameEvent, gameState.currentWord]
+    [logGameEvent, currentWord]
   );
 
   const handlePageReturn = useCallback(() => {
     if (!isSubmitted.current) {
       logGameEvent("page_return", {
-        currentWord: gameState.currentWord,
+        currentWord,
       });
     }
-  }, [logGameEvent, gameState.currentWord]);
+  }, [logGameEvent, currentWord]);
 
-  // Initialize game
+  // Initialize game - memoized
   const initGame = useCallback(async () => {
     try {
       if (!sessionId) {
@@ -176,7 +205,7 @@ const AnagramGame = ({
       }
 
       // Only initialize if we're in loading phase
-      if (gameState.phase !== "loading") return;
+      if (phase !== "loading") return;
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/game/init?sessionId=${sessionId}`
@@ -194,17 +223,14 @@ const AnagramGame = ({
         throw new Error("Invalid game configuration received");
       }
 
-      setGameState((prev) => ({
-        ...prev,
-        phase: currentMessage ? "message" : "play",
-        currentMessage: currentMessage,
-        currentWord: word,
-        solutions: responseData.solutions,
-        availableLetters: word.split("").sort(() => Math.random() - 0.5),
-        currentWordsList: [word],
-        timeLeft: timeSettings.game_time,
-        totalTime: timeSettings.game_time,
-      }));
+      // Update multiple states in a batch
+      setPhase(currentMessage ? "message" : "play");
+      setCurrentMessage(currentMessage);
+      setCurrentWord(word);
+      setSolutions(responseData.solutions);
+      setAvailableLetters(word.split(""));
+      setTimeLeft(timeSettings.game_time);
+      setTotalTime(timeSettings.game_time);
 
       await logGameEvent("game_init", {
         currentWord: word,
@@ -219,22 +245,24 @@ const AnagramGame = ({
         sessionId,
       });
     }
-  }, [sessionId, logGameEvent, gameState.phase]);
+  }, [sessionId, logGameEvent, phase]);
 
+  // Word validation check - memoized
   const isValidWord = useCallback(
     (word) => {
-      if (!word || !gameState.solutions) return false;
+      if (!word || !solutions) return false;
       const wordLength = word.length.toString();
-      const solutionsForLength = gameState.solutions[wordLength];
+      const solutionsForLength = solutions[wordLength];
       return solutionsForLength?.includes(word.toUpperCase());
     },
-    [gameState.solutions]
+    [solutions]
   );
 
+  // Validate a word - memoized with all dependencies
   const handleValidate = useCallback(() => {
-    const word = gameState.solution.join("");
+    const word = solution.join("");
 
-    if (gameState.validatedWords.some((w) => w.word === word)) {
+    if (validatedWords.some((w) => w.word === word)) {
       showNotification("This word has already been recorded", true);
       return;
     }
@@ -249,36 +277,34 @@ const AnagramGame = ({
     });
 
     // Add word to validated list
-    setGameState((prev) => ({
+    setValidatedWords((prev) => [
       ...prev,
-      validatedWords: [
-        ...prev.validatedWords,
-        {
-          word,
-          length: word.length,
-          validatedAt: new Date().toISOString(),
-          isValid,
-        },
-      ],
-      solution: [],
-      availableLetters: prev.currentWord
-        .split("")
-        .sort(() => Math.random() - 0.5),
-    }));
+      {
+        word,
+        length: word.length,
+        validatedAt: new Date().toISOString(),
+        isValid,
+      },
+    ]);
+
+    // Reset solution and availableLetters
+    setSolution([]);
+    setAvailableLetters(currentWord.split(""));
 
     showNotification("Word has been recorded");
   }, [
-    gameState.solution,
-    gameState.currentWord,
-    gameState.validatedWords,
+    solution,
+    currentWord,
+    validatedWords,
     logGameEvent,
     isValidWord,
     showNotification,
   ]);
 
+  // Remove a word - memoized
   const handleRemoveWord = useCallback(
     async (index) => {
-      const removedWord = gameState.validatedWords[index];
+      const removedWord = validatedWords[index];
       if (!removedWord) return;
 
       await logGameEvent("word_removal", {
@@ -286,18 +312,21 @@ const AnagramGame = ({
         wordLength: removedWord.length,
       });
 
-      setGameState((prev) => ({
-        ...prev,
-        validatedWords: prev.validatedWords.filter((_, i) => i !== index),
-      }));
-
+      setValidatedWords((prev) => prev.filter((_, i) => i !== index));
       showNotification(`Removed word: ${removedWord.word}`);
     },
-    [gameState.validatedWords, logGameEvent, showNotification]
+    [validatedWords, logGameEvent, showNotification]
   );
 
-  const handleSubmit = async () => {
-    if (isSubmitting || (isSubmitted.current && !gameState.isTimeUp)) return;
+  // Handle solution and available letters change together
+  const handleSolutionChange = useCallback((solution, available) => {
+    setSolution(solution);
+    setAvailableLetters(available);
+  }, []);
+
+  // Submit words - memoized
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitting || (isSubmitted.current && !isTimeUp)) return;
 
     try {
       setIsSubmitting(true);
@@ -306,7 +335,7 @@ const AnagramGame = ({
       const currentTimeSpent = Date.now() - startTime.current;
 
       // Calculate rewards for validated words
-      const submittedWords = gameState.validatedWords.map((word) => ({
+      const submittedWords = validatedWords.map((word) => ({
         word: word.word,
         length: word.length,
         reward: calculateReward(word.length, isValidWord(word.word)),
@@ -330,7 +359,7 @@ const AnagramGame = ({
             sessionId,
             prolificId,
             phase: "main_game",
-            anagramShown: gameState.currentWord,
+            anagramShown: currentWord,
             submittedWords,
             totalReward,
             timeSpent: currentTimeSpent,
@@ -345,14 +374,7 @@ const AnagramGame = ({
       }
 
       // Update all validated words
-      const allValidatedWords = [
-        ...gameState.allValidatedWords,
-        ...submittedWords,
-      ];
-      setGameState((prev) => ({
-        ...prev,
-        allValidatedWords,
-      }));
+      setAllValidatedWords((prev) => [...prev, ...submittedWords]);
 
       // Log submission
       await logGameEvent("word_submission", {
@@ -362,79 +384,83 @@ const AnagramGame = ({
       });
 
       // Check if this is the final anagram submission
-      if (gameState.wordIndex >= gameState.totalAnagrams - 1) {
+      if (wordIndex >= totalAnagrams - 1) {
         // Show completion alert before moving to next phase
         alert("You have now completed all puzzles!");
-      }
 
-      // Check if there are more anagrams
-      if (gameState.wordIndex < gameState.totalAnagrams - 1) {
-        // Fetch next anagram
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_API_URL
-          }/api/game/next?sessionId=${sessionId}&currentIndex=${
-            gameState.wordIndex
-          }`
-        );
-        const data = await response.json();
-
-        if (!response.ok || !data.word || !data.solutions) {
-          throw new Error("Failed to fetch next anagram");
-        }
-
-        // Reset game state for next anagram
-        setGameState((prev) => ({
-          ...prev,
-          wordIndex: prev.wordIndex + 1,
-          currentWord: data.word,
-          solutions: data.solutions,
-          solution: [],
-          availableLetters: Array.from(data.word).sort(
-            () => Math.random() - 0.5
-          ),
-          validatedWords: [],
-          timeLeft: prev.totalTime,
-          isTimeUp: false,
-        }));
-
-        // Reset alert tracking flags
-        timeUpAlertShown.current = false;
-        pendingSubmission.current = false;
-        visibilityChangeHandled.current = false;
-
-        isSubmitted.current = false;
-        startTime.current = new Date();
-      } else {
         // Complete the game
         await logGameEvent("game_complete", {
-          totalWords: allValidatedWords.length,
-          finalAnagram: gameState.currentWord,
+          totalWords: [...allValidatedWords, ...submittedWords].length,
+          finalAnagram: currentWord,
         });
-        onComplete(allValidatedWords);
+        onComplete([...allValidatedWords, ...submittedWords]);
+        return;
       }
+
+      // Fetch next anagram
+      const nextResponse = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game/next?sessionId=${sessionId}&currentIndex=${wordIndex}`
+      );
+      const data = await nextResponse.json();
+
+      if (!nextResponse.ok || !data.word || !data.solutions) {
+        throw new Error("Failed to fetch next anagram");
+      }
+
+      // Reset game state for next anagram
+      setWordIndex((prev) => prev + 1);
+      setCurrentWord(data.word);
+      setSolutions(data.solutions);
+      setSolution([]);
+      setAvailableLetters(Array.from(data.word));
+      setValidatedWords([]);
+      setTimeLeft(totalTime);
+      setIsTimeUp(false);
+
+      // Reset alert tracking flags
+      timeUpAlertShown.current = false;
+      pendingSubmission.current = false;
+      visibilityChangeHandled.current = false;
+      isSubmitted.current = false;
+      startTime.current = new Date();
     } catch (error) {
       console.error("Submission error:", error);
       showNotification("Failed to submit words. Please try again.", true);
-      setIsSubmitting(false);
       isSubmitted.current = false;
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [
+    sessionId,
+    prolificId,
+    currentWord,
+    wordIndex,
+    totalAnagrams,
+    validatedWords,
+    allValidatedWords,
+    totalTime,
+    isTimeUp,
+    isSubmitting,
+    calculateReward,
+    isValidWord,
+    logGameEvent,
+    onComplete,
+    showNotification,
+  ]);
 
-  // Improved handleTimeUp function
-  const handleTimeUp = useCallback(async () => {
+  // Handle time up - memoized
+  const handleTimeUp = useCallback(() => {
     if (isSubmitting || isSubmitted.current) return;
-
-    // Set flag that time is up and alert has been shown
-    timeUpAlertShown.current = true;
 
     try {
       // Show alert only if document is visible
       if (document.visibilityState === "visible") {
+        // Set flag before showing alert to prevent double alerts
+        timeUpAlertShown.current = true;
         alert("Time's up! All of your added words have been submitted");
-        await handleSubmit();
+        handleSubmit();
       } else {
         // Mark as pending if user is not on the page
         pendingSubmission.current = true;
@@ -447,37 +473,49 @@ const AnagramGame = ({
     }
   }, [handleSubmit, isSubmitting]);
 
-  const handleMessageShown = async (messageData) => {
-    await logGameEvent("anti_cheating_message_shown", {
-      messageId: messageData.messageId,
-      messageText: messageData.messageText,
-      timeSpentOnMessage: messageData.timeSpentOnMessage,
-      theory: messageData.theory,
-    });
+  // Handle message shown - memoized
+  const handleMessageShown = useCallback(
+    async (messageData) => {
+      await logGameEvent("anti_cheating_message_shown", {
+        messageId: messageData.messageId,
+        messageText: messageData.messageText,
+        timeSpentOnMessage: messageData.timeSpentOnMessage,
+        theory: messageData.theory,
+      });
 
-    // Pass message ID to parent component if the prop is provided
-    if (messageData.messageId && typeof onMessageIdCapture === "function") {
-      onMessageIdCapture(messageData.messageId);
-    }
+      // Pass message ID to parent component if the prop is provided
+      if (messageData.messageId && typeof onMessageIdCapture === "function") {
+        onMessageIdCapture(messageData.messageId);
+      }
 
-    setGameState((prev) => ({ ...prev, phase: "play" }));
-  };
+      setPhase("play");
+    },
+    [logGameEvent, onMessageIdCapture]
+  );
 
-  // Handle page visibility changes
+  // Unified visibility change handler
   useEffect(() => {
     function handleVisibilityChange() {
-      // Check if we need to show the alert when user returns to page
+      // Only handle visibility change if:
+      // 1. User is coming back to the page (becoming visible)
+      // 2. There's a pending submission (timer ran out while they were away)
+      // 3. The submission hasn't happened yet
+      // 4. Time is up
       if (
         document.visibilityState === "visible" &&
         pendingSubmission.current &&
         !isSubmitted.current &&
-        !visibilityChangeHandled.current &&
-        gameState.isTimeUp
+        isTimeUp &&
+        !timeUpAlertShown.current
       ) {
+        // Mark that we've handled this visibility change
         visibilityChangeHandled.current = true;
         pendingSubmission.current = false;
 
-        // Add a slight delay to ensure DOM is ready
+        // Set flag before showing alert to prevent double alerts
+        timeUpAlertShown.current = true;
+
+        // Alert with slight delay to ensure DOM is ready
         setTimeout(() => {
           if (!isSubmitted.current) {
             alert("Time's up! All of your added words have been submitted");
@@ -490,74 +528,50 @@ const AnagramGame = ({
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [gameState.isTimeUp, handleSubmit]);
+  }, [isTimeUp, handleSubmit]);
 
-  // Additional effect to handle time-up condition
+  // Optimized timer effect
   useEffect(() => {
-    if (
-      gameState.isTimeUp &&
-      !isSubmitted.current &&
-      !timeUpAlertShown.current &&
-      !pendingSubmission.current &&
-      !visibilityChangeHandled.current &&
-      document.visibilityState === "visible"
-    ) {
-      timeUpAlertShown.current = true;
-
-      // Add a slight delay to ensure DOM is ready
-      setTimeout(() => {
-        if (!isSubmitted.current) {
-          alert("Time's up! All of your added words have been submitted");
-          handleSubmit();
-        }
-      }, 100);
-    }
-  }, [gameState.isTimeUp, handleSubmit]);
-
-  // Timer effect - IMPROVED
-  useEffect(() => {
-    if (
-      gameState.phase === "play" &&
-      gameState.timeLeft > 0 &&
-      !isSubmitted.current
-    ) {
+    // Only run the timer when in play phase with time left and not submitted
+    if (phase === "play" && timeLeft > 0 && !isSubmitted.current) {
       timerRef.current = setInterval(() => {
-        setGameState((prev) => {
-          if (prev.timeLeft <= 1) {
+        setTimeLeft((prevTime) => {
+          // When time is about to run out
+          if (prevTime <= 1) {
             clearInterval(timerRef.current);
 
-            // Set isTimeUp first
-            const newState = { ...prev, timeLeft: 0, isTimeUp: true };
+            // First set time to 0
+            setIsTimeUp(true);
 
-            // Only call handleTimeUp if document is visible and alert not shown yet
+            // Then check visibility to determine alert behavior
+            const isVisible = document.visibilityState === "visible";
+
             if (
-              document.visibilityState === "visible" &&
-              !timeUpAlertShown.current
+              isVisible &&
+              !timeUpAlertShown.current &&
+              !isSubmitted.current
             ) {
-              // Use setTimeout to ensure state is updated before handleTimeUp
-              setTimeout(() => {
-                if (!isSubmitted.current && !timeUpAlertShown.current) {
-                  handleTimeUp();
-                }
-              }, 50);
+              // If visible, handle time up with small delay to allow state updates
+              setTimeout(handleTimeUp, 50);
             } else if (!timeUpAlertShown.current) {
-              // Mark as pending if document not visible
+              // If not visible, mark as pending for when user returns
               pendingSubmission.current = true;
             }
 
-            return newState;
+            return 0;
           }
-          return { ...prev, timeLeft: prev.timeLeft - 1 };
+          return prevTime - 1;
         });
       }, 1000);
 
       return () => {
         if (timerRef.current) {
           clearInterval(timerRef.current);
+          timerRef.current = null;
         }
       };
     }
-  }, [gameState.phase, gameState.timeLeft, handleTimeUp]);
+  }, [phase, timeLeft, handleTimeUp]);
 
   // Initialize game on mount
   useEffect(() => {
@@ -566,6 +580,7 @@ const AnagramGame = ({
     }
   }, [sessionId, initGame]);
 
+  // Error state
   if (error) {
     return (
       <div className="text-center p-6">
@@ -574,7 +589,7 @@ const AnagramGame = ({
         <button
           onClick={() => {
             setError(null);
-            setGameState((prev) => ({ ...prev, phase: "loading" }));
+            setPhase("loading");
             initGame();
           }}
           className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 
@@ -589,54 +604,49 @@ const AnagramGame = ({
   return (
     <div className="space-y-6">
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-        {gameState.notification && (
+        {notification && (
           <div
             className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-              gameState.notification.isError
+              notification.isError
                 ? "bg-red-100 text-red-700"
                 : "bg-green-100 text-green-700"
             }`}
           >
-            {gameState.notification.message}
+            {notification.message}
           </div>
         )}
 
-        {gameState.phase === "message" && (
+        {phase === "message" && (
           <MessageDisplay
-            message={gameState.currentMessage}
+            message={currentMessage}
             onMessageShown={handleMessageShown}
           />
         )}
 
-        {gameState.phase === "play" && (
-          <GameBoard
-            currentWord={gameState.currentWord}
-            solution={gameState.solution}
-            availableLetters={gameState.availableLetters}
-            onSolutionChange={(solution, available) => {
-              setGameState((prev) => ({
-                ...prev,
-                solution,
-                availableLetters: available,
-              }));
-            }}
+        {phase === "play" && (
+          <MemoizedGameBoard
+            currentWord={currentWord}
+            solution={solution}
+            availableLetters={availableLetters}
+            onSolutionChange={handleSolutionChange}
             onValidate={handleValidate}
             onSubmit={handleSubmit}
             onRemoveWord={handleRemoveWord}
-            wordIndex={gameState.wordIndex}
-            totalWords={gameState.totalAnagrams}
-            timeLeft={gameState.timeLeft}
-            totalTime={gameState.totalTime}
-            isTimeUp={gameState.isTimeUp}
-            validatedWords={gameState.validatedWords}
+            wordIndex={wordIndex}
+            totalWords={totalAnagrams}
+            timeLeft={timeLeft}
+            totalTime={totalTime}
+            isTimeUp={isTimeUp}
+            validatedWords={validatedWords}
           />
         )}
+
         <EventTrack
           onPageLeave={handlePageLeave}
           onPageReturn={handlePageReturn}
           onInactivityStart={handleInactiveStart}
           onActiveReturn={handleActiveReturn}
-          enabled={!isSubmitted.current && gameState.phase === "play"}
+          enabled={!isSubmitted.current && phase === "play"}
           inactivityTimeout={5000}
         />
       </div>

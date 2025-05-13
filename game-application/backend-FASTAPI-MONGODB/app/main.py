@@ -151,7 +151,15 @@ async def complete_tutorial(request: dict):
 
 @app.post("/api/game-events")
 async def log_game_event(event: GameEvent):
-    """Log game events with meaning submission handling."""
+    """
+    Handles various event types including:
+    - word_validation: Tracks word validation events
+    - page_leave/page_return: Tracks when users leave or return to the page
+    - mouse_inactive_start/mouse_active: Tracks mouse inactivity
+    - anti_cheating_message_shown: Tracks when anti-cheating messages are displayed
+    - meaning_submission: Handles word meaning submissions
+    - self_reported_skill: Tracks user's self-reported word unscrambling skill level
+    """
     try:
         event_dict = event.dict(exclude_none=True)
         event_dict["timestamp"] = datetime.utcnow()

@@ -8,7 +8,6 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import CoinIcon from "../CoinIcon";
 import EventTrack from "../shared/EventTrack";
 import game_gif from "../../assets/game_play.gif";
 import Container from "../Container";
@@ -33,6 +32,8 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [submissionResults, setSubmissionResults] = useState(null);
+  const [skillLevel, setSkillLevel] = useState(5);
+  const [isSubmittingSkill, setIsSubmittingSkill] = useState(false);
 
   // Refs
   const timerRef = useRef(null);
@@ -137,9 +138,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         ...prev,
         tutorialWord: tutorialData.word,
         solutions: tutorialData.solutions,
-        availableLetters: tutorialData.word
-          .split("")
-          .sort(() => Math.random() - 0.5),
+        availableLetters: tutorialData.word.split(""),
         timeLeft: configData.timeSettings.tutorial_time,
         totalTime: configData.timeSettings.tutorial_time,
       }));
@@ -185,9 +184,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         { word, length: word.length, validatedAt: new Date().toISOString() },
       ],
       solution: [],
-      availableLetters: prev.tutorialWord
-        .split("")
-        .sort(() => Math.random() - 0.5),
+      availableLetters: prev.tutorialWord.split(""),
     }));
 
     showNotification("Word has been recorded");
@@ -306,7 +303,48 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     }
   };
 
-  // Timer effect - IMPROVED
+  const logSkillLevel = async (skillLevel) => {
+    try {
+      setIsSubmittingSkill(true);
+
+      // Create the event body
+      const eventBody = {
+        sessionId,
+        prolificId,
+        phase: "tutorial",
+        eventType: "self_reported_skill",
+        details: {
+          skillLevel: skillLevel,
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      // Post to the game-events endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/game-events`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(eventBody),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to log skill level");
+      }
+
+      // After successful submission, hide the overview and start the game
+      setShowOverview(false);
+    } catch (error) {
+      console.error("Error logging skill level:", error);
+      // Even if there's an error, still allow the user to proceed
+      setShowOverview(false);
+    } finally {
+      setIsSubmittingSkill(false);
+    }
+  };
+
+  // Timer effect
   useEffect(() => {
     if (!showOverview && gameState.timeLeft > 0 && !isSubmitted.current) {
       timerRef.current = setInterval(() => {
@@ -351,7 +389,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     }
   }, [gameState.timeLeft, showOverview, handleSubmit]);
 
-  // Handle page visibility change - IMPROVED
+  // Handle page visibility change
   useEffect(() => {
     function handleVisibilityChange() {
       // Check if we need to show the alert when user returns to page
@@ -621,7 +659,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 bg-blue-100 p-4 rounded-lg">
+              <div className="flex items-start gap-4 p-4 rounded-lg">
                 <Timer className="h-6 w-6 text-green-600 mt-1" />
                 <div>
                   <p className="font-semibold text-gray-800">Time Limit</p>
@@ -635,11 +673,59 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
               </div>
             </div>
 
+            {/* Skill Level Slider Section */}
+            <div className="mt-8 p-6 bg-red-50 rounded-lg border border-gray-200">
+              <h3 className="font-semibold text-gray-800 mb-4">
+                How would you rate your skill at word scramble game?
+              </h3>
+              <div className="space-y-4">
+                <div className="flex justify-between text-gray-600 text-sm px-1">
+                  <span>Beginner</span>
+                  <span>Expert</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={skillLevel}
+                  onChange={(e) => setSkillLevel(parseInt(e.target.value))}
+                  className="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer accent-red-600"
+                />
+                <div className="flex justify-between">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <span
+                      key={num}
+                      className={`h-5 w-5 rounded-full text-xs flex items-center justify-center
+                      ${
+                        num === skillLevel
+                          ? "bg-red-600 text-white"
+                          : "text-gray-400"
+                      }`}
+                    >
+                      {num}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <button
-              onClick={() => setShowOverview(false)}
-              className="w-full mt-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold text-md transition-all transform hover:scale-105 cursor-pointer"
+              onClick={() => logSkillLevel(skillLevel)}
+              disabled={isSubmittingSkill}
+              className={`w-full mt-6 py-3 ${
+                isSubmittingSkill
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+              } text-white rounded-lg font-medium transition-colors`}
             >
-              Start Practice Round
+              {isSubmittingSkill ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                  <span>Submitting...</span>
+                </div>
+              ) : (
+                "Start Practice Round"
+              )}
             </button>
           </div>
         </div>

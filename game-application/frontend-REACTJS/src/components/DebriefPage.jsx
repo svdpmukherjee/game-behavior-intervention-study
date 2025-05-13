@@ -320,11 +320,11 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                 {totalReward >
                   studyConfig.compensation.max_reward_per_anagram *
                     studyConfig.game_anagrams && (
-                  <p className="text-sm font-medium text-blue-700 mt-2">
+                  <p className="text-sm font-medium italic text-blue-700 mt-2">
                     Maximum of{" "}
                     {studyConfig.compensation.max_reward_per_anagram *
-                      studyConfig.game_anagrams}
-                    pence was assigned, with up to 30 pence per word solving
+                      studyConfig.game_anagrams}{" "}
+                    pence was set for this study
                   </p>
                 )}
               </div>

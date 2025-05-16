@@ -110,7 +110,7 @@ const ProlificIdPage = ({ onSubmit, initialValue, isInitializing }) => {
                 <span className="bg-blue-100 rounded-full p-1 mr-2 mt-1">
                   <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
                 </span>
-                Stored securely and pseudonymized
+                Stored securely and anonymized
               </li>
               <li className="flex items-start">
                 <span className="bg-blue-100 rounded-full p-1 mr-2 mt-1">

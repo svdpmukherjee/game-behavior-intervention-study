@@ -201,8 +201,8 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           {!hasStartedReading ? (
             <div className="flex flex-col items-center justify-center h-full py-10">
               <p className="text-gray-600 text-center mb-12">
-                This message contains important information about your
-                puzzle-solving experience
+                This message contains important information about your word
+                creation performance
               </p>
               <button
                 onClick={handleStartReading}
@@ -280,8 +280,8 @@ const MessageDisplay = ({ message, onMessageShown }) => {
           showGameInfo && (
             <div className="mt-4 p-3 rounded-lg text-gray-600 text-sm">
               <p>
-                You will now solve {studyConfig.game_anagrams} word puzzle for{" "}
-                {gameTime} minutes.
+                You will now solve {studyConfig.game_anagrams} similar word
+                creation task for {gameTime} minutes.
               </p>
             </div>
           )}
@@ -292,7 +292,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
             onClick={handleContinue}
             className="w-full mt-5 py-3 rounded-lg font-medium bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
           >
-            Continue to puzzle game <ArrowRight className="w-5 h-5" />
+            Continue to next round <ArrowRight className="w-5 h-5" />
           </button>
         )}
       </div>

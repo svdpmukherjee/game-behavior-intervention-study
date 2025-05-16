@@ -55,7 +55,7 @@ const STEPS = {
     id: "main_game",
     progress: 50,
     step: 3,
-    title: "Create Words - Main Game Round",
+    title: "Create Words - Main Round",
   },
   SURVEY: {
     id: "survey",

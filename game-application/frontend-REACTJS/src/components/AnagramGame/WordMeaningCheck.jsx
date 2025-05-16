@@ -118,7 +118,7 @@ const WordMeaningCheck = ({
           );
           forceCompletion();
         }
-      }, 120000); // 2 minutes max for this page
+      }, 150000); // 2.5 minutes max for this page
 
       return () => clearTimeout(globalTimeout);
     }
@@ -693,10 +693,10 @@ const WordMeaningCheck = ({
                         : `To help us understand your word-building process, we have selected some of your interesting words. Could you tell us what meaning you had in mind for each?`}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-500 italic mt-2">
+                  {/* <p className="text-sm text-gray-500 italic mt-2">
                     This helps us understand how different people approach the
                     word-building process!
-                  </p>
+                  </p> */}
                 </div>
               </div>
 
@@ -710,9 +710,9 @@ const WordMeaningCheck = ({
                     </p>
 
                     <p className="text-amber-700 text-sm mt-1">
-                      As we continue to optimize this game-playing website, you
+                      {/* As we continue to optimize this game-playing website, you
                       may occasionally experience a momentary pause in some
-                      browsers. <br />
+                      browsers. <br /> */}
                       <br />
                       If you encounter <strong>a blank page</strong> while
                       submitting the meaning, please{" "}

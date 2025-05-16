@@ -58,7 +58,7 @@ const StudyOverview = ({ onNext, studyConfig }) => (
             from the set
           </span>
         </li>
-        <li className="flex items-start">
+        {/* <li className="flex items-start">
           <span className="bg-blue-100 rounded-full p-1 mr-2 mt-0.5">
             <span className="block h-1.5 w-1.5 bg-blue-600 rounded-full"></span>
           </span>
@@ -68,7 +68,7 @@ const StudyOverview = ({ onNext, studyConfig }) => (
             time runs out -{" "}
             <span className="font-semibold">no need submit manually</span>
           </span>
-        </li>
+        </li> */}
       </ul>
     </div>
 
@@ -111,7 +111,7 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                 showWords: true,
               },
               {
-                label: "Game round",
+                label: "Main round",
                 time: studyConfig.timeSettings.game_time / 60,
                 words: studyConfig.game_anagrams,
                 showWords: true,
@@ -127,14 +127,14 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
                   <span className="block h-2 w-2 bg-green-600 rounded-full"></span>
                 </span>
                 <div>
-                  <span className="font-semibold">{item.label}</span>{" "}
+                  <span className="font-semibold">{item.label}:</span>{" "}
                   <span className="text-gray-500">
-                    {item.showWords
+                    {/* {item.showWords
                       ? `(${item.words} set${
                           item.words !== 1 ? "s" : ""
                         } of scrambled letters, `
-                      : "("}
-                    {item.time} minutes)
+                      : "("} */}
+                    {item.time} {item.time === 1 ? "minute" : "minutes"}
                   </span>
                 </div>
               </li>
@@ -156,27 +156,40 @@ const TimeAndCompensation = ({ onNext, onBack, studyConfig }) => {
           </h4>
         </div>
 
-        {/* Base Compensation */}
-        <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-300 text-center rounded-lg p-4 shadow-sm">
-          <p className="text-lg font-semibold text-amber-800">
-            💰 Base Compensation
-          </p>
-          <p className="text-2xl font-semibold text-gray-900 mt-2">
-            {studyConfig.compensation.prolific_rate}
-          </p>
-        </div>
+        <div className="space-y-6">
+          {/* Base Compensation */}
+          <div className="bg-gradient-to-r from-amber-100 to-yellow-50 border border-amber-300 text-center rounded-lg p-4 shadow-sm">
+            <p className="text-lg font-semibold text-amber-800">
+              💰 Base Compensation
+            </p>
+            <p className="text-2xl font-semibold text-gray-900 mt-2">
+              {studyConfig.compensation.prolific_rate}
+            </p>
+          </div>
 
-        {/* Additional Rewards */}
-        <div className="mt-6">
-          <h5 className="text-sm font-medium text-gray-700 mb-4">
-            Additional rewards per{" "}
-            <span className="font-semibold">valid word</span> creation:
-          </h5>
-          <div className="flex justify-center items-center space-y-2 text-sm">
-            <RewardDisplay
-              rewards={studyConfig.rewards}
-              maxReward={studyConfig.compensation.max_reward_per_anagram}
-            />
+          {/* Plus sign divider */}
+          <div className="flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-700 text-3xl font-bold shadow-sm">
+              +
+            </div>
+          </div>
+
+          {/* Additional Rewards */}
+          <div>
+            <h5 className="text-lg font-semibold text-green-700 text-center mb-4">
+              Earn extra rewards for each valid word you create
+            </h5>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              {/* <p className="text-center text-green-800 mb-3">
+                Earn extra rewards for each valid word you create:
+              </p> */}
+              <div className="flex justify-center items-center space-y-2 text-sm">
+                <RewardDisplay
+                  rewards={studyConfig.rewards}
+                  maxReward={studyConfig.compensation.max_reward_per_anagram}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -219,32 +232,73 @@ const PrivacyAndConsent = ({
       </div>
 
       <div className="text-gray-700 space-y-4">
+        {/* Study information heading and content */}
+        <h4 className="font-medium text-blue-700 text-md border-b border-blue-100 pb-1">
+          Study Information
+        </h4>
         <p>
-          We collect the following data to analyze your behavior and
-          interactions during the study:
+          This study is part of a research project on creating an effective
+          online assessment environment, conducted by researchers at the
+          University of Luxembourg. This study has been approved by the Ethics
+          Review Panel and complies with European regulations on Data protection
+          (GDPR).
+        </p>
+
+        {/* Data collection heading and content */}
+        <h4 className="font-medium text-blue-700 text-md border-b border-blue-100 pb-1 mt-6">
+          Data Collection
+        </h4>
+        <p>
+          We collect the following data to analyze your interactions with the
+          word creation task and the survey during the study:
         </p>
         <ul className="list-disc ml-6 space-y-2">
           {[
-            "Puzzle-solving patterns and strategies",
-            "Response times and game interactions",
-            "Survey responses",
+            "Word creation patterns and strategies",
+            "Response times and interactions with the web interface",
+            "Survey responses about your performance and experience",
             "Basic demographic information",
           ].map((item, index) => (
             <li key={index}>{item}</li>
           ))}
         </ul>
 
+        {/* Data storage heading and content */}
+        <h4 className="font-medium text-blue-700 text-md border-b border-blue-100 pb-1 mt-6">
+          Data Storage & Access
+        </h4>
         <p>
+          Your data will be securely stored following GDPR regulations. Only
+          researchers from the University of Luxembourg that are directly
+          involved in this study will have access to the collected data.
+        </p>
+
+        {/* <p>
           Your personal data will be{" "}
-          <span className="font-semibold"> anonymized</span> and securely stored
-          at the University of Luxembourg.
-        </p>
+          <span className="font-semibold">first saved pseudo-anonymously</span>{" "}
+          (with your Prolific ID) and then{" "}
+          <span className="font-semibold">made fully anonymous</span> (by
+          deleting your Prolific ID).
+        </p> */}
+
         <p>
-          <span className="font-semibold">Only</span> the study researchers will
-          have access to your data, and it will be used solely for this research
-          project.
+          In line with official regulations and the open science spirit, the
+          data will be anonymized (i.e., it will no longer be possible to
+          associate the data with particular persons) and shared publicly so
+          that the results from this study may be reproduced by other
+          researchers.
         </p>
-        <p>Data may be published without identifying you personally.</p>
+
+        {/* Your rights heading and content */}
+        <h4 className="font-medium text-blue-700 text-md border-b border-blue-100 pb-1 mt-6">
+          Your Rights
+        </h4>
+        <p>
+          You have the right to access, rectify, and erase your data prior to
+          anonymization, and the right to be informed about the study's results.
+          Participation is voluntary, and you can withdraw at any point without
+          providing reasons.
+        </p>
       </div>
     </section>
 

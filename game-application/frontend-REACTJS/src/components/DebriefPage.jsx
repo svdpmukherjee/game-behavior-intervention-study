@@ -359,12 +359,13 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                 What This Study Was Really About
               </h3>
               <p className="text-gray-700">
-                This study looked at how people solve word puzzles and whether
-                they play by the rules when nobody is watching. We used several
-                ways to understand how people approach these puzzles:
+                This study looked at how people approach word creation
+                challenges and whether they play by the rules when nobody is
+                watching. We used several ways to understand how people
+                approach:
               </p>
               <ul className="list-disc list-inside mt-3 mb-4 space-y-2 text-gray-700">
-                <li>Tracking when you switched away from the game screen</li>
+                <li>Tracking when you switched away from the webpage</li>
                 <li>Noticing when your mouse stopped moving</li>
                 <li>Measuring how long you spent on each word</li>
                 <li>Looking at patterns in how you found words</li>
@@ -376,9 +377,9 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                 people behave when solving problems online.
               </p>
               <p className="text-gray-700 mt-4">
-                We keep all your information private. Your name is replaced with
-                a code, and only researchers can see your answers. We only use
-                this information for our study, just as we promised.
+                We keep all your information private. Your prolificid will be
+                replaced with a code, and only researchers can see your answers.
+                We only use this information for our study, just as we promised.
               </p>
             </div>
 

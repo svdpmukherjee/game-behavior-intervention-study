@@ -87,9 +87,9 @@ const GameBoard = ({
         {/* Game Header */}
         <div className="text-center bg-white rounded-xl mb-16">
           <h2 className="text-xl font-bold text-gray-800">
-            Word Challenge {wordIndex + 1} of {totalWords}
+            Word Creation Challenge {wordIndex + 1} of {totalWords}
           </h2>
-          <div className="mt-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-100 flex items-center justify-center">
+          <div className="mt-2 px-4 py-2 bg-blue-50 rounded-lg border border-blue-50 flex items-center justify-center">
             <p className="text-blue-600 text-sm font-medium flex items-center">
               {/* <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -107,8 +107,7 @@ const GameBoard = ({
                 />
                 <polygon points="46,12 50,15 46,18" fill="#3b82f6" />
               </svg> */}
-              Create words with at least 5 letters by drag and drop. Added words
-              will be submitted when time is up!
+              Create words with at least 5 letters by drag and drop
             </p>
           </div>
         </div>

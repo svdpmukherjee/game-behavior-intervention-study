@@ -100,7 +100,8 @@ const SurveyPage = ({ onComplete, messageId = "autonomy" }) => {
                 <div className="flex-1">
                   <p className="font-medium text-gray-800 mb-2">
                     <span className="font-medium">
-                      Enter completion code below once you are finished
+                      Copy the completion code shown on the final page of the
+                      survey and enter it below
                     </span>
                   </p>
                 </div>

@@ -18,9 +18,15 @@ const DeviceWarning = () => {
           <h2 className="font-bold text-red-800 flex items-center gap-2">
             IMPORTANT: Device Requirements
           </h2>
+          {/* Final Warning */}
+          <p className="mt-4 bg-white text-red-900 px-3 py-2 rounded-lg text-center font-semibold text-sm">
+            🚫 Mobile devices & tablets are{" "}
+            <span className="underline">not supported</span> and will be
+            disqualified
+          </p>
 
           {/* Message */}
-          <div className="mt-2 text-red-700 text-sm">
+          <div className="mt-8 text-red-700 text-sm">
             <p className="">
               To participate in this study, you{" "}
               <span className="font-bold">must</span> use:
@@ -42,13 +48,6 @@ const DeviceWarning = () => {
                 </span>
               </li>
             </ul>
-
-            {/* Final Warning */}
-            <p className="mt-4 bg-white text-red-900 px-3 py-2 rounded-lg text-center font-semibold text-sm">
-              🚫 Mobile devices & tablets are{" "}
-              <span className="underline">not supported</span> and will be
-              disqualified
-            </p>
           </div>
         </div>
       </div>

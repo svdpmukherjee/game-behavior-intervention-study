@@ -7,6 +7,7 @@ import {
   Info,
   CheckCircle,
   XCircle,
+  HelpCircle,
 } from "lucide-react";
 import EventTrack from "../shared/EventTrack";
 import game_gif from "../../assets/game_play.gif";
@@ -34,6 +35,8 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   const [submissionResults, setSubmissionResults] = useState(null);
   const [skillLevel, setSkillLevel] = useState(5);
   const [isSubmittingSkill, setIsSubmittingSkill] = useState(false);
+  const [hasInteractedWithSlider, setHasInteractedWithSlider] = useState(false);
+  const [showSkillPrompt, setShowSkillPrompt] = useState(false);
 
   // Refs
   const timerRef = useRef(null);
@@ -303,7 +306,24 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     }
   };
 
+  const handleSkillLevelChange = (e) => {
+    const newLevel = parseInt(e.target.value);
+    setSkillLevel(newLevel);
+    setHasInteractedWithSlider(true);
+
+    // Hide skill prompt if it was showing
+    if (showSkillPrompt) {
+      setShowSkillPrompt(false);
+    }
+  };
+
   const logSkillLevel = async (skillLevel) => {
+    // If user hasn't interacted with the slider, show prompt
+    if (!hasInteractedWithSlider) {
+      setShowSkillPrompt(true);
+      return;
+    }
+
     try {
       setIsSubmittingSkill(true);
 
@@ -620,9 +640,9 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                     <ul className="space-y-1 text-blue-700">
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Drag and drop letters{" "}
-                        <span className="font-semibold text-amber-600">
+                        {/* <span className="font-semibold text-amber-600">
                           using mouse
-                        </span>{" "}
+                        </span>{" "} */}
                         to form valid English words
                       </li>
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
@@ -639,10 +659,10 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                         • Create as many words as possible to earn higher
                         rewards
                       </li>
-                      <li className="hover:bg-blue-100 p-2 rounded-lg">
+                      {/* <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Your words will be automatically submitted when the
                         timer ends - no need of manual submission
-                      </li>
+                      </li> */}
                     </ul>
                   </div>
                   <div className="order-1 md:order-2">
@@ -667,44 +687,71 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                     {tutorialTime} minute to practice
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
-                    Game will automatically submit when time runs out
+                    You will automatically proceed to the next step when time
+                    runs out
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Skill Level Slider Section */}
-            <div className="mt-24 p-6 bg-red-50 rounded-lg border border-gray-200">
-              <h3 className="font-semibold text-gray-800 mb-4">
-                How would you rate your skill at word scramble game?
-              </h3>
-              <div className="space-y-4">
-                <div className="flex justify-between text-gray-600 text-sm px-1">
-                  <span>Beginner</span>
-                  <span>Expert</span>
-                </div>
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={skillLevel}
-                  onChange={(e) => setSkillLevel(parseInt(e.target.value))}
-                  className="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer accent-red-600"
-                />
-                <div className="flex justify-between">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                    <span
-                      key={num}
-                      className={`h-5 w-5 rounded-full text-xs flex items-center justify-center
-                      ${
-                        num === skillLevel
-                          ? "bg-red-600 text-white"
-                          : "text-gray-400"
-                      }`}
-                    >
-                      {num}
-                    </span>
-                  ))}
+            {/* Skill Level Slider Section - Enhanced with animation if no interaction */}
+            <div
+              className={`mt-8 p-6 w-full ${
+                showSkillPrompt
+                  ? "bg-amber-50 border-amber-200 shadow-lg animate-pulse"
+                  : "bg-red-50 border-gray-200"
+              } rounded-lg border transition-all duration-300`}
+            >
+              <div className="flex items-start gap-2">
+                {showSkillPrompt && (
+                  <HelpCircle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-1 animate-bounce" />
+                )}
+                <div className="w-full">
+                  <h3
+                    className={`font-semibold ${
+                      showSkillPrompt ? "text-amber-800" : "text-gray-800"
+                    } mb-4 flex items-center`}
+                  >
+                    How would you rate your skill in word creation challenges?
+                    {showSkillPrompt && (
+                      <span className="text-amber-600 text-sm ml-2 font-normal">
+                        Please adjust the slider to continue
+                      </span>
+                    )}
+                  </h3>
+                  <div className="space-y-4 w-full">
+                    <div className="flex justify-between text-gray-600 text-sm px-1">
+                      <span>Beginner</span>
+                      <span>Expert</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={skillLevel}
+                      onChange={handleSkillLevelChange}
+                      className={`w-full h-2 ${
+                        showSkillPrompt
+                          ? "bg-amber-200 ring-2 ring-amber-300"
+                          : "bg-red-200"
+                      } rounded-lg appearance-none cursor-pointer accent-red-600 transition-all duration-300`}
+                    />
+                    <div className="flex justify-between">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                        <span
+                          key={num}
+                          className={`h-5 w-5 rounded-full text-xs flex items-center justify-center
+                          ${
+                            num === skillLevel
+                              ? "bg-red-600 text-white"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {num}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -715,8 +762,10 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
               className={`w-full mt-6 py-3 ${
                 isSubmittingSkill
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 cursor-pointer"
-              } text-white rounded-lg font-medium transition-colors`}
+                  : hasInteractedWithSlider
+                  ? "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              } text-white rounded-lg font-medium transition-all duration-300`}
             >
               {isSubmittingSkill ? (
                 <div className="flex items-center justify-center">
@@ -727,6 +776,12 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                 "Start Practice Round"
               )}
             </button>
+
+            {showSkillPrompt && (
+              <p className="text-amber-600 text-sm text-center mt-2">
+                Please adjust the skill level slider before continuing
+              </p>
+            )}
           </div>
         </div>
       </Container>

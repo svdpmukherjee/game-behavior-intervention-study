@@ -14,7 +14,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const [showGameInfo, setShowGameInfo] = useState(false);
 
   const minReadTime = 10000; // 10 seconds minimum reading time
-  const messageStartTime = useRef(new Date());
+  const messageStartTime = useRef(null); // Changed from initializing here to when reading starts
   const sentenceDelay = 1000; // 1 second between sentences appearing
   const loaderRemovalDelay = 1000; // 1 second delay before removing loader after last sentence
 
@@ -74,7 +74,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   useEffect(() => {
     if (hasStartedReading && message?.text) {
       // Start the message timer when reading begins
-      messageStartTime.current = new Date();
+      // (This is now set in handleStartReading)
 
       // Show the loader immediately
       setShowLoader(true);
@@ -148,9 +148,20 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
   const gameTime = studyConfig.timeSettings.game_time / 60;
 
-  // Start revealing sentences
+  // Start revealing sentences and start timer
   const handleStartReading = () => {
+    messageStartTime.current = new Date();
     setHasStartedReading(true);
+
+    // Log the message shown event right when user starts reading
+    if (message?.id) {
+      onMessageShown?.({
+        messageId: message.id,
+        messageText: message.text,
+        eventType: "motivational_message_shown",
+        theory: message.theory,
+      });
+    }
   };
 
   // Handle checkbox change
@@ -165,13 +176,10 @@ const MessageDisplay = ({ message, onMessageShown }) => {
 
   // Handle continue button click
   const handleContinue = () => {
-    const timeSpent = Math.round(
-      (new Date() - messageStartTime.current) / 1000
-    );
     onMessageShown?.({
       messageId: message.id,
       messageText: message.text,
-      timeSpentOnMessage: timeSpent,
+      eventType: "motivational_message_read_complete",
       theory: message.theory,
     });
   };

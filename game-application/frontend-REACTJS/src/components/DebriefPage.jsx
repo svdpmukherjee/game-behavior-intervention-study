@@ -458,7 +458,7 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                   <p className="text-sm text-gray-500">
                     You can select multiple words where you used external help.
                     <strong className="text-gray-700">
-                      This will not affect your participation or final reward
+                      This will not affect your compensation or final reward
                       amount
                     </strong>
                   </p>

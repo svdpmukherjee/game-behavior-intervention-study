@@ -63,7 +63,7 @@ App.jsx (Entry point)
 │       └── GameTimer (Countdown timer)
 ├── TestPage (Main game phase)
 │   └── AnagramGame
-│       ├── MessageDisplay (Shows anti-cheating intervention message)
+│       ├── MessageDisplay (Shows motivational intervention message)
 │       ├── GameBoard (Main game interface)
 │       └── GameTimer (Countdown timer)
 ├── SurveyPage (Post-game questionnaire)

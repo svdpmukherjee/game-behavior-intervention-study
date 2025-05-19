@@ -31,7 +31,7 @@ class Metadata(BaseModel):
     platform: Optional[str] = None
     screenSize: Dict[str, int]
 
-class AntiCheatingMessage(BaseModel):
+class MotivationalMessage(BaseModel):
     id: int
     text: str
     shownAt: Optional[datetime] = None
@@ -106,7 +106,7 @@ class WordMeaningSubmission(BaseModel):
     totalTimeSpent: Optional[int] = None
     
 class GameInit(BaseModel):
-    currentMessage: Optional[AntiCheatingMessage]
+    currentMessage: Optional[MotivationalMessage]
     word: str
     solutions: Dict[str, List[str]]
     timeSettings: Dict[str, int]

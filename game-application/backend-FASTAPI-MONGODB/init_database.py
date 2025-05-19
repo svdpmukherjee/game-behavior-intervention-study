@@ -74,10 +74,10 @@ def verify_game_config():
                 print(f"❌ Invalid anagram structure at index {idx}")
                 return False
 
-        # Check anti-cheating messages
-        message_count = db.anti_cheating_messages.count_documents({})
+        # Check motivational messages
+        message_count = db.motivational_messages.count_documents({})
         if message_count == 0:
-            print("❌ No anti-cheating messages found")
+            print("❌ No motivational messages found")
             return False
 
         print("✓ Game configuration verified successfully")
@@ -92,7 +92,7 @@ def reset_database():
     try:
         collections = [
             'game_config',
-            'anti_cheating_messages',
+            'motivational_messages',
             'sessions',
             'game_events',
         ]
@@ -123,9 +123,9 @@ def initialize_database():
 
         print("\nInitializing collections with fresh data...")
 
-        # Initialize anti_cheating_messages
-        db.anti_cheating_messages.insert_many(config['anti_cheating_messages'])
-        print("✓ Anti-cheating messages initialized")
+        # Initialize motivational_messages
+        db.motivational_messages.insert_many(config['motivational_messages'])
+        print("✓ Motivational messages initialized")
 
         # Initialize game configuration
         game_config_doc = {

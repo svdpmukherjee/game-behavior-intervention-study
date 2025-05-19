@@ -235,7 +235,7 @@ const AnagramGame = ({
       await logGameEvent("game_init", {
         currentWord: word,
         timeSettings: timeSettings,
-        hasAntiCheatingMessage: !!currentMessage,
+        hasMotivationalMessage: !!currentMessage,
       });
     } catch (error) {
       console.error("Game initialization error:", error);
@@ -473,22 +473,25 @@ const AnagramGame = ({
     }
   }, [handleSubmit, isSubmitting]);
 
-  // Handle message shown - memoized
   const handleMessageShown = useCallback(
     async (messageData) => {
-      await logGameEvent("anti_cheating_message_shown", {
-        messageId: messageData.messageId,
-        messageText: messageData.messageText,
-        timeSpentOnMessage: messageData.timeSpentOnMessage,
-        theory: messageData.theory,
-      });
+      await logGameEvent(
+        messageData.eventType || "motivational_message_shown",
+        {
+          messageId: messageData.messageId,
+          messageText: messageData.messageText,
+          theory: messageData.theory,
+        }
+      );
 
-      // Pass message ID to parent component if the prop is provided
-      if (messageData.messageId && typeof onMessageIdCapture === "function") {
-        onMessageIdCapture(messageData.messageId);
+      // Only transition to play phase when reading is complete
+      if (messageData.eventType === "motivational_message_read_complete") {
+        // Pass message ID to parent component if the prop is provided
+        if (messageData.messageId && typeof onMessageIdCapture === "function") {
+          onMessageIdCapture(messageData.messageId);
+        }
+        setPhase("play");
       }
-
-      setPhase("play");
     },
     [logGameEvent, onMessageIdCapture]
   );

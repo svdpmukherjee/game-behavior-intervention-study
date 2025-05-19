@@ -12,7 +12,7 @@ from app.config.app_config import get_cors_origins, MONGODB_URI, MONGODB_DB_NAME
 
 from app.models.schemas import (
     SessionInit, GameEvent, WordSubmission, 
-    GameInit, GameResponse, AntiCheatingMessage, WordMeaning, WordMeaningSubmission
+    GameInit, GameResponse, MotivationalMessage, WordMeaning, WordMeaningSubmission
 )
 
 app = FastAPI()
@@ -156,7 +156,7 @@ async def log_game_event(event: GameEvent):
     - word_validation: Tracks word validation events
     - page_leave/page_return: Tracks when users leave or return to the page
     - mouse_inactive_start/mouse_active: Tracks mouse inactivity
-    - anti_cheating_message_shown: Tracks when anti-cheating messages are displayed
+    - motivational_message_shown: Tracks when motivational messages are displayed
     - meaning_submission: Handles word meaning submissions
     - self_reported_skill: Tracks user's self-reported word unscrambling skill level
     """
@@ -169,7 +169,7 @@ async def log_game_event(event: GameEvent):
             if "timeSpent" in event_dict["details"]:
                 del event_dict["details"]["timeSpent"]
                 
-        if event.eventType == "anti_cheating_message_shown":
+        if event.eventType == "motivational_message_shown":
             # Convert details to dict if it's not already
             if not isinstance(event.details, dict):
                 details = event.details.dict(exclude_none=True)
@@ -283,7 +283,7 @@ async def submit_words(submission: WordSubmission):
 
 @app.get("/api/game/init")
 async def initialize_game(sessionId: str):
-    """Initialize main game with first anagram and anti-cheating message."""
+    """Initialize main game with first anagram and motivational message."""
     try:
         if not ObjectId.is_valid(sessionId):
             raise HTTPException(status_code=400, detail="Invalid session ID format")
@@ -300,8 +300,8 @@ async def initialize_game(sessionId: str):
         game_anagrams = config["game_config"]["game_anagrams"]
         time_settings = config["time_settings"]
 
-        # Get least shown anti-cheating message
-        message = await app.database.anti_cheating_messages.find_one_and_update(
+        # Get least shown motivational message
+        message = await app.database.motivational_messages.find_one_and_update(
             {
                 "shown_count": {"$lt": 10},
                 "_id": {"$nin": session.get('shownMessages', [])}
@@ -311,7 +311,7 @@ async def initialize_game(sessionId: str):
         )
 
         if not message:
-            raise HTTPException(status_code=404, detail="No available anti-cheating messages")
+            raise HTTPException(status_code=404, detail="No available motivational messages")
 
         # Get first anagram
         first_anagram = game_anagrams[0]

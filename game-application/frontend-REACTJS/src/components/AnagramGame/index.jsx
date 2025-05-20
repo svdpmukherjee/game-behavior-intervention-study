@@ -205,7 +205,9 @@ const AnagramGame = ({
       if (phase !== "loading") return;
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/game/init?sessionId=${sessionId}`
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game/init?sessionId=${sessionId}&fetch_message=false`
       );
       const responseData = await response.json();
 

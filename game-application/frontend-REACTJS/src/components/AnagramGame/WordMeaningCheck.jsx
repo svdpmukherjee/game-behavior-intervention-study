@@ -682,15 +682,15 @@ const WordMeaningCheck = ({
             <div className="space-y-6">
               <div className="flex items-start gap-4 p-6 rounded-lg">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">
+                  <h3 className="text-md  text-gray-600">
                     Thank you for creating words and completing the survey!
                   </h3>
                   <div className="flex">
                     <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-7" />
                     <p className="text-blue-700 text-lg ml-2 mt-6">
                       {uniqueWords.length === 1
-                        ? "To help us understand your word-building process, could you explain what meaning you had in mind for this valid word you created?"
-                        : `To help us understand your word-building process, we have selected some of your interesting words. Could you tell us what meaning you had in mind for each?`}
+                        ? "On the next page, we'll show you a valid word you created. To help us understand your word-building process, please explain what meaning you had in mind when you formed this word."
+                        : `On the next page, we'll show you some of the interesting words you created. To help us understand your word-building process, please explain what meaning you had in mind when you formed each word.`}
                     </p>
                   </div>
                   {/* <p className="text-sm text-gray-500 italic mt-2">
@@ -701,7 +701,7 @@ const WordMeaningCheck = ({
               </div>
 
               {/* Important Warning Message */}
-              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md mt-24 mb-16">
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md mt-16 mb-16">
                 <div className="flex items-start">
                   <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5 mr-2" />
                   <div>
@@ -713,9 +713,8 @@ const WordMeaningCheck = ({
                       {/* As we continue to optimize this game-playing website, you
                       may occasionally experience a momentary pause in some
                       browsers. <br /> */}
-                      <br />
-                      If you encounter <strong>a blank page</strong> while
-                      submitting the meaning, please{" "}
+                      If you encounter <strong>a blank screen</strong> while
+                      submitting the meaning in the next page, please{" "}
                       <strong>do not close the window</strong>. The system will
                       automatically proceed to the next step within few seconds.
                     </p>

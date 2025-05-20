@@ -21,7 +21,7 @@ const DeviceWarning = () => {
             </p>
 
             {/* Message */}
-            <div className="mt-8 text-red-700 text-sm">
+            <div className="mt-4 text-red-700 text-sm">
               <p className="">
                 To participate in this study, you{" "}
                 <span className="font-bold">must</span> use:

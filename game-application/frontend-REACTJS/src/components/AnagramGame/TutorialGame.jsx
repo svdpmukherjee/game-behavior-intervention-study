@@ -583,20 +583,22 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
 
                 {/* Motivation Message */}
                 <div className="mt-6 p-4 bg-white rounded-lg">
-                  <p className="text-green-800 ">
-                    {totalReward > 0 ? (
+                  <p className="text-green-800">
+                    {validWords.length > 0 || totalReward > 0 ? (
                       <>
                         Great job! You are doing well with word creation. Keep
-                        this up in the main game!
+                        this up in the main round!
                         <br />
                         <br />
-                        <span className=" text-red-500">
+                        <span className="text-red-500">
                           This reward is for display only. Rewards will be
-                          distributed based on the main game performance.
+                          distributed based on the main round performance.
                         </span>
                       </>
+                    ) : validWords.length === 0 && invalidWords.length > 0 ? (
+                      "Nice try! You attempted to form words. In the main round, focus on creating valid ones to earn rewards!"
                     ) : (
-                      "Great job! You're doing well with word creation. This was just a practice."
+                      "It seems you didn’t submit any words. Maybe you ran out of time. Give it your best shot in the main round!"
                     )}
                   </p>
                 </div>

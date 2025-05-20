@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { memo } from "react";
-import MessageDisplay from "./MessageDisplay";
 import GameBoard from "./GameBoard";
 import EventTrack from "../shared/EventTrack";
 import { AlertTriangle } from "lucide-react";
@@ -62,7 +61,6 @@ const AnagramGame = ({
   const [totalTime, setTotalTime] = useState(0);
   const [validatedWords, setValidatedWords] = useState([]);
   const [allValidatedWords, setAllValidatedWords] = useState([]);
-  const [currentMessage, setCurrentMessage] = useState(null);
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [solutions, setSolutions] = useState({});
   const [notification, setNotification] = useState(null);
@@ -71,7 +69,6 @@ const AnagramGame = ({
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOverview, setShowOverview] = useState(true);
 
   // Refs for tracking
   const startTime = useRef(new Date());
@@ -216,26 +213,31 @@ const AnagramGame = ({
         throw new Error(responseData.detail || "Failed to initialize game");
       }
 
-      const { currentMessage, word, timeSettings } = responseData;
+      const { word, timeSettings } = responseData;
 
       // Validate required data
       if (!word || !timeSettings) {
         throw new Error("Invalid game configuration received");
       }
 
-      // Update multiple states in a batch
-      setPhase(currentMessage ? "message" : "play");
-      setCurrentMessage(currentMessage);
+      setPhase("play");
       setCurrentWord(word);
       setSolutions(responseData.solutions);
       setAvailableLetters(word.split(""));
       setTimeLeft(timeSettings.game_time);
       setTotalTime(timeSettings.game_time);
 
+      // Pass message ID to parent component if available
+      if (
+        responseData.currentMessage?.id &&
+        typeof onMessageIdCapture === "function"
+      ) {
+        onMessageIdCapture(responseData.currentMessage.id);
+      }
+
       await logGameEvent("game_init", {
         currentWord: word,
         timeSettings: timeSettings,
-        hasMotivationalMessage: !!currentMessage,
       });
     } catch (error) {
       console.error("Game initialization error:", error);
@@ -245,7 +247,7 @@ const AnagramGame = ({
         sessionId,
       });
     }
-  }, [sessionId, logGameEvent, phase]);
+  }, [sessionId, logGameEvent, phase, onMessageIdCapture]);
 
   // Word validation check - memoized
   const isValidWord = useCallback(
@@ -473,29 +475,6 @@ const AnagramGame = ({
     }
   }, [handleSubmit, isSubmitting]);
 
-  const handleMessageShown = useCallback(
-    async (messageData) => {
-      await logGameEvent(
-        messageData.eventType || "motivational_message_shown",
-        {
-          messageId: messageData.messageId,
-          messageText: messageData.messageText,
-          theory: messageData.theory,
-        }
-      );
-
-      // Only transition to play phase when reading is complete
-      if (messageData.eventType === "motivational_message_read_complete") {
-        // Pass message ID to parent component if the prop is provided
-        if (messageData.messageId && typeof onMessageIdCapture === "function") {
-          onMessageIdCapture(messageData.messageId);
-        }
-        setPhase("play");
-      }
-    },
-    [logGameEvent, onMessageIdCapture]
-  );
-
   // Unified visibility change handler
   useEffect(() => {
     function handleVisibilityChange() {
@@ -617,13 +596,6 @@ const AnagramGame = ({
           >
             {notification.message}
           </div>
-        )}
-
-        {phase === "message" && (
-          <MessageDisplay
-            message={currentMessage}
-            onMessageShown={handleMessageShown}
-          />
         )}
 
         {phase === "play" && (

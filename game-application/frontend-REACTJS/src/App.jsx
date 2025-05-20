@@ -68,16 +68,16 @@ const STEPS = {
     step: 5,
     title: "Complete a Survey About Your Experience",
   },
-  WORD_MEANING: {
-    id: "word_meaning",
-    progress: 85,
-    step: 6,
-    title: "Tell Us What Your Created Words Mean to You",
-  },
+  // WORD_MEANING: {
+  //   id: "word_meaning",
+  //   progress: 85,
+  //   step: 6,
+  //   title: "Tell Us What Your Created Words Mean to You",
+  // },
   DEBRIEF: {
     id: "debrief",
     progress: 90,
-    step: 7,
+    step: 6,
     title: "Learn About Your Reward and the Study's Purpose",
   },
   THANK_YOU: {
@@ -218,50 +218,51 @@ function App() {
   };
 
   const handleSurveyComplete = () => {
-    setCurrentStep(STEPS.WORD_MEANING.id);
+    // setCurrentStep(STEPS.WORD_MEANING.id);
+    setCurrentStep(STEPS.DEBRIEF.id);
   };
 
-  const handleMeaningCheckComplete = async (meanings) => {
-    if (!sessionId || !prolificId) {
-      console.error("Missing session ID or Prolific ID");
-      alert("Session error. Please try refreshing the page.");
-      return;
-    }
+  // const handleMeaningCheckComplete = async (meanings) => {
+  //   if (!sessionId || !prolificId) {
+  //     console.error("Missing session ID or Prolific ID");
+  //     alert("Session error. Please try refreshing the page.");
+  //     return;
+  //   }
 
-    if (!meanings || meanings.length === 0) {
-      console.log("No word meanings to submit, skipping API call");
-      setCurrentStep(STEPS.DEBRIEF.id);
-      return;
-    }
+  //   if (!meanings || meanings.length === 0) {
+  //     console.log("No word meanings to submit, skipping API call");
+  //     setCurrentStep(STEPS.DEBRIEF.id);
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/meanings/submit`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            prolificId,
-            wordMeanings: meanings || [], // Add fallback
-            completedAt: new Date().toISOString(),
-          }),
-        }
-      );
+  //   try {
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_API_URL}/api/meanings/submit`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           sessionId,
+  //           prolificId,
+  //           wordMeanings: meanings || [], // Add fallback
+  //           completedAt: new Date().toISOString(),
+  //         }),
+  //       }
+  //     );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to submit meanings");
-      }
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       throw new Error(errorData.detail || "Failed to submit meanings");
+  //     }
 
-      setCurrentStep(STEPS.DEBRIEF.id);
-    } catch (error) {
-      console.error("Error submitting meanings:", error);
-      alert(
-        error.message || "Failed to submit word meanings. Please try again."
-      );
-    }
-  };
+  //     setCurrentStep(STEPS.DEBRIEF.id);
+  //   } catch (error) {
+  //     console.error("Error submitting meanings:", error);
+  //     alert(
+  //       error.message || "Failed to submit word meanings. Please try again."
+  //     );
+  //   }
+  // };
 
   const handleDebriefComplete = () => {
     setCurrentStep(STEPS.THANK_YOU.id);
@@ -323,15 +324,15 @@ function App() {
           <SurveyPage onComplete={handleSurveyComplete} messageId={messageId} />
         );
 
-      case STEPS.WORD_MEANING.id:
-        return (
-          <WordMeaningCheck
-            validatedWords={validatedWords}
-            sessionId={sessionId}
-            prolificId={prolificId}
-            onComplete={handleMeaningCheckComplete}
-          />
-        );
+      // case STEPS.WORD_MEANING.id:
+      //   return (
+      //     <WordMeaningCheck
+      //       validatedWords={validatedWords}
+      //       sessionId={sessionId}
+      //       prolificId={prolificId}
+      //       onComplete={handleMeaningCheckComplete}
+      //     />
+      //   );
 
       case STEPS.DEBRIEF.id:
         return (

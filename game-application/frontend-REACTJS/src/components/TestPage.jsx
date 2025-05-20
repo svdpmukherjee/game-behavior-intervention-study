@@ -122,17 +122,6 @@ const TestPage = ({
     }
   };
 
-  // // Calculate reward based on word length
-  // const calculateReward = (length) => {
-  //   const rewards = {
-  //     5: 2,
-  //     6: 5,
-  //     7: 10,
-  //     8: 15,
-  //   };
-  //   return rewards[length] || 0;
-  // };
-
   // Render loading state
   if (isLoading) {
     return (

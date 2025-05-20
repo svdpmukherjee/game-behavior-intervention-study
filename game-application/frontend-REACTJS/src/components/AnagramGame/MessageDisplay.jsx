@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Info, ArrowRight, AlertTriangle } from "lucide-react";
 
-const MessageDisplay = ({ message, onMessageShown }) => {
+const MessageDisplay = ({ message, onMessageShown, sessionId, prolificId }) => {
   const [isReady, setIsReady] = useState(false);
   const [hasRead, setHasRead] = useState(false);
   const [studyConfig, setStudyConfig] = useState(null);
@@ -12,6 +12,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const [showLoader, setShowLoader] = useState(false);
   const [hasReadConfirmed, setHasReadConfirmed] = useState(false);
   const [showGameInfo, setShowGameInfo] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const minReadTime = 10000; // 10 seconds minimum reading time
   const messageStartTime = useRef(null); // Changed from initializing here to when reading starts
@@ -22,6 +23,9 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const sentences = useRef([]);
   const sentenceTimers = useRef([]);
 
+  // Track if message shown event has been logged
+  const messageShownLogged = useRef(false);
+
   // Define the fade-in animation style
   const fadeInStyle = `
     @keyframes slowFadeIn {
@@ -30,9 +34,40 @@ const MessageDisplay = ({ message, onMessageShown }) => {
     }
   `;
 
+  // Log events to the backend
+  const logEvent = async (eventType, details = {}) => {
+    if (!sessionId || !prolificId || !message?.id) return;
+
+    try {
+      const eventBody = {
+        sessionId,
+        prolificId,
+        phase: "main_game",
+        eventType,
+        details: {
+          messageId: message.id,
+          messageText: message.text,
+          theory: message.theory,
+          ...details,
+        },
+        timestamp: new Date().toISOString(),
+      };
+
+      await fetch(`${import.meta.env.VITE_API_URL}/api/game-events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(eventBody),
+      });
+    } catch (error) {
+      console.error(`Error logging ${eventType}:`, error);
+      // Non-blocking error - continue execution even if logging fails
+    }
+  };
+
   useEffect(() => {
     const fetchConfig = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/api/study-config`
         );
@@ -43,13 +78,22 @@ const MessageDisplay = ({ message, onMessageShown }) => {
         }
         const data = await response.json();
         setStudyConfig(data);
+
+        // Process sentences after config is loaded
+        if (message?.text) {
+          sentences.current = message.text
+            .split(/(?<=[.!?])\s+|(?<=[.!?])$/)
+            .filter((sentence) => sentence.trim().length > 0);
+        }
       } catch (error) {
         console.error("Error fetching study config:", error);
         setError(error.message);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchConfig();
-  }, []);
+  }, [message?.text]);
 
   // Prepare the sentences when message changes
   useEffect(() => {
@@ -73,9 +117,6 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   // Start revealing sentences when user clicks to see
   useEffect(() => {
     if (hasStartedReading && message?.text) {
-      // Start the message timer when reading begins
-      // (This is now set in handleStartReading)
-
       // Show the loader immediately
       setShowLoader(true);
 
@@ -102,7 +143,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
       // Clear timers on cleanup
       sentenceTimers.current.forEach((timer) => clearTimeout(timer));
     };
-  }, [hasStartedReading]);
+  }, [hasStartedReading, message?.text]);
 
   // Handle minimum reading time
   useEffect(() => {
@@ -120,18 +161,21 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   // Handle completion
   useEffect(() => {
     if (hasRead && message?.id) {
-      const timeSpent = Math.round(
-        (new Date() - messageStartTime.current) / 1000
-      );
-      // Ensure we pass the complete message object with all properties
       onMessageShown?.({
         messageId: message.id,
         messageText: message.text,
-        timeSpentOnMessage: timeSpent,
         theory: message.theory,
       });
     }
   }, [hasRead, message, onMessageShown]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   if (!message?.text) return null;
 
@@ -149,18 +193,15 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   const gameTime = studyConfig.timeSettings.game_time / 60;
 
   // Start revealing sentences and start timer
-  const handleStartReading = () => {
+  const handleStartReading = async () => {
+    // Set the start time when user clicks to start reading
     messageStartTime.current = new Date();
     setHasStartedReading(true);
 
-    // Log the message shown event right when user starts reading
-    if (message?.id) {
-      onMessageShown?.({
-        messageId: message.id,
-        messageText: message.text,
-        eventType: "motivational_message_shown",
-        theory: message.theory,
-      });
+    // Log "motivational_message_shown" event when user clicks to see the message
+    if (!messageShownLogged.current) {
+      await logEvent("motivational_message_shown");
+      messageShownLogged.current = true;
     }
   };
 
@@ -175,11 +216,16 @@ const MessageDisplay = ({ message, onMessageShown }) => {
   };
 
   // Handle continue button click
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Log "motivational_message_read_complete" event when user finishes reading
+    await logEvent("motivational_message_read_complete");
+
+    setHasRead(true);
+
+    // Pass message data to parent component
     onMessageShown?.({
       messageId: message.id,
       messageText: message.text,
-      eventType: "motivational_message_read_complete",
       theory: message.theory,
     });
   };
@@ -191,16 +237,16 @@ const MessageDisplay = ({ message, onMessageShown }) => {
       <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200 overflow-hidden">
         {/* Message header*/}
         <div className="bg-blue-50 px-6 py-4 rounded-t-lg -mx-6 -mt-6 mb-6 border-b border-blue-100">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <h3 className="text-xl font-medium text-gray-800">
               A Few Words From The Researcher
             </h3>
-          </div>
+          </div> */}
           <div className="flex items-start mt-1">
-            <Info className="h-4 w-4 text-blue-600 mr-2 mt-0.5" />
-            <p className="text-sm text-blue-700">
+            <Info className="h-5 w-5 text-blue-600 mr-2 mt-0.5" />
+            <h3 className=" text-blue-700">
               Please read this message before proceeding
-            </p>
+            </h3>
           </div>
         </div>
 
@@ -221,7 +267,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
             </div>
           ) : (
             <div className="space-y-5 min-h-60 p-4">
-              <p className="text-gray-600">Hello puzzle-solver!</p>
+              <p className="text-gray-500">Hello puzzle-solver!</p>
 
               {/* Loading indicator for text appearing */}
               <div className="h-2 pl-3">
@@ -247,7 +293,7 @@ const MessageDisplay = ({ message, onMessageShown }) => {
               {visibleSentences.map((sentence, index) => (
                 <p
                   key={index}
-                  className="text-gray-800 pl-4"
+                  className="text-black pl-4 text-lg"
                   style={{
                     animation: "slowFadeIn 2s ease-in-out",
                     opacity: 1,

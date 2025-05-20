@@ -95,7 +95,7 @@ const ThankYouPage = ({ prolificId, startTime, endTime }) => {
         <div className="mt-8">
           <button
             onClick={handleReturnToProlific}
-            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-300"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-300 cursor-pointer"
           >
             Return to Prolific and Submit Code
             <ExternalLink className="ml-2 h-5 w-5" />

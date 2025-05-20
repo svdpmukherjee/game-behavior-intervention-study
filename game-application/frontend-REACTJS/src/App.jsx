@@ -8,6 +8,7 @@ import DebriefPage from "./components/DebriefPage";
 import ThankYouPage from "./components/ThankYouPage";
 import WordMeaningCheck from "./components/AnagramGame/WordMeaningCheck";
 import Container from "./components/Container";
+import MessageDisplay from "./components/AnagramGame/MessageDisplay";
 import { BadgePoundSterling } from "lucide-react";
 
 const STEPS = {
@@ -23,12 +24,10 @@ const STEPS = {
         <div className="flex flex-col items-center gap-1">
           <p className="text-gray-600 flex items-center gap-1">
             <BadgePoundSterling className="w-5 h-5 text-amber-500" />
-            {/* <span className="text-gray-500">•</span>{" "} */}
             <span className="text-blue-600 font-semibold flex items-center gap-1">
               Longer words{" "}
             </span>{" "}
             earn higher rewards
-            {/* <span className="text-gray-500">•</span>{" "} */}
             <BadgePoundSterling className="w-5 h-5 text-amber-500" />
             <span className="text-blue-600 font-semibold flex items-center gap-1">
               More words{" "}
@@ -51,34 +50,39 @@ const STEPS = {
     step: 2,
     title: "Practice Creating Words",
   },
+  MOTIVATIONAL_MESSAGE: {
+    id: "motivational_message",
+    progress: 45,
+    step: 3,
+    title: "A Few Words From The Researcher",
+  },
   MAIN_GAME: {
     id: "main_game",
-    progress: 50,
-    step: 3,
+    progress: 60,
+    step: 4,
     title: "Create Words - Main Round",
   },
   SURVEY: {
     id: "survey",
-    progress: 70,
-    step: 4,
+    progress: 75,
+    step: 5,
     title: "Complete a Survey About Your Experience",
   },
   WORD_MEANING: {
     id: "word_meaning",
     progress: 85,
-    step: 5,
+    step: 6,
     title: "Tell Us What Your Created Words Mean to You",
   },
   DEBRIEF: {
     id: "debrief",
     progress: 90,
-    step: 6,
+    step: 7,
     title: "Learn About Your Reward and the Study's Purpose",
   },
   THANK_YOU: {
     id: "thank_you",
     progress: 100,
-    // step: 7,
     title: "Thank You for Participating",
   },
 };
@@ -93,6 +97,7 @@ function App() {
   const [gamePhase, setGamePhase] = useState("loading");
   const [debriefState, setDebriefState] = useState("results");
   const [messageId, setMessageId] = useState(null);
+  const [currentMessage, setCurrentMessage] = useState(null);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -156,7 +161,49 @@ function App() {
     }
   };
 
-  const handleTutorialComplete = () => setCurrentStep(STEPS.MAIN_GAME.id);
+  const handleTutorialComplete = async () => {
+    try {
+      // Fetch the motivational message using the game/init endpoint
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/game/init?sessionId=${sessionId}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch motivational message");
+      }
+
+      const data = await response.json();
+
+      // Store the message in state for display
+      setCurrentMessage(data.currentMessage);
+
+      // Store the message ID for the survey if it exists
+      if (data.currentMessage?.id) {
+        setMessageId(data.currentMessage.id);
+        console.log("Message ID captured in App:", data.currentMessage.id);
+      }
+
+      // Proceed to the motivational message step or main game if no message
+      setCurrentStep(
+        data.currentMessage ? STEPS.MOTIVATIONAL_MESSAGE.id : STEPS.MAIN_GAME.id
+      );
+    } catch (error) {
+      console.error("Error fetching motivational message:", error);
+      // If there's an error, skip to main game
+      setCurrentStep(STEPS.MAIN_GAME.id);
+    }
+  };
+
+  const handleMotivationalMessageComplete = (messageData) => {
+    // Store the message ID for the survey if not already stored
+    if (messageData.messageId && !messageId) {
+      setMessageId(messageData.messageId);
+      console.log("Message ID captured in App:", messageData.messageId);
+    }
+
+    // Proceed to the main game
+    setCurrentStep(STEPS.MAIN_GAME.id);
+  };
 
   const handleMainGameComplete = (words) => {
     setValidatedWords(words);
@@ -250,6 +297,16 @@ function App() {
           />
         );
 
+      case STEPS.MOTIVATIONAL_MESSAGE.id:
+        return (
+          <MessageDisplay
+            message={currentMessage}
+            onMessageShown={handleMotivationalMessageComplete}
+            sessionId={sessionId}
+            prolificId={prolificId}
+          />
+        );
+
       case STEPS.MAIN_GAME.id:
         return (
           <TestPage
@@ -308,18 +365,8 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* {currentStep !== STEPS.LANDING.id && (
-        <div className="fixed top-0 left-0 w-full h-2 bg-gray-200">
-          <div
-            className="h-full bg-blue-600 transition-all duration-300"
-            style={{ width: `${currentStepInfo.progress}%` }}
-          />
-        </div>
-      )} */}
-
-      <div className="mx-auto ">
+      <div className="mx-auto">
         <Container>
-          {/* {currentStep !== STEPS.LANDING.id && ( */}
           {shouldShowTitle && (
             <div className="text-center mb-8">
               <div className="flex items-center justify-center gap-4 mb-3">
@@ -338,7 +385,6 @@ function App() {
               </div>
             </div>
           )}
-          {/* )} */}
 
           {renderPage()}
         </Container>

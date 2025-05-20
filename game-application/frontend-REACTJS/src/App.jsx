@@ -165,7 +165,9 @@ function App() {
     try {
       // Fetch the motivational message using the game/init endpoint
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/game/init?sessionId=${sessionId}`
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game/init?sessionId=${sessionId}&fetch_message=true`
       );
 
       if (!response.ok) {

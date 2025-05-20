@@ -282,7 +282,7 @@ async def submit_words(submission: WordSubmission):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/game/init")
-async def initialize_game(sessionId: str):
+async def initialize_game(sessionId: str, fetch_message: bool = True):
     """Initialize main game with first anagram and motivational message."""
     try:
         if not ObjectId.is_valid(sessionId):
@@ -300,51 +300,75 @@ async def initialize_game(sessionId: str):
         game_anagrams = config["game_config"]["game_anagrams"]
         time_settings = config["time_settings"]
 
-        # Get least shown motivational message
-        message = await app.database.motivational_messages.find_one_and_update(
-            {
-                "shown_count": {"$lt": 10},
-                "_id": {"$nin": session.get('shownMessages', [])}
-            },
-            {"$inc": {"shown_count": 1}},
-            sort=[("shown_count", 1)]
-        )
+        # Get message based on fetch_message parameter
+        message = None
+        if fetch_message:
+            # Only fetch and increment a new message if explicitly requested
+            message = await app.database.motivational_messages.find_one_and_update(
+                {
+                    "shown_count": {"$lt": 20},
+                    "_id": {"$nin": session.get('shownMessages', [])}
+                },
+                {"$inc": {"shown_count": 1}},
+                sort=[("shown_count", 1)]
+            )
 
-        if not message:
-            raise HTTPException(status_code=404, detail="No available motivational messages")
+            if not message:
+                raise HTTPException(status_code=404, detail="No available motivational messages")
+            
+            # Update session with the new message
+            await app.database.sessions.update_one(
+                {"_id": ObjectId(sessionId)},
+                {
+                    "$set": {
+                        "currentMessage": {
+                            "id": message["id"],
+                            "text": message["text"],
+                            "theory": message["theory"],
+                            "shownAt": datetime.utcnow()
+                        },
+                    },
+                    "$push": {
+                        "shownMessages": message["_id"]
+                    }
+                }
+            )
+        else:
+            # Use existing message from session if fetch_message is False
+            if session.get("currentMessage"):
+                message = {
+                    "id": session["currentMessage"].get("id"),
+                    "text": session["currentMessage"].get("text"),
+                    "theory": session["currentMessage"].get("theory", "")
+                }
+            
+            # If no message exists (unlikely but possible), use a default or none
+            if not message:
+                message = {
+                    "id": "default",
+                    "text": "Ready to start the main game!",
+                    "theory": ""
+                }
 
         # Get first anagram
         first_anagram = game_anagrams[0]
 
-        # Update session
-        update_result = await app.database.sessions.find_one_and_update(
-            {"_id": ObjectId(sessionId)},
-            {
-                "$set": {
-                    "currentMessage": {
-                        "id": message["id"],
-                        "text": message["text"],
-                        "shownAt": datetime.utcnow()
-                    },
-                    "currentAnagramIndex": 0
-                },
-                # "$push": {
-                #     # "shownMessages": message["_id"],
-                #     # "shownAnagrams": first_anagram["word"]
-                # }
-            },
-            return_document=True
-        )
-
-        if not update_result:
-            raise HTTPException(status_code=500, detail="Failed to update session")
+        # Track shown anagram if not already done
+        # if fetch_message:
+        #     await app.database.sessions.update_one(
+        #         {"_id": ObjectId(sessionId)},
+        #         {
+        #             "$push": {
+        #                 "shownAnagrams": first_anagram["word"]
+        #             }
+        #         }
+        #     )
 
         return {
             "currentMessage": {
                 "id": message["id"],
                 "text": message["text"],
-                "theory": message["theory"],
-                # "variation": message["variation"]
+                "theory": message["theory"]
             },
             "word": first_anagram["word"],
             "solutions": first_anagram["solutions"],

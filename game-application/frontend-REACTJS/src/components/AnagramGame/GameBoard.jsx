@@ -18,6 +18,10 @@ const GameBoard = ({
   validatedWords,
   isTutorial = false,
   customSubmitDisabled,
+  onLetterDragStart,
+  onLetterDragEnd,
+  onLetterMouseEnter,
+  onLetterMouseLeave,
 }) => {
   // Handle dragging letters
   const handleDragStart = useCallback((e, letter, index, source) => {
@@ -134,6 +138,7 @@ const GameBoard = ({
 
           <div
             className="flex flex-wrap justify-center border-2 border-dashed border-blue-200 rounded-lg bg-blue-50/50 relative w-full min-h-[96px] items-center"
+            data-area="solution-zone"
             onDragOver={(e) => e.preventDefault()}
           >
             <div className="absolute -top-3 left-4 bg-white px-3 py-1 text-xs font-semibold text-blue-600 rounded-full border border-blue-200 z-10">
@@ -144,13 +149,27 @@ const GameBoard = ({
               <div
                 key={`solution-${index}`}
                 draggable={!isTimeUp}
-                onDragStart={(e) =>
-                  handleDragStart(e, letter, index, "solution")
+                data-area="solution"
+                data-index={index}
+                onDragStart={(e) => {
+                  // CRITICAL: Call GameBoard handler first for functionality
+                  handleDragStart(e, letter, index, "solution");
+                  // Then call MouseTracker handler for tracking
+                  onLetterDragStart?.(e, letter, index, "solution");
+                }}
+                onDragEnd={(e) =>
+                  onLetterDragEnd?.(e, letter, index, "solution")
+                }
+                onMouseEnter={(e) =>
+                  onLetterMouseEnter?.(e, letter, "solution")
+                }
+                onMouseLeave={(e) =>
+                  onLetterMouseLeave?.(e, letter, "solution")
                 }
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "solution", index)}
-                className="w-12 h-12  flex flex-col items-center justify-center 
-                          font-bold text-xl cursor-move shadow-sm transition-all hover:bg-blue-300 active:scale-95 bg-white border-gray-300 border-1 rounded-sm"
+                className="w-12 h-12 flex flex-col items-center justify-center 
+    font-bold text-xl cursor-move shadow-sm transition-all hover:bg-blue-300 active:scale-95 bg-white border-gray-300 border-1 rounded-sm"
               >
                 <span>{letter}</span>
               </div>
@@ -186,6 +205,7 @@ const GameBoard = ({
         <div className="mt-4">
           <div
             className="flex flex-wrap gap-2 justify-center pt-3 border-2 border-green-200 rounded-lg bg-green-50/30 relative w-full min-h-[80px]"
+            data-area="available-zone"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => handleDrop(e, "available", availableLetters.length)}
           >
@@ -197,14 +217,28 @@ const GameBoard = ({
               <div
                 key={`available-${index}`}
                 draggable={!isTimeUp}
-                onDragStart={(e) =>
-                  handleDragStart(e, letter, index, "available")
+                data-area="available"
+                data-index={index}
+                onDragStart={(e) => {
+                  // CRITICAL: Call GameBoard handler first for functionality
+                  handleDragStart(e, letter, index, "available");
+                  // Then call MouseTracker handler for tracking
+                  onLetterDragStart?.(e, letter, index, "available");
+                }}
+                onDragEnd={(e) =>
+                  onLetterDragEnd?.(e, letter, index, "available")
+                }
+                onMouseEnter={(e) =>
+                  onLetterMouseEnter?.(e, letter, "available")
+                }
+                onMouseLeave={(e) =>
+                  onLetterMouseLeave?.(e, letter, "available")
                 }
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "available", index)}
                 className="w-12 h-12 border-2 border-green-300 bg-gray-700 text-white rounded-lg flex items-center justify-center 
-                          font-bold text-xl cursor-move shadow-lg hover:shadow-xl transition-all hover:bg-gray-600 active:scale-95
-                          transform hover:-translate-y-1"
+    font-bold text-xl cursor-move shadow-lg hover:shadow-xl transition-all hover:bg-gray-600 active:scale-95
+    transform hover:-translate-y-1"
                 style={{
                   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
                 }}

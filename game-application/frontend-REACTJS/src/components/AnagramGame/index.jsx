@@ -3,7 +3,7 @@ import { memo } from "react";
 import GameBoard from "./GameBoard";
 import EventTrack from "../shared/EventTrack";
 import { AlertTriangle } from "lucide-react";
-import Container from "../Container";
+import MouseTracker from "../shared/MouseTracker";
 
 // Helper function to compare arrays for prop changes
 const areArraysEqual = (a, b) => {
@@ -64,19 +64,25 @@ const AnagramGame = ({
   const [isTimeUp, setIsTimeUp] = useState(false);
   const [solutions, setSolutions] = useState({});
   const [notification, setNotification] = useState(null);
+  const [isRestoring, setIsRestoring] = useState(false);
 
   // Additional state
   const [studyConfig, setStudyConfig] = useState(null);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Mouse movement state
+  const [mouseTrackingEnabled, setMouseTrackingEnabled] = useState(true);
+
   // Refs for tracking
   const startTime = useRef(new Date());
+  const gameStartTime = useRef(null);
   const timerRef = useRef(null);
   const isSubmitted = useRef(false);
   const timeUpAlertShown = useRef(false);
   const pendingSubmission = useRef(false);
   const visibilityChangeHandled = useRef(false);
+  const saveStateInterval = useRef(null);
 
   // Notify parent about phase changes
   useEffect(() => {
@@ -102,6 +108,126 @@ const AnagramGame = ({
     };
     fetchStudyConfig();
   }, []);
+
+  // Save game state to backend periodically
+  const saveGameState = useCallback(async () => {
+    if (!sessionId || !prolificId || phase !== "play" || isSubmitted.current) {
+      return;
+    }
+
+    try {
+      const stateToSave = {
+        currentWord,
+        solution,
+        availableLetters,
+        validatedWords,
+        wordIndex,
+        timeLeft,
+        totalTime,
+        isTimeUp,
+        solutions,
+        allValidatedWords,
+        gameStartTime: gameStartTime.current?.toISOString(),
+        isSubmitted: isSubmitted.current,
+      };
+
+      await fetch(`${import.meta.env.VITE_API_URL}/api/game-state/save`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          prolificId,
+          phase: "main_game",
+          gameState: stateToSave,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to save game state:", error);
+    }
+  }, [
+    sessionId,
+    prolificId,
+    phase,
+    currentWord,
+    solution,
+    availableLetters,
+    validatedWords,
+    wordIndex,
+    timeLeft,
+    totalTime,
+    isTimeUp,
+    solutions,
+    allValidatedWords,
+  ]);
+
+  // Restore game state from backend
+  const restoreGameState = useCallback(async () => {
+    if (!sessionId || !prolificId) return false;
+
+    try {
+      setIsRestoring(true);
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game-state/restore?sessionId=${sessionId}&prolificId=${prolificId}&phase=main_game`
+      );
+
+      if (!response.ok) return false;
+
+      const data = await response.json();
+
+      if (data.hasState && data.gameState) {
+        const restored = data.gameState;
+
+        // Restore all game state
+        setCurrentWord(restored.currentWord || "");
+        setSolution(restored.solution || []);
+        setAvailableLetters(restored.availableLetters || []);
+        setValidatedWords(restored.validatedWords || []);
+        setAllValidatedWords(restored.allValidatedWords || []);
+        setWordIndex(restored.wordIndex || 0);
+        setTimeLeft(restored.timeLeft || 0);
+        setTotalTime(restored.totalTime || 0);
+        setIsTimeUp(restored.isTimeUp || false);
+        setSolutions(restored.solutions || {});
+
+        // Set start time for continued timer
+        if (restored.gameStartTime) {
+          gameStartTime.current = new Date(restored.gameStartTime);
+        }
+
+        // Set phase to play to show the game
+        setPhase("play");
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Failed to restore game state:", error);
+      return false;
+    } finally {
+      setIsRestoring(false);
+    }
+  }, [sessionId, prolificId]);
+
+  // Clear saved game state
+  const clearGameState = useCallback(async () => {
+    if (!sessionId || !prolificId) return;
+
+    try {
+      await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game-state/clear?sessionId=${sessionId}&prolificId=${prolificId}&phase=main_game`,
+        {
+          method: "DELETE",
+        }
+      );
+    } catch (error) {
+      console.error("Failed to clear game state:", error);
+    }
+  }, [sessionId, prolificId]);
 
   // Show notification with auto-dismiss
   const showNotification = useCallback((message, isError = false) => {
@@ -204,6 +330,15 @@ const AnagramGame = ({
       // Only initialize if we're in loading phase
       if (phase !== "loading") return;
 
+      // First try to restore existing game state
+      const restored = await restoreGameState();
+
+      if (restored) {
+        // Game state was restored successfully
+        return;
+      }
+
+      // No existing state, initialize fresh game
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
@@ -228,6 +363,7 @@ const AnagramGame = ({
       setAvailableLetters(word.split(""));
       setTimeLeft(timeSettings.game_time);
       setTotalTime(timeSettings.game_time);
+      gameStartTime.current = new Date();
 
       // Pass message ID to parent component if available
       if (
@@ -249,7 +385,7 @@ const AnagramGame = ({
         sessionId,
       });
     }
-  }, [sessionId, logGameEvent, phase, onMessageIdCapture]);
+  }, [sessionId, logGameEvent, phase, onMessageIdCapture, restoreGameState]);
 
   // Word validation check - memoized
   const isValidWord = useCallback(
@@ -392,11 +528,13 @@ const AnagramGame = ({
         // Show completion alert before moving to next phase
         alert("You have now completed all puzzles!");
 
-        // Complete the game
+        // Complete the game and clear saved state
         await logGameEvent("game_complete", {
           totalWords: [...allValidatedWords, ...submittedWords].length,
           finalAnagram: currentWord,
         });
+
+        await clearGameState();
         onComplete([...allValidatedWords, ...submittedWords]);
         return;
       }
@@ -429,6 +567,7 @@ const AnagramGame = ({
       visibilityChangeHandled.current = false;
       isSubmitted.current = false;
       startTime.current = new Date();
+      gameStartTime.current = new Date();
     } catch (error) {
       console.error("Submission error:", error);
       showNotification("Failed to submit words. Please try again.", true);
@@ -452,6 +591,7 @@ const AnagramGame = ({
     logGameEvent,
     onComplete,
     showNotification,
+    clearGameState,
   ]);
 
   // Handle time up - memoized
@@ -476,6 +616,37 @@ const AnagramGame = ({
       pendingSubmission.current = false;
     }
   }, [handleSubmit, isSubmitting]);
+
+  // Setup periodic state saving
+  useEffect(() => {
+    if (phase === "play" && !isSubmitted.current) {
+      // Save state every 5 seconds during gameplay
+      saveStateInterval.current = setInterval(saveGameState, 5000);
+
+      return () => {
+        if (saveStateInterval.current) {
+          clearInterval(saveStateInterval.current);
+        }
+      };
+    }
+  }, [phase, saveGameState]);
+
+  // Also save state whenever game state changes
+  useEffect(() => {
+    if (phase === "play" && !isSubmitted.current) {
+      const timeoutId = setTimeout(saveGameState, 1000); // Debounce saves
+      return () => clearTimeout(timeoutId);
+    }
+  }, [
+    phase,
+    currentWord,
+    solution,
+    availableLetters,
+    validatedWords,
+    wordIndex,
+    timeLeft,
+    saveGameState,
+  ]);
 
   // Unified visibility change handler
   useEffect(() => {
@@ -564,6 +735,16 @@ const AnagramGame = ({
     }
   }, [sessionId, initGame]);
 
+  // Loading state (including restoration)
+  if (isRestoring) {
+    return (
+      <div className="flex justify-center items-center min-h-[200px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mr-4" />
+        <div className="text-gray-600">Restoring your game...</div>
+      </div>
+    );
+  }
+
   // Error state
   if (error) {
     return (
@@ -601,21 +782,31 @@ const AnagramGame = ({
         )}
 
         {phase === "play" && (
-          <MemoizedGameBoard
+          <MouseTracker
+            sessionId={sessionId}
+            prolificId={prolificId}
             currentWord={currentWord}
-            solution={solution}
-            availableLetters={availableLetters}
-            onSolutionChange={handleSolutionChange}
-            onValidate={handleValidate}
-            onSubmit={handleSubmit}
-            onRemoveWord={handleRemoveWord}
-            wordIndex={wordIndex}
-            totalWords={totalAnagrams}
-            timeLeft={timeLeft}
-            totalTime={totalTime}
-            isTimeUp={isTimeUp}
-            validatedWords={validatedWords}
-          />
+            currentSolution={solution}
+            phase="main_game"
+            enabled={mouseTrackingEnabled && !isSubmitted.current}
+            samplingRate={100}
+          >
+            <MemoizedGameBoard
+              currentWord={currentWord}
+              solution={solution}
+              availableLetters={availableLetters}
+              onSolutionChange={handleSolutionChange}
+              onValidate={handleValidate}
+              onSubmit={handleSubmit}
+              onRemoveWord={handleRemoveWord}
+              wordIndex={wordIndex}
+              totalWords={totalAnagrams}
+              timeLeft={timeLeft}
+              totalTime={totalTime}
+              isTimeUp={isTimeUp}
+              validatedWords={validatedWords}
+            />
+          </MouseTracker>
         )}
 
         <EventTrack

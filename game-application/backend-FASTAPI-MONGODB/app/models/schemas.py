@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Dict, Optional, Any
+from typing import List, Dict, Optional, Any, Union
 from datetime import datetime
 
 class WordWithAnagram(BaseModel):
@@ -78,14 +78,9 @@ class WordSubmission(BaseModel):
     submittedWords: List[ValidWord]
     totalReward: int
     timeSpent: int
-    # Make all these fields optional
     submittedAt: Optional[datetime] = None
     completedAt: Optional[datetime] = None
     validatedAt: Optional[datetime] = None
-
-class SessionInit(BaseModel):
-    prolificId: str
-    metadata: Metadata
 
 class WordMeaningCheck(BaseModel):
     word: str
@@ -115,3 +110,126 @@ class GameInit(BaseModel):
 class GameResponse(BaseModel):
     word: str
     solutions: Dict[str, List[str]]
+
+class Position(BaseModel):
+    x: int
+    y: int
+
+class LetterDraggedData(BaseModel):
+    letter: str
+    sourceArea: str
+    targetArea: str
+    startPosition: Position
+    endPosition: Position
+    dragDuration: int
+    wordInProgress: Optional[str] = ""
+
+class MouseMoveData(BaseModel):
+    x: int
+    y: int
+    pressure: Optional[float] = 0
+    distanceMoved: Optional[int] = None
+    isFirstMove: Optional[bool] = False
+    isEnteringGameArea: Optional[bool] = None
+    isLeavingGameArea: Optional[bool] = None
+    wordInProgress: Optional[str] = ""
+
+class LetterHoverData(BaseModel):
+    letter: str
+    sourceArea: str
+    hoverDuration: int
+    wordInProgress: Optional[str] = ""
+
+class UserInteraction(BaseModel):
+    sessionId: str
+    prolificId: str
+    phase: str
+    anagramShown: str
+    interactionType: str  # 'mouse_move', 'letter_dragged', 'letter_hovered'
+    timestamp: str  # Changed to string to accept ISO format
+    data: Dict[str, Any]  # Flexible data structure
+    
+    class Config:
+        # Allow extra fields in data for future extensibility
+        extra = "allow"
+
+class InteractionBatch(BaseModel):
+    sessionId: str
+    prolificId: str
+    phase: str
+    anagramShown: str
+    interactions: List[UserInteraction]
+    batchStartTime: str  # Changed to string to accept ISO format
+    batchEndTime: str    # Changed to string to accept ISO format
+
+class GameAreaBounds(BaseModel):
+    left: float
+    top: float
+    width: float
+    height: float
+
+class ScreenSize(BaseModel):
+    width: int
+    height: int
+
+class GameAreaData(BaseModel):
+    """Game area information to be stored within session document"""
+    bounds: GameAreaBounds
+    screenSize: ScreenSize
+    userAgent: str
+    calculatedAt: datetime = Field(default_factory=datetime.utcnow)
+
+class SessionInit(BaseModel):
+    prolificId: str
+    metadata: Metadata
+    gameArea: Optional[GameAreaData] = None
+
+class InteractionSummary(BaseModel):
+    """Summary of interactions for analytics"""
+    totalInteractions: int
+    dragEvents: int
+    hoverEvents: int
+    mouseMovements: int
+    averageHoverDuration: float
+    totalGameAreaExits: int
+
+class BatchProcessingResult(BaseModel):
+    """Result of batch processing"""
+    status: str
+    processedCount: int
+    errors: Optional[List[str]] = None
+    processingTime: Optional[float] = None
+    
+class GameStateData(BaseModel):
+    """Schema for saving/restoring game state"""
+    currentWord: Optional[str] = None
+    solution: List[str] = []
+    availableLetters: List[str] = []
+    validatedWords: List[Dict[str, Any]] = []
+    wordIndex: Optional[int] = 0
+    timeLeft: Optional[int] = 0
+    totalTime: Optional[int] = 0
+    isTimeUp: Optional[bool] = False
+    solutions: Dict[str, List[str]] = {}
+    allValidatedWords: List[Dict[str, Any]] = []
+    gameStartTime: Optional[str] = None
+    showOverview: Optional[bool] = False
+    isSubmitted: Optional[bool] = False
+
+class SaveGameStateRequest(BaseModel):
+    """Request schema for saving game state"""
+    sessionId: str
+    prolificId: str
+    phase: str  # "tutorial" or "main_game"
+    gameState: GameStateData
+
+class RestoreGameStateResponse(BaseModel):
+    """Response schema for restoring game state"""
+    hasState: bool
+    gameState: Optional[GameStateData] = None
+
+class ClearGameStateRequest(BaseModel):
+    """Request schema for clearing game state"""
+    sessionId: str
+    prolificId: str
+    phase: str

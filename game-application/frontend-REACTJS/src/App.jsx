@@ -9,6 +9,12 @@ import ThankYouPage from "./components/ThankYouPage";
 import WordMeaningCheck from "./components/AnagramGame/WordMeaningCheck";
 import Container from "./components/Container";
 import MessageDisplay from "./components/AnagramGame/MessageDisplay";
+import {
+  saveAppState,
+  loadAppState,
+  clearAppState,
+  updateAppState,
+} from "./utils/statePersistence";
 import { BadgePoundSterling } from "lucide-react";
 
 const STEPS = {
@@ -98,6 +104,96 @@ function App() {
   const [debriefState, setDebriefState] = useState("results");
   const [messageId, setMessageId] = useState(null);
   const [currentMessage, setCurrentMessage] = useState(null);
+  const [isRestoringState, setIsRestoringState] = useState(true);
+
+  useEffect(() => {
+    const restoreState = async () => {
+      try {
+        const savedState = loadAppState();
+
+        if (savedState && savedState.sessionId) {
+          console.log("Restoring saved state:", savedState);
+          setCurrentStep(savedState.currentStep);
+          setSessionId(savedState.sessionId);
+          setProlificId(savedState.prolificId);
+          setSessionStartTime(
+            savedState.sessionStartTime
+              ? new Date(savedState.sessionStartTime)
+              : null
+          );
+          setMessageId(savedState.messageId);
+          setValidatedWords(savedState.validatedWords || []);
+
+          // Restore current message if available
+          if (savedState.currentMessage) {
+            setCurrentMessage(savedState.currentMessage);
+          }
+
+          // If we're on the motivational message step but don't have message data,
+          // fetch it from the backend
+          if (
+            savedState.currentStep === STEPS.MOTIVATIONAL_MESSAGE.id &&
+            !savedState.currentMessage &&
+            savedState.sessionId
+          ) {
+            try {
+              const response = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/game/init?sessionId=${
+                  savedState.sessionId
+                }&fetch_message=false`
+              );
+
+              if (response.ok) {
+                const data = await response.json();
+                if (data.currentMessage) {
+                  setCurrentMessage(data.currentMessage);
+                }
+              }
+            } catch (error) {
+              console.error(
+                "Error fetching message during state restoration:",
+                error
+              );
+              // If we can't fetch the message, skip to main game
+              setCurrentStep(STEPS.MAIN_GAME.id);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error restoring state:", error);
+        clearAppState();
+      } finally {
+        setIsRestoringState(false);
+      }
+    };
+
+    restoreState();
+  }, []);
+
+  // Add this effect to save state when it changes
+  useEffect(() => {
+    if (!isRestoringState && (sessionId || currentStep !== STEPS.LANDING.id)) {
+      const currentState = {
+        currentStep,
+        sessionId,
+        prolificId,
+        sessionStartTime: sessionStartTime?.toISOString(),
+        messageId,
+        validatedWords,
+        currentMessage,
+      };
+      saveAppState(currentState);
+    }
+  }, [
+    currentStep,
+    sessionId,
+    prolificId,
+    sessionStartTime,
+    messageId,
+    validatedWords,
+    currentMessage,
+    isRestoringState,
+  ]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -149,7 +245,9 @@ function App() {
       setProlificId(id);
       const newSessionId = await initializeSession(id);
       setSessionId(newSessionId);
-      setSessionStartTime(new Date());
+      const startTime = new Date();
+      setSessionStartTime(startTime);
+
       setCurrentStep(STEPS.TUTORIAL.id);
     } catch (error) {
       console.error("Error during initialization:", error);
@@ -268,6 +366,10 @@ function App() {
 
   const handleDebriefComplete = () => {
     setCurrentStep(STEPS.THANK_YOU.id);
+    // Clear saved state as study is complete
+    setTimeout(() => {
+      clearAppState();
+    }, 1000);
   };
 
   const getCurrentStep = () => {
@@ -365,6 +467,18 @@ function App() {
     (currentStep === STEPS.MAIN_GAME.id && gamePhase === "message") ||
     (currentStep === STEPS.DEBRIEF.id && debriefState === "feedback")
   );
+
+  // Add loading screen while restoring state
+  if (isRestoringState) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

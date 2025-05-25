@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import GameBoard from "./GameBoard";
+import MouseTracker from "../shared/MouseTracker";
 import {
   AlertTriangle,
   Timer,
@@ -37,17 +38,214 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   const [isSubmittingSkill, setIsSubmittingSkill] = useState(false);
   const [hasInteractedWithSlider, setHasInteractedWithSlider] = useState(false);
   const [showSkillPrompt, setShowSkillPrompt] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+
+  // ADD: Mouse tracking state
+  const [mouseTrackingEnabled, setMouseTrackingEnabled] = useState(true);
 
   // Refs
   const timerRef = useRef(null);
   const isSubmitted = useRef(false);
   const videoRef = useRef(null);
   const startTime = useRef(new Date());
+  const gameStartTime = useRef(null);
+  const saveStateInterval = useRef(null);
 
   // Add refs for alert handling and visibility tracking
   const timeUpAlertShown = useRef(false);
   const pendingSubmission = useRef(false);
   const visibilityChangeHandled = useRef(false);
+
+  // Restore game state from backend
+  const restoreGameState = useCallback(async () => {
+    if (!sessionId || !prolificId) {
+      console.log("Missing sessionId or prolificId for state restoration");
+      return false;
+    }
+
+    try {
+      setIsRestoring(true);
+      console.log(
+        `Attempting to restore game state for session: ${sessionId}, phase: tutorial`
+      );
+
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game-state/restore?sessionId=${sessionId}&prolificId=${prolificId}&phase=tutorial`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(`Restore response status: ${response.status}`);
+
+      // Handle different response statuses
+      if (response.status === 404) {
+        console.log("Session not found - will initialize fresh game");
+        return false;
+      }
+
+      if (response.status === 403) {
+        console.error("Session ID and Prolific ID don't match");
+        setError("Session authentication failed. Please restart the study.");
+        return false;
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Restore failed with status ${response.status}:`,
+          errorText
+        );
+        return false;
+      }
+
+      const data = await response.json();
+      console.log("Restore response data:", data);
+
+      if (data.hasState && data.gameState) {
+        const restored = data.gameState;
+
+        // Validate restored data before using it
+        if (!restored.currentWord) {
+          console.log(
+            "No current word in restored state - will initialize fresh game"
+          );
+          return false;
+        }
+
+        // Only restore if the game was actually in progress (not showing overview)
+        if (!restored.showOverview && restored.currentWord) {
+          console.log("Restoring game state:", restored);
+
+          setGameState((prev) => ({
+            ...prev,
+            tutorialWord: restored.currentWord,
+            solution: restored.solution || [],
+            availableLetters: restored.availableLetters || [],
+            validatedWords: restored.validatedWords || [],
+            timeLeft: Math.max(0, restored.timeLeft || 0), // Ensure non-negative
+            totalTime: restored.totalTime || 0,
+            isTimeUp: restored.isTimeUp || false,
+            solutions: restored.solutions || {},
+          }));
+
+          // Set start time for continued timer
+          if (restored.gameStartTime) {
+            try {
+              gameStartTime.current = new Date(restored.gameStartTime);
+            } catch (e) {
+              console.error("Error parsing gameStartTime:", e);
+              gameStartTime.current = new Date(); // Fallback to current time
+            }
+          }
+
+          // Skip overview if game was in progress
+          setShowOverview(false);
+
+          console.log("Game state restored successfully");
+          return true;
+        } else {
+          console.log("Game was showing overview - will not restore");
+        }
+      } else {
+        console.log("No saved state found or invalid state data");
+      }
+
+      return false;
+    } catch (error) {
+      console.error("Failed to restore game state:", error);
+      return false;
+    } finally {
+      setIsRestoring(false);
+    }
+  }, [sessionId, prolificId]);
+
+  const saveGameState = useCallback(async () => {
+    if (!sessionId || !prolificId || showOverview || isSubmitted.current) {
+      return;
+    }
+
+    try {
+      const stateToSave = {
+        currentWord: gameState.tutorialWord,
+        solution: gameState.solution,
+        availableLetters: gameState.availableLetters,
+        validatedWords: gameState.validatedWords,
+        timeLeft: gameState.timeLeft,
+        totalTime: gameState.totalTime,
+        isTimeUp: gameState.isTimeUp,
+        solutions: gameState.solutions,
+        gameStartTime: gameStartTime.current?.toISOString(),
+        showOverview: showOverview,
+        isSubmitted: isSubmitted.current,
+      };
+
+      console.log("Saving game state:", stateToSave);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/game-state/save`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionId,
+            prolificId,
+            phase: "tutorial",
+            gameState: stateToSave,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Failed to save game state (${response.status}):`,
+          errorText
+        );
+      } else {
+        console.log("Game state saved successfully");
+      }
+    } catch (error) {
+      console.error("Failed to save game state:", error);
+    }
+  }, [sessionId, prolificId, gameState, showOverview]);
+
+  const clearGameState = useCallback(async () => {
+    if (!sessionId || !prolificId) return;
+
+    try {
+      console.log(`Clearing game state for session: ${sessionId}`);
+
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/api/game-state/clear?sessionId=${sessionId}&prolificId=${prolificId}&phase=tutorial`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          `Failed to clear game state (${response.status}):`,
+          errorText
+        );
+      } else {
+        console.log("Game state cleared successfully");
+      }
+    } catch (error) {
+      console.error("Failed to clear game state:", error);
+    }
+  }, [sessionId, prolificId]);
 
   // Show notification helper
   const showNotification = useCallback((message, isError = false) => {
@@ -118,6 +316,15 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   // Initialize tutorial
   const initTutorial = useCallback(async () => {
     try {
+      // First try to restore existing game state
+      const restored = await restoreGameState();
+
+      if (restored) {
+        // Game state was restored, no need to fetch fresh data
+        return;
+      }
+
+      // No existing state, initialize fresh tutorial
       const [configResponse, tutorialResponse] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/study-config`),
         fetch(
@@ -151,7 +358,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, showNotification]);
+  }, [sessionId, showNotification, restoreGameState]);
 
   // Check if a word is valid
   const isValidWord = useCallback(
@@ -222,6 +429,15 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     [gameState.validatedWords, logGameEvent, showNotification]
   );
 
+  // Handle solution and available letters change together
+  const handleSolutionChange = useCallback((solution, available) => {
+    setGameState((prev) => ({
+      ...prev,
+      solution,
+      availableLetters: available,
+    }));
+  }, []);
+
   // Handle submission of words
   const handleSubmit = useCallback(async () => {
     if (isSubmitting || isSubmitted.current) return;
@@ -259,6 +475,9 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         timeSpent: currentTimeSpent,
       });
 
+      // Clear saved game state since tutorial is complete
+      await clearGameState();
+
       setShowResults(true);
     } catch (error) {
       console.error("Tutorial submission error:", error);
@@ -278,6 +497,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     isValidWord,
     logGameEvent,
     isSubmitting,
+    clearGameState,
   ]);
 
   // Handle completion of practice
@@ -294,6 +514,9 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
           validatedWords: gameState.validatedWords,
         }),
       });
+
+      // Clear any remaining saved state
+      await clearGameState();
 
       // Proceed to next phase
       onComplete();
@@ -353,16 +576,42 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         throw new Error("Failed to log skill level");
       }
 
+      // Set game start time
+      gameStartTime.current = new Date();
+
       // After successful submission, hide the overview and start the game
       setShowOverview(false);
     } catch (error) {
       console.error("Error logging skill level:", error);
       // Even if there's an error, still allow the user to proceed
+      gameStartTime.current = new Date();
       setShowOverview(false);
     } finally {
       setIsSubmittingSkill(false);
     }
   };
+
+  // Setup periodic state saving
+  useEffect(() => {
+    if (!showOverview && !isSubmitted.current) {
+      // Save state every 5 seconds during gameplay
+      saveStateInterval.current = setInterval(saveGameState, 5000);
+
+      return () => {
+        if (saveStateInterval.current) {
+          clearInterval(saveStateInterval.current);
+        }
+      };
+    }
+  }, [showOverview, saveGameState]);
+
+  // Also save state whenever gameState changes
+  useEffect(() => {
+    if (!showOverview && !isSubmitted.current) {
+      const timeoutId = setTimeout(saveGameState, 1000); // Debounce saves
+      return () => clearTimeout(timeoutId);
+    }
+  }, [gameState, showOverview, saveGameState]);
 
   // Timer effect
   useEffect(() => {
@@ -469,6 +718,9 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   useEffect(() => {
     if (!showOverview) {
       startTime.current = new Date();
+      if (!gameStartTime.current) {
+        gameStartTime.current = new Date();
+      }
       // Reset alert flags when starting the game
       timeUpAlertShown.current = false;
       pendingSubmission.current = false;
@@ -484,10 +736,13 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
   }, [sessionId, initTutorial]);
 
   // Loading state
-  if (isLoading) {
+  if (isLoading || isRestoring) {
     return (
       <div className="flex justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500" />
+        <div className="ml-4 text-gray-600">
+          {isRestoring ? "Restoring your game..." : "Loading game..."}
+        </div>
       </div>
     );
   }
@@ -527,7 +782,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                           className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full"
                         >
                           <CheckCircle className="h-4 w-4 mr-1" />
-                          {word.word} ({word.length} letters - {word.reward}{" "}
+                          {word.word} ({word.length} letters)- {word.reward}{" "}
                           pence)
                         </span>
                       ))
@@ -554,7 +809,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                           className="inline-flex items-center px-3 py-1 bg-red-50 text-red-700 rounded-full"
                         >
                           <XCircle className="h-4 w-4 mr-1" />
-                          {word.word} ({word.length} letters)
+                          {word.word} ({word.length} letters
                         </span>
                       ))}
                     </div>
@@ -598,7 +853,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                     ) : validWords.length === 0 && invalidWords.length > 0 ? (
                       "Nice try! You attempted to form words. In the main round, focus on creating valid ones to earn rewards!"
                     ) : (
-                      "It seems you didn’t submit any words. Maybe you ran out of time. Give it your best shot in the main round!"
+                      "It seems you didn't submit any words. Maybe you ran out of time. Give it your best shot in the main round!"
                     )}
                   </p>
                 </div>
@@ -641,11 +896,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                   <div className="order-2 md:order-1 m-auto">
                     <ul className="space-y-1 text-blue-700">
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
-                        • Drag and drop letters{" "}
-                        {/* <span className="font-semibold text-amber-600">
-                          using mouse
-                        </span>{" "} */}
-                        to form valid English words
+                        • Drag and drop letters to form valid English words
                       </li>
                       <li className="hover:bg-blue-100 p-2 rounded-lg">
                         • Each word must contain at least {minLength} letters
@@ -661,10 +912,6 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                         • Create as many words as possible to earn higher
                         rewards
                       </li>
-                      {/* <li className="hover:bg-blue-100 p-2 rounded-lg">
-                        • Your words will be automatically submitted when the
-                        timer ends - no need of manual submission
-                      </li> */}
                     </ul>
                   </div>
                   <div className="order-1 md:order-2">
@@ -673,7 +920,6 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
                       alt="How to play demonstration"
                       className="rounded-lg w-full shadow-lg transition-transform duration-500 transform hover:scale-105"
                       style={{
-                        // aspectRatio: "16/9",
                         imageRendering: "auto",
                       }}
                     />
@@ -790,7 +1036,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
     );
   }
 
-  // Main game view
+  // Main game view - UPDATED: Wrap GameBoard with MouseTracker
   return (
     <Container>
       <div className="space-y-6">
@@ -808,28 +1054,33 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
             </div>
           )}
 
-          <GameBoard
+          {/* UPDATED: Wrap GameBoard with MouseTracker */}
+          <MouseTracker
+            sessionId={sessionId}
+            prolificId={prolificId}
             currentWord={gameState.tutorialWord}
-            solution={gameState.solution}
-            availableLetters={gameState.availableLetters}
-            onSolutionChange={(solution, available) =>
-              setGameState((prev) => ({
-                ...prev,
-                solution,
-                availableLetters: available,
-              }))
-            }
-            onValidate={handleValidate}
-            onSubmit={handleSubmit}
-            onRemoveWord={handleRemoveWord}
-            wordIndex={0}
-            totalWords={1}
-            timeLeft={gameState.timeLeft}
-            totalTime={gameState.totalTime}
-            isTimeUp={gameState.isTimeUp}
-            validatedWords={gameState.validatedWords}
-            isTutorial={true}
-          />
+            currentSolution={gameState.solution}
+            phase="tutorial"
+            enabled={mouseTrackingEnabled && !isSubmitted.current}
+            samplingRate={100}
+          >
+            <GameBoard
+              currentWord={gameState.tutorialWord}
+              solution={gameState.solution}
+              availableLetters={gameState.availableLetters}
+              onSolutionChange={handleSolutionChange}
+              onValidate={handleValidate}
+              onSubmit={handleSubmit}
+              onRemoveWord={handleRemoveWord}
+              wordIndex={0}
+              totalWords={1}
+              timeLeft={gameState.timeLeft}
+              totalTime={gameState.totalTime}
+              isTimeUp={gameState.isTimeUp}
+              validatedWords={gameState.validatedWords}
+              isTutorial={true}
+            />
+          </MouseTracker>
 
           <EventTrack
             onPageLeave={handlePageLeave}

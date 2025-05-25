@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,13 +6,16 @@ from datetime import datetime
 from bson import ObjectId
 from typing import List, Dict, Any
 import os
+import time
+import asyncio
 
 # Import configuration
 from app.config.app_config import get_cors_origins, MONGODB_URI, MONGODB_DB_NAME
 
 from app.models.schemas import (
     SessionInit, GameEvent, WordSubmission, 
-    GameInit, GameResponse, MotivationalMessage, WordMeaning, WordMeaningSubmission
+    GameInit, GameResponse, MotivationalMessage, WordMeaning, WordMeaningSubmission, 
+    UserInteraction, InteractionBatch, BatchProcessingResult, InteractionSummary
 )
 
 app = FastAPI()
@@ -49,18 +52,20 @@ async def initialize_session(session_data: SessionInit):
                 "completionStatus": {
                     "tutorial": {"completed": False},
                     "mainGame": {"completed": False},
-                    "meaningCheck": {"completed": False}
                 },
                 "startTime": datetime.utcnow()
             }
         }
+        
+        # Add game area data if provided
+        if session_data.gameArea:
+            session_doc["gameArea"] = session_data.gameArea.dict()
 
         result = await app.database.sessions.insert_one(session_doc)
         return {"sessionId": str(result.inserted_id)}
     except Exception as e:
         print(f"Session initialization error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.get("/api/tutorial/init")
 async def initialize_tutorial(sessionId: str):
@@ -105,7 +110,6 @@ async def complete_tutorial(request: dict):
 
         # Validate words and calculate rewards
         validated_words = []
-        removed_words = []
         total_reward = 0
 
         for word in request.get("validatedWords", []):
@@ -134,7 +138,6 @@ async def complete_tutorial(request: dict):
                         "completed": True,
                         "completedAt": datetime.utcnow(),
                         "validatedWords": validated_words,
-                        "removedWords": removed_words,
                         "totalReward": total_reward
                     }
                 }
@@ -182,7 +185,6 @@ async def log_game_event(event: GameEvent):
                 "messageText": details.get("messageText"),
                 "timeSpentOnMessage": details.get("timeSpentOnMessage"),
                 "theory": details.get("theory"),
-                # "variation": details.get("variation")
             }
             
             # Remove None values
@@ -211,7 +213,6 @@ async def log_game_event(event: GameEvent):
     except Exception as e:
         print(f"Error logging game event: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-
 
 @app.post("/api/word-submissions")
 async def submit_words(submission: WordSubmission):
@@ -256,23 +257,45 @@ async def submit_words(submission: WordSubmission):
             
             total_reward += word_reward
 
+        # Get current session to check how many anagrams have been completed
+        session = await app.database.sessions.find_one({"_id": ObjectId(submission.sessionId)})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+            
+        # Count existing anagrams + 1 (current submission)
+        existing_anagrams = session.get("gameState", {}).get("completionStatus", {}).get("mainGame", {}).get("anagrams", [])
+        total_completed_anagrams = len(existing_anagrams) + 1
+        
+        # Check if this is the final anagram
+        is_game_complete = total_completed_anagrams >= len(game_anagrams)
+
+        # Prepare the update operation
+        update_operation = {
+            "$push": {
+                "gameState.completionStatus.mainGame.anagrams": {
+                    "word": submission.anagramShown,
+                    "validatedWords": validated_words,
+                    "totalReward": total_reward,
+                    "timeSpent": submission.timeSpent,
+                    "submittedAt": datetime.utcnow()
+                }
+            },
+            "$inc": {
+                "gameState.completionStatus.mainGame.totalReward": total_reward
+            }
+        }
+        
+        # If game is complete, also set the completed flag and completion timestamp
+        if is_game_complete:
+            update_operation["$set"] = {
+                "gameState.completionStatus.mainGame.completed": True,
+                "gameState.completionStatus.mainGame.completedAt": datetime.utcnow()
+            }
+
         # Store the submission with validated data
         update_result = await app.database.sessions.update_one(
             {"_id": ObjectId(submission.sessionId)},
-            {
-                "$push": {
-                    "gameState.completionStatus.mainGame.anagrams": {
-                        "word": submission.anagramShown,
-                        "validatedWords": validated_words,
-                        "totalReward": total_reward,
-                        "timeSpent": submission.timeSpent,
-                        "submittedAt": datetime.utcnow()
-                    }
-                },
-                "$inc": {
-                    "gameState.completionStatus.mainGame.totalReward": total_reward
-                }
-            }
+            update_operation
         )
 
         return {"status": "success", "validatedWords": validated_words, "totalReward": total_reward}
@@ -352,17 +375,6 @@ async def initialize_game(sessionId: str, fetch_message: bool = True):
 
         # Get first anagram
         first_anagram = game_anagrams[0]
-
-        # Track shown anagram if not already done
-        # if fetch_message:
-        #     await app.database.sessions.update_one(
-        #         {"_id": ObjectId(sessionId)},
-        #         {
-        #             "$push": {
-        #                 "shownAnagrams": first_anagram["word"]
-        #             }
-        #         }
-        #     )
 
         return {
             "currentMessage": {
@@ -601,7 +613,322 @@ async def get_game_results(sessionId: str, prolificId: str):
     except Exception as e:
         print(f"Error fetching game results: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+@app.post("/api/sessions/{sessionId}/game-area")
+async def update_session_game_area(sessionId: str, game_area: dict):
+    """Store game area bounds in session document."""
+    try:
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID")
         
+        result = await app.database.sessions.update_one(
+            {"_id": ObjectId(sessionId)},
+            {"$set": {"gameArea": game_area}}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        return {"status": "success"}
+        
+    except Exception as e:
+        print(f"Error updating game area: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/sessions/{sessionId}/game-area")
+async def get_session_game_area(sessionId: str):
+    """Get game area bounds for a session."""
+    try:
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        session = await app.database.sessions.find_one(
+            {"_id": ObjectId(sessionId)},
+            {"gameArea": 1, "metadata.screenSize": 1, "metadata.browser": 1}
+        )
+        
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        return {
+            "sessionId": sessionId,
+            "gameArea": session.get("gameArea"),
+            "metadata": session.get("metadata", {})
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error retrieving game area: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+   
+    
+@app.post("/api/interactions/batch")
+async def log_interaction_batch(
+    batch: InteractionBatch, 
+    background_tasks: BackgroundTasks) -> BatchProcessingResult:
+    """Store batch of user interactions with enhanced processing and validation."""
+    start_time = time.time()
+    
+    try:
+        if not batch.interactions:
+            return BatchProcessingResult(
+                status="success",
+                processedCount=0,
+                processingTime=time.time() - start_time
+            )
+        
+        # Validate session exists
+        session = await app.database.sessions.find_one({"_id": ObjectId(batch.sessionId)})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        interaction_docs = []
+        processing_errors = []
+        
+        for i, interaction in enumerate(batch.interactions):
+            try:
+                # Parse timestamp string to datetime
+                try:
+                    if isinstance(interaction.timestamp, str):
+                        # Parse ISO format string to datetime
+                        parsed_timestamp = datetime.fromisoformat(interaction.timestamp.replace('Z', '+00:00'))
+                    else:
+                        # If it's already a datetime, use it directly
+                        parsed_timestamp = interaction.timestamp
+                except (ValueError, TypeError) as e:
+                    processing_errors.append(f"Invalid timestamp format at index {i}: {str(e)}")
+                    continue
+                
+                # Enhanced validation for interaction data
+                doc = {
+                    "sessionId": interaction.sessionId,
+                    "prolificId": interaction.prolificId,
+                    "phase": interaction.phase,
+                    "anagramShown": interaction.anagramShown,
+                    "interactionType": interaction.interactionType,
+                    "timestamp": parsed_timestamp,  # Use parsed datetime as timestamp
+                    "data": interaction.data
+                }
+                
+                # Validate interaction type and data consistency
+                if interaction.interactionType == "letter_dragged":
+                    required_fields = ["letter", "sourceArea", "targetArea", "dragDuration"]
+                    if not all(field in interaction.data for field in required_fields):
+                        processing_errors.append(f"Missing required fields for letter_dragged at index {i}")
+                        continue
+                        
+                elif interaction.interactionType == "letter_hovered":
+                    required_fields = ["letter", "sourceArea", "hoverDuration"]
+                    if not all(field in interaction.data for field in required_fields):
+                        processing_errors.append(f"Missing required fields for letter_hovered at index {i}")
+                        continue
+                        
+                elif interaction.interactionType == "mouse_move":
+                    required_fields = ["x", "y"]
+                    if not all(field in interaction.data for field in required_fields):
+                        processing_errors.append(f"Missing required fields for mouse_move at index {i}")
+                        continue
+                
+                interaction_docs.append(doc)
+                
+            except Exception as e:
+                processing_errors.append(f"Error processing interaction {i}: {str(e)}")
+                continue
+        
+        # Insert valid interactions
+        inserted_count = 0
+        if interaction_docs:
+            result = await app.database.user_interactions.insert_many(interaction_docs)
+            inserted_count = len(result.inserted_ids)
+        
+        # Schedule background task for analytics processing
+        if inserted_count > 0:
+            background_tasks.add_task(
+                process_interaction_analytics,
+                batch.sessionId,
+                batch.prolificId,
+                len(interaction_docs)
+            )
+        
+        processing_time = time.time() - start_time
+        
+        return BatchProcessingResult(
+            status="success" if not processing_errors else "partial_success",
+            processedCount=inserted_count,
+            errors=processing_errors if processing_errors else None,
+            processingTime=processing_time
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error storing interaction batch: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+ 
+async def process_interaction_analytics(session_id: str, prolific_id: str, interaction_count: int):
+    """Process interaction analytics in the background."""
+    try:
+        # Update session with interaction counts
+        await app.database.sessions.update_one(
+            {"_id": ObjectId(session_id)},
+            {
+                "$inc": {
+                    "interactionStats.totalInteractions": interaction_count
+                },
+                "$set": {
+                    "interactionStats.lastProcessed": datetime.utcnow()
+                }
+            }
+        )
+        
+        print(f"Processed analytics for session {session_id}: {interaction_count} interactions")
+        
+    except Exception as e:
+        print(f"Error processing interaction analytics: {str(e)}")
+
+
+@app.get("/api/sessions/{sessionId}/interaction-summary")
+async def get_interaction_summary(sessionId: str) -> InteractionSummary:
+    """Get summary of interactions for a session."""
+    try:
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        # Aggregate interaction statistics
+        pipeline = [
+            {"$match": {"sessionId": sessionId}},
+            {
+                "$group": {
+                    "_id": "$interactionType",
+                    "count": {"$sum": 1},
+                    "avgHoverDuration": {
+                        "$avg": {
+                            "$cond": [
+                                {"$eq": ["$interactionType", "letter_hovered"]},
+                                "$data.hoverDuration",
+                                None
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+        
+        results = await app.database.user_interactions.aggregate(pipeline).to_list(None)
+        
+        # Process results
+        total_interactions = sum(result["count"] for result in results)
+        drag_events = next((r["count"] for r in results if r["_id"] == "letter_dragged"), 0)
+        hover_events = next((r["count"] for r in results if r["_id"] == "letter_hovered"), 0)
+        mouse_movements = next((r["count"] for r in results if r["_id"] == "mouse_move"), 0)
+        
+        avg_hover_duration = next(
+            (r["avgHoverDuration"] for r in results if r["_id"] == "letter_hovered" and r["avgHoverDuration"]),
+            0.0
+        ) or 0.0
+        
+        # Count game area exits (mouse movements with isLeavingGameArea=true)
+        game_area_exits = await app.database.user_interactions.count_documents({
+            "sessionId": sessionId,
+            "interactionType": "mouse_move",
+            "data.isLeavingGameArea": True
+        })
+        
+        return InteractionSummary(
+            totalInteractions=total_interactions,
+            dragEvents=drag_events,
+            hoverEvents=hover_events,
+            mouseMovements=mouse_movements,
+            averageHoverDuration=avg_hover_duration,
+            totalGameAreaExits=game_area_exits
+        )
+        
+    except Exception as e:
+        print(f"Error getting interaction summary: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/sessions/{sessionId}/interactions")
+async def get_session_interactions(
+    sessionId: str,
+    interaction_type: str = None,
+    limit: int = 1000,
+    skip: int = 0):
+    """Get interaction data for a session with optional filtering."""
+    try:
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        # Build query
+        query = {"sessionId": sessionId}
+        if interaction_type:
+            query["interactionType"] = interaction_type
+        
+        # Get interactions with pagination
+        interactions = await app.database.user_interactions.find(
+            query,
+            {"_id": 0}  # Exclude MongoDB _id field
+        ).sort("timestamp", 1).skip(skip).limit(limit).to_list(None)
+        
+        # Get total count
+        total_count = await app.database.user_interactions.count_documents(query)
+        
+        return {
+            "sessionId": sessionId,
+            "interactions": interactions,
+            "totalCount": total_count,
+            "returnedCount": len(interactions),
+            "hasMore": skip + len(interactions) < total_count
+        }
+        
+    except Exception as e:
+        print(f"Error getting session interactions: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))  
+   
+           
+# Create database indexes for optimal performance
+async def create_interaction_indexes():
+    """Create indexes for the interaction collections."""
+    try:
+        # User interactions collection indexes
+        await app.database.user_interactions.create_index([
+            ("sessionId", 1),
+            ("timestamp", 1)
+        ], name="sessionId_timestamp")
+        
+        await app.database.user_interactions.create_index([
+            ("prolificId", 1),
+            ("phase", 1)
+        ], name="prolificId_phase")
+        
+        await app.database.user_interactions.create_index([
+            ("sessionId", 1),
+            ("interactionType", 1),
+            ("timestamp", 1)
+        ], name="sessionId_interactionType_timestamp")
+        
+        await app.database.user_interactions.create_index([
+            ("interactionType", 1)
+        ], name="interactionType")
+        
+        await app.database.user_interactions.create_index([
+            ("batchId", 1)
+        ], name="batchId")
+        
+        # Session interaction stats indexes
+        await app.database.sessions.create_index([
+            ("interactionStats.totalInteractions", 1)
+        ], name="interaction_total")
+        
+        print("✓ Interaction indexes created successfully")
+        
+    except Exception as e:
+        print(f"Error creating interaction indexes: {str(e)}")
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
@@ -619,3 +946,205 @@ async def health_check():
             "error": str(e),
             "timestamp": datetime.utcnow()
         }
+
+# Endpoints for saving game states
+
+@app.post("/api/game-state/save")
+async def save_game_state(request: dict):
+    """Save current game state during gameplay."""
+    try:
+        # Validate required fields
+        session_id = request.get("sessionId")
+        prolific_id = request.get("prolificId")
+        phase = request.get("phase")  # "tutorial" or "main_game"
+        game_state = request.get("gameState")
+        
+        if not all([session_id, prolific_id, phase, game_state]):
+            raise HTTPException(status_code=400, detail="Missing required fields")
+        
+        # Validate ObjectId format
+        if not ObjectId.is_valid(session_id):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        # Validate phase
+        if phase not in ["tutorial", "main_game"]:
+            raise HTTPException(status_code=400, detail="Invalid phase. Must be 'tutorial' or 'main_game'")
+        
+        # Prepare update data with safe defaults
+        update_data = {
+            f"gameState.currentGameSession.{phase}": {
+                "currentWord": game_state.get("currentWord", ""),
+                "solution": game_state.get("solution", []),
+                "availableLetters": game_state.get("availableLetters", []),
+                "validatedWords": game_state.get("validatedWords", []),
+                "wordIndex": game_state.get("wordIndex", 0),
+                "timeLeft": game_state.get("timeLeft", 0),
+                "totalTime": game_state.get("totalTime", 0),
+                "isTimeUp": game_state.get("isTimeUp", False),
+                "solutions": game_state.get("solutions", {}),
+                "allValidatedWords": game_state.get("allValidatedWords", []),
+                "gameStartTime": game_state.get("gameStartTime"),
+                "lastUpdated": datetime.utcnow(),
+                "showOverview": game_state.get("showOverview", False),
+                "isSubmitted": game_state.get("isSubmitted", False)
+            }
+        }
+        
+        # Update session document
+        result = await app.database.sessions.update_one(
+            {"_id": ObjectId(session_id), "prolificId": prolific_id},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            # Check if session exists but prolific ID doesn't match
+            session_exists = await app.database.sessions.find_one({"_id": ObjectId(session_id)})
+            if session_exists:
+                raise HTTPException(status_code=403, detail="Session ID and Prolific ID don't match")
+            else:
+                raise HTTPException(status_code=404, detail="Session not found")
+        
+        return {"status": "success", "message": "Game state saved successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error saving game state: {str(e)}")
+        print(f"Request data: {request}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@app.get("/api/game-state/restore")
+async def restore_game_state(sessionId: str, prolificId: str, phase: str):
+    """Restore game state after page refresh."""
+    try:
+        # Validate inputs
+        if not sessionId or not prolificId or not phase:
+            raise HTTPException(status_code=400, detail="Missing required parameters")
+        
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        if phase not in ["tutorial", "main_game"]:
+            raise HTTPException(status_code=400, detail="Invalid phase. Must be 'tutorial' or 'main_game'")
+        
+        # Find session
+        session = await app.database.sessions.find_one({
+            "_id": ObjectId(sessionId),
+            "prolificId": prolificId
+        })
+        
+        if not session:
+            # Check if session exists but prolific ID doesn't match
+            session_exists = await app.database.sessions.find_one({"_id": ObjectId(sessionId)})
+            if session_exists:
+                raise HTTPException(status_code=403, detail="Session ID and Prolific ID don't match")
+            else:
+                raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Get saved game state for the specific phase
+        game_state_path = session.get("gameState", {}).get("currentGameSession", {})
+        saved_state = game_state_path.get(phase) if game_state_path else None
+        
+        if not saved_state:
+            # No saved state found - return initial state indicator
+            return {"hasState": False, "message": "No saved game state found"}
+        
+        # Check if the saved state is recent (within last 3 hours to prevent stale state)
+        last_updated = saved_state.get("lastUpdated")
+        if last_updated:
+            try:
+                if isinstance(last_updated, str):
+                    last_updated = datetime.fromisoformat(last_updated)
+                time_diff = datetime.utcnow() - last_updated
+                if time_diff.total_seconds() > 10800:  # 3 hours
+                    return {"hasState": False, "message": "Saved state is too old"}
+            except Exception as e:
+                print(f"Error parsing lastUpdated timestamp: {e}")
+                # Continue anyway, don't fail on timestamp issues
+        
+        # Calculate actual remaining time based on when game started and current time
+        game_start_time = saved_state.get("gameStartTime")
+        total_time = saved_state.get("totalTime", 0)
+        
+        if game_start_time and not saved_state.get("isTimeUp", False):
+            try:
+                # Parse game start time
+                if isinstance(game_start_time, str):
+                    start_time = datetime.fromisoformat(game_start_time.replace('Z', '+00:00'))
+                else:
+                    start_time = game_start_time
+                
+                elapsed_time = (datetime.utcnow() - start_time).total_seconds()
+                calculated_time_left = max(0, total_time - int(elapsed_time))
+            except Exception as e:
+                print(f"Error calculating remaining time: {e}")
+                # Fallback to saved time left
+                calculated_time_left = saved_state.get("timeLeft", 0)
+        else:
+            calculated_time_left = saved_state.get("timeLeft", 0)
+        
+        # Prepare response with safe defaults
+        response_data = {
+            "hasState": True,
+            "message": "Game state restored successfully",
+            "gameState": {
+                "currentWord": saved_state.get("currentWord", ""),
+                "solution": saved_state.get("solution", []),
+                "availableLetters": saved_state.get("availableLetters", []),
+                "validatedWords": saved_state.get("validatedWords", []),
+                "wordIndex": saved_state.get("wordIndex", 0),
+                "timeLeft": calculated_time_left,
+                "totalTime": saved_state.get("totalTime", 0),
+                "isTimeUp": calculated_time_left <= 0,
+                "solutions": saved_state.get("solutions", {}),
+                "allValidatedWords": saved_state.get("allValidatedWords", []),
+                "showOverview": saved_state.get("showOverview", False)
+            }
+        }
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error restoring game state: {str(e)}")
+        print(f"SessionId: {sessionId}, ProlificId: {prolificId}, Phase: {phase}")
+        # Don't raise an error here - return no state instead to allow game to continue
+        return {"hasState": False, "message": f"Error restoring state: {str(e)}"}
+
+@app.delete("/api/game-state/clear")
+async def clear_game_state(sessionId: str, prolificId: str, phase: str):
+    """Clear saved game state when game is completed."""
+    try:
+        # Validate inputs
+        if not sessionId or not prolificId or not phase:
+            raise HTTPException(status_code=400, detail="Missing required parameters")
+        
+        if not ObjectId.is_valid(sessionId):
+            raise HTTPException(status_code=400, detail="Invalid session ID format")
+        
+        if phase not in ["tutorial", "main_game"]:
+            raise HTTPException(status_code=400, detail="Invalid phase. Must be 'tutorial' or 'main_game'")
+        
+        # Clear the specific phase data
+        result = await app.database.sessions.update_one(
+            {"_id": ObjectId(sessionId), "prolificId": prolificId},
+            {"$unset": {f"gameState.currentGameSession.{phase}": ""}}
+        )
+        
+        if result.modified_count == 0:
+            # Check if session exists but prolific ID doesn't match
+            session_exists = await app.database.sessions.find_one({"_id": ObjectId(sessionId)})
+            if session_exists:
+                raise HTTPException(status_code=403, detail="Session ID and Prolific ID don't match")
+            else:
+                raise HTTPException(status_code=404, detail="Session not found")
+        
+        return {"status": "success", "message": f"Game state cleared for phase: {phase}"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error clearing game state: {str(e)}")
+        print(f"SessionId: {sessionId}, ProlificId: {prolificId}, Phase: {phase}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

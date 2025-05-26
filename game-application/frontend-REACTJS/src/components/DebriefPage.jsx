@@ -365,17 +365,18 @@ const DebriefPage = ({ sessionId, prolificId, onComplete, onStateChange }) => {
                 approach:
               </p>
               <ul className="list-disc list-inside mt-3 mb-4 space-y-2 text-gray-700">
-                <li>Tracking when you switched away from the webpage</li>
+                <li>Tracking whether you switched away from the webpage</li>
                 <li>Noticing when your mouse stopped moving</li>
                 <li>Measuring how long you spent on each word</li>
-                <li>Looking at patterns in how you found words</li>
+                <li>Tracking the sequence in which you formed words</li>
+                <li>Overall patterns in how you found words</li>
               </ul>
-              <p className="text-gray-700 mt-4">
+              {/* <p className="text-gray-700 mt-4">
                 When we asked you to explain what your words meant, we were
                 trying to understand if you came up with the words on your own
                 or found them somewhere else. This helps us learn more about how
                 people behave when solving problems online.
-              </p>
+              </p> */}
               <p className="text-gray-700 mt-4">
                 We keep all your information private. Your prolificid will be
                 replaced with a code, and only researchers can see your answers.

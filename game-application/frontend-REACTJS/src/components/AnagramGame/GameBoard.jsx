@@ -18,16 +18,19 @@ const GameBoard = ({
   validatedWords,
   isTutorial = false,
   customSubmitDisabled,
-  onLetterDragStart,
-  onLetterDragEnd,
   onLetterMouseEnter,
   onLetterMouseLeave,
+  onLetterClick,
 }) => {
   // Handle dragging letters
   const handleDragStart = useCallback((e, letter, index, source) => {
+    // Don't modify element attributes if MouseTracker is active
     e.dataTransfer.setData("letter", letter);
     e.dataTransfer.setData("index", index.toString());
     e.dataTransfer.setData("source", source);
+
+    // Store data on dataTransfer instead of element attributes
+    e.dataTransfer.setData("mousetracker-processed", "false");
   }, []);
 
   // Handle dropping letters
@@ -151,15 +154,19 @@ const GameBoard = ({
                 draggable={!isTimeUp}
                 data-area="solution"
                 data-index={index}
-                onDragStart={(e) => {
-                  // CRITICAL: Call GameBoard handler first for functionality
-                  handleDragStart(e, letter, index, "solution");
-                  // Then call MouseTracker handler for tracking
-                  onLetterDragStart?.(e, letter, index, "solution");
-                }}
-                onDragEnd={(e) =>
-                  onLetterDragEnd?.(e, letter, index, "solution")
+                data-letter={letter}
+                // Use mousedown instead of click for faster response
+                onMouseDown={(e) =>
+                  onLetterClick?.(e, letter, index, "solution")
                 }
+                // Keep drag handlers for actual game functionality
+                onDragStart={(e) =>
+                  handleDragStart(e, letter, index, "solution")
+                }
+                onDragEnd={(e) => {
+                  // No MouseTracker call needed anymore
+                }}
+                // Keep hover handlers for hover tracking
                 onMouseEnter={(e) =>
                   onLetterMouseEnter?.(e, letter, "solution")
                 }
@@ -169,7 +176,7 @@ const GameBoard = ({
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "solution", index)}
                 className="w-12 h-12 flex flex-col items-center justify-center 
-    font-bold text-xl cursor-move shadow-sm transition-all hover:bg-blue-300 active:scale-95 bg-white border-gray-300 border-1 rounded-sm"
+font-bold text-xl cursor-move shadow-sm transition-all hover:bg-blue-300 active:scale-95 bg-white border-gray-300 border-1 rounded-sm"
               >
                 <span>{letter}</span>
               </div>
@@ -219,15 +226,19 @@ const GameBoard = ({
                 draggable={!isTimeUp}
                 data-area="available"
                 data-index={index}
-                onDragStart={(e) => {
-                  // CRITICAL: Call GameBoard handler first for functionality
-                  handleDragStart(e, letter, index, "available");
-                  // Then call MouseTracker handler for tracking
-                  onLetterDragStart?.(e, letter, index, "available");
-                }}
-                onDragEnd={(e) =>
-                  onLetterDragEnd?.(e, letter, index, "available")
+                data-letter={letter}
+                // Use mousedown for faster response
+                onMouseDown={(e) =>
+                  onLetterClick?.(e, letter, index, "available")
                 }
+                // Keep drag handlers for game functionality
+                onDragStart={(e) =>
+                  handleDragStart(e, letter, index, "available")
+                }
+                onDragEnd={(e) => {
+                  // No MouseTracker call needed
+                }}
+                // Keep hover handlers
                 onMouseEnter={(e) =>
                   onLetterMouseEnter?.(e, letter, "available")
                 }
@@ -237,8 +248,8 @@ const GameBoard = ({
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => handleDrop(e, "available", index)}
                 className="w-12 h-12 border-2 border-green-300 bg-gray-700 text-white rounded-lg flex items-center justify-center 
-    font-bold text-xl cursor-move shadow-lg hover:shadow-xl transition-all hover:bg-gray-600 active:scale-95
-    transform hover:-translate-y-1"
+font-bold text-xl cursor-move shadow-lg hover:shadow-xl transition-all hover:bg-gray-600 active:scale-95
+transform hover:-translate-y-1"
                 style={{
                   boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
                 }}

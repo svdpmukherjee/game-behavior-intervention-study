@@ -665,7 +665,7 @@ async def get_session_game_area(sessionId: str):
         print(f"Error retrieving game area: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
    
-    
+
 @app.post("/api/interactions/batch")
 async def log_interaction_batch(
     batch: InteractionBatch, 
@@ -689,8 +689,15 @@ async def log_interaction_batch(
         interaction_docs = []
         processing_errors = []
         
+        # Count interaction types for debugging
+        interaction_counts = {}
+        
         for i, interaction in enumerate(batch.interactions):
             try:
+                # Count interaction types
+                interaction_type = interaction.interactionType
+                interaction_counts[interaction_type] = interaction_counts.get(interaction_type, 0) + 1
+                
                 # Parse timestamp string to datetime
                 try:
                     if isinstance(interaction.timestamp, str):
@@ -710,16 +717,19 @@ async def log_interaction_batch(
                     "phase": interaction.phase,
                     "anagramShown": interaction.anagramShown,
                     "interactionType": interaction.interactionType,
-                    "timestamp": parsed_timestamp,  # Use parsed datetime as timestamp
+                    "timestamp": parsed_timestamp,
                     "data": interaction.data
                 }
                 
                 # Validate interaction type and data consistency
                 if interaction.interactionType == "letter_dragged":
-                    required_fields = ["letter", "sourceArea", "targetArea", "dragDuration"]
+                    required_fields = ["letter", "sourceArea", "dragDuration"]
                     if not all(field in interaction.data for field in required_fields):
                         processing_errors.append(f"Missing required fields for letter_dragged at index {i}")
                         continue
+                    
+                    # Log drag event for debugging
+                    print(f"[BACKEND] Drag event: {interaction.data.get('letter')} from {interaction.data.get('sourceArea')} to {interaction.data.get('targetArea')}")
                         
                 elif interaction.interactionType == "letter_hovered":
                     required_fields = ["letter", "sourceArea", "hoverDuration"]
@@ -745,6 +755,9 @@ async def log_interaction_batch(
             result = await app.database.user_interactions.insert_many(interaction_docs)
             inserted_count = len(result.inserted_ids)
         
+        # Log interaction summary for debugging
+        print(f"[BACKEND] Batch processed: {interaction_counts}")
+        
         # Schedule background task for analytics processing
         if inserted_count > 0:
             background_tasks.add_task(
@@ -768,7 +781,6 @@ async def log_interaction_batch(
     except Exception as e:
         print(f"Error storing interaction batch: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
  
 async def process_interaction_analytics(session_id: str, prolific_id: str, interaction_count: int):
     """Process interaction analytics in the background."""

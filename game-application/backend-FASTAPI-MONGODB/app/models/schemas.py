@@ -115,15 +115,6 @@ class Position(BaseModel):
     x: int
     y: int
 
-class LetterDraggedData(BaseModel):
-    letter: str
-    sourceArea: str
-    targetArea: str
-    startPosition: Position
-    endPosition: Position
-    dragDuration: int
-    wordInProgress: Optional[str] = ""
-
 class MouseMoveData(BaseModel):
     x: int
     y: int
@@ -133,12 +124,25 @@ class MouseMoveData(BaseModel):
     isEnteringGameArea: Optional[bool] = None
     isLeavingGameArea: Optional[bool] = None
     wordInProgress: Optional[str] = ""
+    sessionEventId: Optional[int] = None  # NEW
+    conflictType: Optional[str] = None    # NEW
+    relatedDragId: Optional[int] = None   # NEW
+
+class LetterDraggedData(BaseModel):
+    letter: str
+    sourceArea: str
+    dragDuration: int = 0  # Always 0 in new approach
+    wordInProgress: Optional[str] = ""
+    sessionEventId: Optional[int] = None
 
 class LetterHoverData(BaseModel):
     letter: str
     sourceArea: str
     hoverDuration: int
     wordInProgress: Optional[str] = ""
+    sessionEventId: Optional[int] = None  # NEW
+    conflictType: Optional[str] = None    # NEW
+    relatedDragId: Optional[int] = None   # NEW
 
 class UserInteraction(BaseModel):
     sessionId: str
@@ -159,8 +163,8 @@ class InteractionBatch(BaseModel):
     phase: str
     anagramShown: str
     interactions: List[UserInteraction]
-    batchStartTime: str  # Changed to string to accept ISO format
-    batchEndTime: str    # Changed to string to accept ISO format
+    batchStartTime: str
+    batchEndTime: str
 
 class GameAreaBounds(BaseModel):
     left: float

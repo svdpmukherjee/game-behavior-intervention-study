@@ -7,28 +7,34 @@ const MouseTracker = ({
   currentSolution = [],
   phase = "main_game",
   enabled = true,
-  minHoverDuration = 100,
-  batchInterval = 5000,
-  maxBatchSize = 50,
   children,
 }) => {
-  // Core tracking refs
-  const interactionBuffer = useRef([]);
-  const hoverStates = useRef(new Map());
-  const gameAreaStored = useRef(false);
-  const batchTimer = useRef(null);
+  // Simple refs for tracking
   const gameAreaRef = useRef(null);
-  const isEnabled = useRef(enabled);
   const gameAreaBounds = useRef(null);
-  const isMouseInsideGameArea = useRef(false);
-  const lastMousePosition = useRef(null);
+  const isMouseInGameArea = useRef(false);
+  const interactionQueue = useRef([]);
+  const flushTimer = useRef(null);
+  const sessionCounter = useRef(0);
 
-  // Track enabled state changes
+  // Track hover states
+  const activeHovers = useRef(new Map());
+  const hoverStartTimes = useRef(new Map());
+
+  // Use refs to track current state for more reliable access
+  const currentWordRef = useRef(currentWord);
+  const currentSolutionRef = useRef(currentSolution);
+
+  // Update refs when props change
   useEffect(() => {
-    isEnabled.current = enabled;
-  }, [enabled]);
+    currentWordRef.current = currentWord;
+    currentSolutionRef.current = currentSolution;
+  }, [currentWord, currentSolution]);
 
-  // Calculate precise game area bounds
+  const HOVER_MIN_DURATION = 50;
+  const FLUSH_INTERVAL = 2000;
+
+  // Calculate game area bounds
   const calculateGameAreaBounds = useCallback(() => {
     if (!gameAreaRef.current) return null;
 
@@ -39,457 +45,263 @@ const MouseTracker = ({
       '[data-area="available-zone"]'
     );
 
-    if (!solutionArea || !availableArea) {
-      console.warn("Game areas not found for mouse tracking");
-      return null;
-    }
+    if (!solutionArea || !availableArea) return null;
 
     const solutionRect = solutionArea.getBoundingClientRect();
     const availableRect = availableArea.getBoundingClientRect();
 
-    const combinedBounds = {
+    const bounds = {
       left: Math.min(solutionRect.left, availableRect.left),
       top: Math.min(solutionRect.top, availableRect.top),
       right: Math.max(solutionRect.right, availableRect.right),
       bottom: Math.max(solutionRect.bottom, availableRect.bottom),
     };
 
-    const bounds = {
-      left: combinedBounds.left,
-      top: combinedBounds.top,
-      width: combinedBounds.right - combinedBounds.left,
-      height: combinedBounds.bottom - combinedBounds.top,
-    };
-
     gameAreaBounds.current = bounds;
     return bounds;
   }, []);
 
-  // Store game area bounds in session document
-  const storeGameArea = useCallback(async () => {
-    if (gameAreaStored.current) return;
+  // Check if point is inside game area
+  const isPointInGameArea = useCallback((x, y) => {
+    const bounds = gameAreaBounds.current;
+    if (!bounds) return false;
+    return (
+      x >= bounds.left &&
+      x <= bounds.right &&
+      y >= bounds.top &&
+      y <= bounds.bottom
+    );
+  }, []);
 
-    const bounds = calculateGameAreaBounds();
-    if (!bounds) return;
-
-    try {
-      const gameAreaData = {
-        bounds: bounds,
-        screenSize: {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        },
-        userAgent: navigator.userAgent,
-        calculatedAt: new Date().toISOString(),
-      };
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/sessions/${sessionId}/game-area`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(gameAreaData),
-        }
-      );
-
-      if (response.ok) {
-        gameAreaStored.current = true;
-        console.log("Game area bounds stored successfully");
-      }
-    } catch (error) {
-      console.error("Failed to store game area bounds:", error);
-    }
-  }, [sessionId, calculateGameAreaBounds]);
-
-  // Add interaction to buffer
-  const bufferInteraction = useCallback(
+  // Queue interaction
+  const queueInteraction = useCallback(
     (type, data) => {
-      if (!isEnabled.current) return;
+      if (!enabled || !sessionId || !prolificId) return;
+
+      const sessionEventId = ++sessionCounter.current;
 
       const interaction = {
         sessionId,
         prolificId,
         phase,
-        anagramShown: currentWord,
+        anagramShown: currentWordRef.current,
         interactionType: type,
-        timestamp: new Date().toISOString(), // Changed to ISO string format
+        timestamp: new Date().toISOString(),
         data: {
           ...data,
-          wordInProgress: currentSolution.join(""),
+          wordInProgress: currentSolutionRef.current.join(""),
+          sessionEventId,
         },
       };
 
-      interactionBuffer.current.push(interaction);
-      console.log(`Buffered ${type}:`, data);
-
-      if (interactionBuffer.current.length >= maxBatchSize) {
-        flushInteractionBuffer();
-      }
+      interactionQueue.current.push(interaction);
+      // console.log(
+      //   `[MouseTracker] Queued ${type} (ID: ${sessionEventId}):`,
+      //   data
+      // );
     },
-    [sessionId, prolificId, phase, currentWord, currentSolution, maxBatchSize]
+    [sessionId, prolificId, phase, enabled]
   );
 
-  // Send buffered interactions to backend
-  const flushInteractionBuffer = useCallback(async () => {
-    if (interactionBuffer.current.length === 0) return;
+  // Send queued interactions to backend
+  const flushInteractions = useCallback(async () => {
+    if (interactionQueue.current.length === 0) return;
 
-    const interactionsToSend = [...interactionBuffer.current];
-    interactionBuffer.current = [];
+    const interactions = [...interactionQueue.current];
+    interactionQueue.current = [];
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/interactions/batch`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionId,
-            prolificId,
-            phase,
-            anagramShown: currentWord,
-            interactions: interactionsToSend,
-            batchStartTime:
-              interactionsToSend[0]?.timestamp || new Date().toISOString(),
-            batchEndTime:
-              interactionsToSend[interactionsToSend.length - 1]?.timestamp ||
-              new Date().toISOString(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        console.error(
-          "Failed to send interaction batch:",
-          await response.text()
-        );
-      } else {
-        console.log(
-          `Successfully sent ${interactionsToSend.length} interactions`
-        );
-      }
+      await fetch(`${import.meta.env.VITE_API_URL}/api/interactions/batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          prolificId,
+          phase,
+          anagramShown: currentWordRef.current,
+          interactions,
+          batchStartTime:
+            interactions[0]?.timestamp || new Date().toISOString(),
+          batchEndTime:
+            interactions[interactions.length - 1]?.timestamp ||
+            new Date().toISOString(),
+        }),
+      });
     } catch (error) {
-      console.error("Error sending interaction batch:", error);
+      console.error("Failed to send interactions:", error);
+      interactionQueue.current = [...interactions, ...interactionQueue.current];
     }
-  }, [sessionId, prolificId, phase, currentWord]);
+  }, [sessionId, prolificId, phase]);
 
-  // Get relative position of element within game area
-  const getRelativePosition = useCallback((element) => {
-    const bounds = gameAreaBounds.current;
-    if (!bounds || !element) return { x: 0, y: 0 };
-
-    const rect = element.getBoundingClientRect();
-    return {
-      x: Math.round(rect.left + rect.width / 2 - bounds.left),
-      y: Math.round(rect.top + rect.height / 2 - bounds.top),
-    };
-  }, []);
-
-  // Normalize area names for consistency
-  const normalizeAreaName = useCallback((areaName) => {
-    if (!areaName) return "unknown";
-    switch (areaName) {
-      case "solution-zone":
-        return "solution";
-      case "available-zone":
-        return "available";
-      default:
-        return areaName;
-    }
-  }, []);
-
-  // Check if mouse is inside game area
-  const isMouseInGameArea = useCallback((x, y) => {
-    const bounds = gameAreaBounds.current;
-    if (!bounds) return false;
-
-    return (
-      x >= bounds.left &&
-      x <= bounds.left + bounds.width &&
-      y >= bounds.top &&
-      y <= bounds.top + bounds.height
-    );
-  }, []);
-
-  // Mouse movement handler - only tracks when leaving/entering game area
+  // 1. MOUSE MOVEMENT TRACKING - Only track game area entry/exit
   const handleMouseMove = useCallback(
     (e) => {
-      if (!isEnabled.current) return;
+      if (!enabled) return;
 
-      const mouseX = e.clientX;
-      const mouseY = e.clientY;
-      const wasInside = isMouseInsideGameArea.current;
-      const isInside = isMouseInGameArea(mouseX, mouseY);
+      const wasInside = isMouseInGameArea.current;
+      const isInside = isPointInGameArea(e.clientX, e.clientY);
+      isMouseInGameArea.current = isInside;
 
-      // Update tracking state
-      isMouseInsideGameArea.current = isInside;
-
-      // Only record when mouse enters or leaves the game area
       if (wasInside !== isInside) {
         const bounds = gameAreaBounds.current;
         if (bounds) {
-          bufferInteraction("mouse_move", {
-            x: Math.round(mouseX - bounds.left),
-            y: Math.round(mouseY - bounds.top),
-            pressure: e.pressure || 0,
-            isEnteringGameArea: isInside,
-            isLeavingGameArea: !isInside,
+          queueInteraction("mouse_move", {
+            x: Math.round(e.clientX - bounds.left),
+            y: Math.round(e.clientY - bounds.top),
+            isEnteringGameArea: !wasInside && isInside,
+            isLeavingGameArea: wasInside && !isInside,
           });
         }
       }
-
-      lastMousePosition.current = { x: mouseX, y: mouseY };
     },
-    [bufferInteraction, isMouseInGameArea]
+    [enabled, isPointInGameArea, queueInteraction]
   );
 
-  // React event handlers for letter interactions
-  const handleLetterDragStart = useCallback(
-    (e, letter, index, sourceArea) => {
-      if (!isEnabled.current) return;
+  // Create unique element identifier
+  const createElementId = useCallback((letter, sourceArea, index) => {
+    return `${letter}-${sourceArea}-${index}`;
+  }, []);
 
-      const target = e.target;
-      const startPosition = getRelativePosition(target);
-
-      // Store drag info on the element
-      target._dragInfo = {
-        letter,
-        sourceArea: normalizeAreaName(sourceArea),
-        startPosition,
-        startTime: Date.now(),
-      };
-
-      console.log(
-        `🟢 Drag start: ${letter} from ${normalizeAreaName(sourceArea)}`
-      );
-    },
-    [getRelativePosition, normalizeAreaName]
-  );
-
-  const handleLetterDragEnd = useCallback(
-    (e, letter, index, originalSourceArea) => {
-      if (!isEnabled.current) return;
-
-      const target = e.target;
-      if (!target._dragInfo) return;
-
-      const dragInfo = target._dragInfo;
-
-      // Method 1: Check the parent container
-      let targetArea = null;
-      const parentContainer = target.closest("[data-area]");
-      if (parentContainer) {
-        const areaName = parentContainer.dataset.area;
-        if (areaName === "solution-zone") {
-          targetArea = "solution";
-        } else if (areaName === "available-zone") {
-          targetArea = "available";
-        } else {
-          targetArea = normalizeAreaName(areaName);
-        }
-      }
-
-      // Method 2: If parent method failed, try finding drop target
-      if (!targetArea) {
-        const dropTarget = document.elementFromPoint(e.clientX, e.clientY);
-        if (dropTarget) {
-          const areaElement = dropTarget.closest("[data-area]");
-          if (areaElement) {
-            const areaName = areaElement.dataset.area;
-            if (areaName === "solution-zone") {
-              targetArea = "solution";
-            } else if (areaName === "available-zone") {
-              targetArea = "available";
-            } else {
-              targetArea = normalizeAreaName(areaName);
-            }
-          }
-        }
-      }
-
-      // Method 3: If still no target, check if the element itself moved areas
-      if (!targetArea) {
-        // Look for the actual letter element in the DOM to see where it ended up
-        const gameBoard = document.querySelector('[data-area="game-board"]');
-        if (gameBoard) {
-          const solutionArea = gameBoard.querySelector(
-            '[data-area="solution-zone"]'
-          );
-          const availableArea = gameBoard.querySelector(
-            '[data-area="available-zone"]'
-          );
-
-          if (solutionArea && solutionArea.contains(target)) {
-            targetArea = "solution";
-          } else if (availableArea && availableArea.contains(target)) {
-            targetArea = "available";
-          }
-        }
-      }
-
-      const endPosition = getRelativePosition(target);
-      const endTime = Date.now();
-
-      console.log(
-        `🔵 Drag end: ${letter} from ${dragInfo.sourceArea} to ${
-          targetArea || "unknown"
-        }`
-      );
-
-      // Record the drag event
-      bufferInteraction("letter_dragged", {
-        letter,
-        sourceArea: dragInfo.sourceArea,
-        targetArea: targetArea || dragInfo.sourceArea,
-        startPosition: dragInfo.startPosition,
-        endPosition,
-        dragDuration: endTime - dragInfo.startTime,
-      });
-
-      // Clean up
-      delete target._dragInfo;
-
-      // Immediate flush for important events
-      setTimeout(() => flushInteractionBuffer(), 100);
-    },
-    [
-      bufferInteraction,
-      getRelativePosition,
-      normalizeAreaName,
-      flushInteractionBuffer,
-    ]
-  );
-
+  // 2. SIMPLIFIED HOVER TRACKING - Independent of drags
   const handleLetterMouseEnter = useCallback(
     (e, letter, sourceArea) => {
-      if (!isEnabled.current) return;
+      if (!enabled) return;
 
-      const letterElement = e.target.closest('[draggable="true"]');
-      if (!letterElement) return;
+      const index = e.target.getAttribute("data-index") || "0";
+      const elementId = createElementId(letter, sourceArea, index);
+      const startTime = Date.now();
 
-      const normalizedArea = normalizeAreaName(sourceArea);
-      const hoverKey = letterElement;
-
-      hoverStates.current.set(hoverKey, {
+      // Store hover start time
+      hoverStartTimes.current.set(elementId, startTime);
+      activeHovers.current.set(elementId, {
         letter,
-        area: normalizedArea,
-        startTime: Date.now(),
+        sourceArea,
+        index,
+        startTime,
       });
-
-      console.log(`🟡 Hover start: ${letter} in ${normalizedArea}`);
     },
-    [normalizeAreaName]
+    [enabled, createElementId]
   );
 
   const handleLetterMouseLeave = useCallback(
     (e, letter, sourceArea) => {
-      if (!isEnabled.current) return;
+      if (!enabled) return;
 
-      const letterElement = e.target.closest('[draggable="true"]');
-      if (!letterElement) return;
+      const index = e.target.getAttribute("data-index") || "0";
+      const elementId = createElementId(letter, sourceArea, index);
 
-      const hoverKey = letterElement;
-      const hoverData = hoverStates.current.get(hoverKey);
-
+      const hoverData = activeHovers.current.get(elementId);
       if (hoverData) {
         const hoverDuration = Date.now() - hoverData.startTime;
 
-        if (hoverDuration >= minHoverDuration) {
-          bufferInteraction("letter_hovered", {
+        // Record hover if it meets minimum duration
+        if (hoverDuration >= HOVER_MIN_DURATION) {
+          queueInteraction("letter_hovered", {
             letter: hoverData.letter,
-            sourceArea: hoverData.area,
+            sourceArea: hoverData.sourceArea,
             hoverDuration,
           });
-
-          console.log(`🟠 Hover end: ${hoverData.letter} (${hoverDuration}ms)`);
         }
 
-        hoverStates.current.delete(hoverKey);
+        // Cleanup
+        activeHovers.current.delete(elementId);
+        hoverStartTimes.current.delete(elementId);
       }
     },
-    [bufferInteraction, minHoverDuration]
+    [enabled, queueInteraction, createElementId]
   );
 
-  // Clean up function
-  const cleanup = useCallback(() => {
-    // Clear all timers
-    if (batchTimer.current) {
-      clearInterval(batchTimer.current);
-      batchTimer.current = null;
-    }
+  // 3. CLICK-BASED LETTER INTERACTION TRACKING
+  // Track user intent to interact with letters via click/mousedown
+  const handleLetterClick = useCallback(
+    (e, letter, index, sourceArea) => {
+      if (!enabled) return;
 
-    // Flush remaining interactions
-    if (interactionBuffer.current.length > 0) {
-      flushInteractionBuffer();
-    }
+      // Always record letter interaction when user clicks on it
+      // This catches all letter manipulations regardless of drag success/failure
+      queueInteraction("letter_dragged", {
+        letter,
+        sourceArea,
+        dragDuration: 0,
+      });
 
-    // Clear hover states
-    hoverStates.current.clear();
+      // console.log(
+      //   `[MouseTracker] Letter clicked: ${letter} from ${sourceArea}`
+      // );
+    },
+    [enabled, queueInteraction]
+  );
 
-    console.log("MouseTracker cleaned up");
-  }, [flushInteractionBuffer]);
-
-  // Main effect for setting up tracking
+  // Setup flush timer
   useEffect(() => {
     if (!enabled) return;
 
-    console.log("MouseTracker initializing...");
-
-    // Store game area bounds
-    storeGameArea();
-
-    // Calculate initial game area bounds
-    setTimeout(() => {
-      calculateGameAreaBounds();
-    }, 100);
-
-    // Add document-level mouse move listener
-    document.addEventListener("mousemove", handleMouseMove, { passive: true });
-
-    // Set up batch timer
-    batchTimer.current = setInterval(() => {
-      if (interactionBuffer.current.length > 0) {
-        flushInteractionBuffer();
-      }
-    }, batchInterval);
+    flushTimer.current = setInterval(() => {
+      flushInteractions();
+    }, FLUSH_INTERVAL);
 
     return () => {
-      // Clean up event listeners
-      document.removeEventListener("mousemove", handleMouseMove);
-
-      // Clean up timer and flush
-      cleanup();
+      if (flushTimer.current) {
+        clearInterval(flushTimer.current);
+      }
     };
-  }, [
-    enabled,
-    storeGameArea,
-    calculateGameAreaBounds,
-    handleMouseMove,
-    batchInterval,
-    flushInteractionBuffer,
-    cleanup,
-  ]);
+  }, [enabled, flushInteractions]);
 
-  // Reset when word changes
+  // Setup mouse move listener and calculate bounds
   useEffect(() => {
-    if (enabled && interactionBuffer.current.length > 0) {
-      flushInteractionBuffer();
+    if (!enabled) return;
+
+    const initBounds = () => {
+      if (calculateGameAreaBounds()) {
+        return true;
+      }
+      return false;
+    };
+
+    if (!initBounds()) {
+      const retryInterval = setInterval(() => {
+        if (initBounds()) {
+          clearInterval(retryInterval);
+        }
+      }, 100);
+
+      setTimeout(() => clearInterval(retryInterval), 5000);
     }
 
-    // Clear hover states when word changes
-    hoverStates.current.clear();
+    document.addEventListener("mousemove", handleMouseMove, { passive: true });
 
-    // Recalculate game area bounds
-    setTimeout(() => {
-      calculateGameAreaBounds();
-    }, 50);
-  }, [currentWord, enabled, flushInteractionBuffer, calculateGameAreaBounds]);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [enabled, calculateGameAreaBounds, handleMouseMove]);
 
-  // Clone children with event handlers
+  // Cleanup on unmount or word change
+  useEffect(() => {
+    return () => {
+      flushInteractions();
+      activeHovers.current.clear();
+      hoverStartTimes.current.clear();
+
+      if (flushTimer.current) {
+        clearInterval(flushTimer.current);
+      }
+    };
+  }, [currentWord, flushInteractions]);
+
+  // Reset on word change
+  useEffect(() => {
+    activeHovers.current.clear();
+    hoverStartTimes.current.clear();
+  }, [currentWord]);
+
+  if (!children || !enabled) {
+    return children || null;
+  }
+
   const Children = cloneElement(children, {
-    onLetterDragStart: handleLetterDragStart,
-    onLetterDragEnd: handleLetterDragEnd,
     onLetterMouseEnter: handleLetterMouseEnter,
     onLetterMouseLeave: handleLetterMouseLeave,
+    onLetterClick: handleLetterClick,
   });
 
   return (

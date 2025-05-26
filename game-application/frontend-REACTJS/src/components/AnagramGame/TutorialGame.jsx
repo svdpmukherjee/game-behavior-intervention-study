@@ -185,7 +185,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         isSubmitted: isSubmitted.current,
       };
 
-      console.log("Saving game state:", stateToSave);
+      // console.log("Saving game state:", stateToSave);
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/game-state/save`,
@@ -201,15 +201,15 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         }
       );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(
-          `Failed to save game state (${response.status}):`,
-          errorText
-        );
-      } else {
-        console.log("Game state saved successfully");
-      }
+      // if (!response.ok) {
+      //   const errorText = await response.text();
+      //   console.error(
+      //     `Failed to save game state (${response.status}):`,
+      //     errorText
+      //   );
+      // } else {
+      //   console.log("Game state saved successfully");
+      // }
     } catch (error) {
       console.error("Failed to save game state:", error);
     }
@@ -516,7 +516,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
       });
 
       // Clear any remaining saved state
-      await clearGameState();
+      // await clearGameState();
 
       // Proceed to next phase
       onComplete();

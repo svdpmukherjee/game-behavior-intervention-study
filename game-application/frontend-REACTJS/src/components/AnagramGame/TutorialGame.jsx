@@ -65,9 +65,9 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
 
     try {
       setIsRestoring(true);
-      console.log(
-        `Attempting to restore game state for session: ${sessionId}, phase: tutorial`
-      );
+      // console.log(
+      //   `Attempting to restore game state for session: ${sessionId}, phase: tutorial`
+      // );
 
       const response = await fetch(
         `${
@@ -81,7 +81,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
         }
       );
 
-      console.log(`Restore response status: ${response.status}`);
+      // console.log(`Restore response status: ${response.status}`);
 
       // Handle different response statuses
       if (response.status === 404) {
@@ -105,7 +105,7 @@ const TutorialGame = ({ prolificId, sessionId, onComplete }) => {
       }
 
       const data = await response.json();
-      console.log("Restore response data:", data);
+      // console.log("Restore response data:", data);
 
       if (data.hasState && data.gameState) {
         const restored = data.gameState;

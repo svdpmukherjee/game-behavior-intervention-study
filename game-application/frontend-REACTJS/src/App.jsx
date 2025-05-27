@@ -112,7 +112,7 @@ function App() {
         const savedState = loadAppState();
 
         if (savedState && savedState.sessionId) {
-          console.log("Restoring saved state:", savedState);
+          // console.log("Restoring saved state:", savedState);
           setCurrentStep(savedState.currentStep);
           setSessionId(savedState.sessionId);
           setProlificId(savedState.prolificId);

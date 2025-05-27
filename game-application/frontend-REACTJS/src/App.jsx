@@ -280,7 +280,7 @@ function App() {
       // Store the message ID for the survey if it exists
       if (data.currentMessage?.id) {
         setMessageId(data.currentMessage.id);
-        console.log("Message ID captured in App:", data.currentMessage.id);
+        // console.log("Message ID captured in App:", data.currentMessage.id);
       }
 
       // Proceed to the motivational message step or main game if no message
@@ -298,7 +298,7 @@ function App() {
     // Store the message ID for the survey if not already stored
     if (messageData.messageId && !messageId) {
       setMessageId(messageData.messageId);
-      console.log("Message ID captured in App:", messageData.messageId);
+      // console.log("Message ID captured in App:", messageData.messageId);
     }
 
     // Proceed to the main game
@@ -313,7 +313,7 @@ function App() {
   const handleMessageIdCapture = (id) => {
     if (id) {
       setMessageId(id);
-      console.log("Message ID captured in App:", id);
+      // console.log("Message ID captured in App:", id);
     }
   };
 

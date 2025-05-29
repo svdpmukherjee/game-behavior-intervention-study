@@ -133,12 +133,10 @@ const SurveyPage = ({ onComplete, messageId = "autonomy" }) => {
                     setCodeError(false);
                   }}
                   className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors
-                    ${
-                      codeError ? "border-red-300 bg-red-50" : "border-gray-300"
-                    }
-                    ${surveyOpened ? "bg-white" : "bg-gray-50"}`}
+    ${codeError ? "border-red-300 bg-red-50" : "border-gray-300"}`}
                   placeholder="Enter the completion code from the survey"
-                  disabled={!surveyOpened}
+                  // Remove: disabled={!surveyOpened}
+                  // Remove: ${surveyOpened ? "bg-white" : "bg-gray-50"}
                 />
                 {codeError && (
                   <p className="mt-2 text-sm text-red-600">
@@ -150,13 +148,14 @@ const SurveyPage = ({ onComplete, messageId = "autonomy" }) => {
 
               <button
                 onClick={handleSurveyCodeSubmit}
-                disabled={!surveyOpened || !surveyCode.trim()}
-                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200  cursor-pointer
-                  ${
-                    !surveyOpened || !surveyCode.trim()
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-green-600 hover:bg-green-700 text-white"
-                  }`}
+                // Remove: disabled={!surveyOpened || !surveyCode.trim()}
+                disabled={!surveyCode.trim()} // Only disable if no code is entered
+                className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-all duration-200 cursor-pointer
+    ${
+      !surveyCode.trim()
+        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+        : "bg-green-600 hover:bg-green-700 text-white"
+    }`}
               >
                 Continue <ArrowRight className="h-5 w-5" />
               </button>

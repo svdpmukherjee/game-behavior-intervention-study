@@ -1,5 +1,5 @@
 """
-Minimal network analysis for psychological mechanisms
+Psychological network analysis for psychological mechanisms
 """
 
 import numpy as np
@@ -47,11 +47,25 @@ def estimate_partial_correlations(data):
     
     return partial_corr
 
+def calculate_network_density(matrix, threshold=0.15):
+    """Calculate network density using same method as plots"""
+    n_variables = matrix.shape[0]
+    total_possible_edges = n_variables * (n_variables - 1) // 2  # Upper triangle only
+    
+    # Count edges above threshold (same as plot logic)
+    abs_matrix = np.abs(matrix)
+    np.fill_diagonal(abs_matrix, 0)  # Remove diagonal
+    significant_edges = (abs_matrix > threshold).sum() // 2  # Divide by 2 for symmetry
+    
+    density = significant_edges / total_possible_edges
+    return density
+
 def analyze_networks_by_concept(df):
     """Analyze networks for control + each concept"""
     
     network_data = prepare_network_data(df)
     labels = list(network_data.columns)
+    threshold = 0.15  # Same threshold as plots
     
     # Concept order by theory
     theory_order = [
@@ -73,9 +87,12 @@ def analyze_networks_by_concept(df):
             concept_data = network_data[df['concept'] == concept]
             if len(concept_data) >= 10:  # Minimum sample size
                 partial_corr = estimate_partial_correlations(concept_data)
+                density = calculate_network_density(partial_corr, threshold)
+                
                 results[concept] = {
                     'partial_correlations': partial_corr,
-                    'n_participants': len(concept_data)
+                    'n_participants': len(concept_data),
+                    'network_density': density
                 }
     
     return results, labels
@@ -85,6 +102,7 @@ def analyze_networks_with_overall_intervention(df):
     
     network_data = prepare_network_data(df)
     labels = list(network_data.columns)
+    threshold = 0.15  # Same threshold as plots
     
     # Concept order by theory
     theory_order = [
@@ -115,9 +133,12 @@ def analyze_networks_with_overall_intervention(df):
             
         if len(concept_data) >= 10:  # Minimum sample size
             partial_corr = estimate_partial_correlations(concept_data)
+            density = calculate_network_density(partial_corr, threshold)
+            
             results[concept] = {
                 'partial_correlations': partial_corr,
-                'n_participants': len(concept_data)
+                'n_participants': len(concept_data),
+                'network_density': density
             }
     
     return results, labels

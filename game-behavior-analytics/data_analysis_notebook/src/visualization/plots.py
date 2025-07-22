@@ -420,7 +420,7 @@ def plot_performance_experience_effects(effects):
                 'Experience': [effects['baselines']['experience_by_cheating'][0]] if 'baselines' in effects else [5.5]
             }
         else:
-            print("⚠️ No performance/experience effects to plot")
+            print("No performance/experience effects to plot")
             return
     
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
@@ -801,7 +801,7 @@ def plot_pathway_effects(pathway_results):
     """Plot pathway analysis results matching original analysis style"""
     
     if pathway_results is None:
-        print("⚠️ No pathway results to plot")
+        print("No pathway results to plot")
         return
     
     # Plot 1: Overall Intervention → Mechanisms
@@ -1073,7 +1073,7 @@ def print_pathway_summary(pathway_results):
     """Print pathway analysis summary tables matching original analysis"""
     
     if pathway_results is None:
-        print("⚠️ No pathway results to summarize")
+        print("No pathway results to summarize")
         return
     
     mechanism_names = pathway_results['mechanism_names']

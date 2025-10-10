@@ -1,0 +1,34 @@
+Variable,Description
+participant_id,Unique participant identifier
+age,Age of participant
+gender,Gender of participant
+ethnicity,Ethnicity of participant
+native_language,Native language of participant
+highest_education,Highest level of education completed
+online_tests_taken_last_3_years,Number of online tests taken in last 3 years
+motivational_message_id,ID of the motivational message shown
+concept,Intervention concept used
+theory,Theoretical framework of intervention
+perceived_ability,Self-rated word creation skill level (1-10)
+cheating_behavior,Cheating rate in main round (0-1)
+performance,Performance score including cheated words
+experience,Average of task engagement and satisfaction (1-7)
+perceived_honesty,Perceived message effect on honest task completion (1-7)
+perceived_performance,Perceived message effect on task performance (1-7)
+perceived_experience,Perceived message effect on task experience (1-7)
+autonomy_need_satisfaction,Satisfaction of autonomy need (1-7)
+autonomy_need_frustration,Frustration of autonomy need (1-7)
+competence_need_satisfaction,Satisfaction of competence need (1-7)
+competence_need_frustration,Frustration of competence need (1-7)
+relatedness_need_satisfaction,Satisfaction of relatedness need (1-7)
+relatedness_need_frustration,Frustration of relatedness need (1-7)
+performance_accomplishments,Self-efficacy from past performance (1-7)
+vicarious_experience,Self-efficacy from observing others (1-7)
+verbal_persuasion,Self-efficacy from verbal encouragement (1-7)
+emotional_arousal,Self-efficacy from emotional state (1-7)
+injunctive_norms,Perceived approval/disapproval of behavior (1-7)
+descriptive_norms,Perceived prevalence of behavior (1-7)
+reference_group_identification,Identification with reference group (1-7)
+social_sanctions,Perceived social consequences (1-7)
+cognitive_discomfort,Discomfort from attitude-behavior discrepancy (1-7)
+moral_disengagement,Mechanisms to justify unethical behavior (1-7)

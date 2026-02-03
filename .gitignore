@@ -7,7 +7,4 @@ data/
 message-intervention-framework/
 .Rproj.user
 data_analysis_notebook/
-message-generation-framework/
-message-evaluation-framework/
-game-behavior-analytics/
 claude-code-notebook-mcp/

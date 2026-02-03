@@ -133,7 +133,7 @@ def extract_latest_messages(source_uri, source_db_name, target_db_name, target_c
 
 def main():
     parser = argparse.ArgumentParser(description='Extract latest messages from source database to target database')
-    parser.add_argument('--uri', default="mongodb+srv://svdpmukherjee:mongodb_110789@cluster1.bybvc.mongodb.net/", help='MongoDB connection URI')
+    parser.add_argument('--uri', required=True, help='MongoDB connection URI')
     parser.add_argument('--source_db', default="collection_of_concept_based_messages", help='Source database name')
     parser.add_argument('--target_db', default="evaluation_results", help='Target database name')
     parser.add_argument('--collection', default='all_messages', help='Target collection name')

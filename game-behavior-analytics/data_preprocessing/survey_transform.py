@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 # Step 1: Load the CSV file
-df = pd.read_csv('../../data/survey_output/survey_results.csv')
+df = pd.read_csv('../../data/survey_output/sample_survey_results.csv')
 
 # Step 1.5: Remove rows without birth year entries (incomplete survey responses)
 print(f"Original dataset shape: {df.shape}")

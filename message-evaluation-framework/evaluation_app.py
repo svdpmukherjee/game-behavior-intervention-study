@@ -21,7 +21,7 @@ load_dotenv()
 st.set_page_config(
     page_title="Message Evaluation App",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # Custom CSS
@@ -717,7 +717,7 @@ def main():
     """Main application function."""
     
     # Setup database connections from environment variables
-    mongo_uri = os.getenv("MONGODB_URI", "mongodb+srv://svdpmukherjee:mongodb_110789@cluster1.bybvc.mongodb.net/")
+    mongo_uri = os.getenv("MONGODB_URI", "")
     db_name = os.getenv("DB_NAME", "evaluation_results")
     
     # Add a sidebar with database configuration UI

@@ -45,8 +45,8 @@ pip install -r requirements.txt
 3. Set up environment variables (create a `.env` file in the project root):
 
 ```
-TOGETHER_API_KEY=your_together_api_key
-OPENAI_API_KEY=your_openai_api_key
+TOGETHER_API_KEY=your_together_api_key (for using Llama 3.3 70B)
+OPENAI_API_KEY=your_openai_api_key (for using GPT-4o)
 MONGODB_URI=your_mongodb_uri
 MONGODB_DB_NAME=message_generator
 ```

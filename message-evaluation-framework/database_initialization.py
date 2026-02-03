@@ -127,7 +127,7 @@ def initialize_evaluation_collections(mongo_uri, db_name, message_limit=None, dr
 
 def main():
     parser = argparse.ArgumentParser(description='Initialize evaluation collections for the evaluation app')
-    parser.add_argument('--uri', default="mongodb+srv://svdpmukherjee:mongodb_110789@cluster1.bybvc.mongodb.net/", help='MongoDB connection URI')
+    parser.add_argument('--uri', required=True, help='MongoDB connection URI')
     parser.add_argument('--db', default="evaluation_results", help='Database name')
     parser.add_argument('--dry-run', action='store_true', help='Run without making changes to the database')
     parser.add_argument('--message-limit', type=int, default=None, help='Maximum number of messages to assign per user (default: all messages)')

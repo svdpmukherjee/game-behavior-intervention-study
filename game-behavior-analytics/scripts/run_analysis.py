@@ -1,68 +1,44 @@
 #!/usr/bin/env python3
 """
-Script to run the complete cheating analysis pipeline.
+Cheating analysis pipeline for anagram game experiment.
 
-This version implements:
-1. Data-driven dynamic windows calculated from actual participant behavior
-2. NEW Case 1: Page navigation with individual word timing + chaining logic
-3. NEW Case 2: Inactivity pattern with sequence analysis and 0.4x threshold
-4. Case 3: Confession reconciliation (unchanged)
-5. Performance score calculation and survey integration
-6. Additional metrics: cheating_main_round, has_page_left, total_time_page_left, has_mouse_inactivity, total_time_mouse_inactivity
+Pipeline steps:
+1. Extract game events from MongoDB
+2. Calculate data-driven dynamic windows from participant word creation times
+3. Analyze cheating behavior using CheatingAnalyzer (page navigation, mouse inactivity, confessions)
+4. Calculate performance scores and combine with survey data
+5. Output combined dataset for statistical analysis
 
 Usage: python run_analysis.py
 """
 
 import os
+import sys
+import json
+import logging
+from pathlib import Path
+from typing import Dict, List
+
 import pandas as pd
 import numpy as np
-from pathlib import Path
 from dotenv import load_dotenv
-import logging
-from datetime import datetime
-import json
-import sys
-from typing import Dict, List, Optional, Tuple
 
-# Get the absolute path of the current script
-SCRIPT_PATH = Path(__file__).resolve()
-
-# Get the project root directory (2 levels up from scripts/run_analysis.py)
-PROJECT_ROOT = SCRIPT_PATH.parent.parent.resolve()
-
-# Add required paths to Python path
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.append(str(PROJECT_ROOT))
-
-# Set path to .env file in the PROJECT_ROOT directory
 ENV_PATH = PROJECT_ROOT / ".env"
 
-# Check for .env in the main project directory
-possible_env_paths = [
-    ENV_PATH,
-    Path.cwd() / ".env",
-]
-
+# Load environment variables
 env_file_found = False
-for env_path in possible_env_paths:
+for env_path in [ENV_PATH, Path.cwd() / ".env"]:
     if env_path.is_file():
         print(f"Found .env file at: {env_path}")
         load_dotenv(env_path)
         env_file_found = True
         break
 
-# Import required modules 
 from data_preprocessing.data_pipeline import DataPipeline
-from data_preprocessing.mouse_interaction_pipeline import MouseInteractionPipeline
-
-try:
-    from cheating_analysis.cheating_analyzer import CheatingAnalyzer
-except ImportError:
-    # If not found, we're likely running from the script directory
-    # so we need to add the parent directory to the path
-    script_dir = Path(__file__).parent
-    analysis_dir = script_dir.parent / "analysis"
-    sys.path.append(str(analysis_dir))
-    from cheating_analysis.cheating_analyzer import CheatingAnalyzer
+from cheating_analysis.cheating_analyzer import CheatingAnalyzer
 
 def setup_logging():
     """Setup logging configuration."""
@@ -252,20 +228,7 @@ def extract_word_creation_skill_level(events_df: pd.DataFrame) -> int:
     return skill_level
 
 def load_interaction_data(prolific_id: str, logger) -> pd.DataFrame:
-    """Load mouse interaction data for a participant."""
-    # try:
-    #     interactions_path = PROJECT_ROOT / "data" / "participants_all_mouse_events_csv" / f"{prolific_id}_mouse_events.csv"
-        
-    #     if interactions_path.exists():
-    #         interactions_df = pd.read_csv(interactions_path)
-    #         interactions_df['timestamp'] = pd.to_datetime(interactions_df['timestamp'])
-    #         logger.info(f"Loaded {len(interactions_df)} interactions for participant {prolific_id}")
-    #         return interactions_df
-    #     else:
-    #         logger.info(f"No interaction data found for participant {prolific_id}")
-    #         return pd.DataFrame()
-    # except Exception as e:
-    #     logger.warning(f"Error loading interaction data for {prolific_id}: {e}")
+    """Load mouse interaction data for a participant (currently disabled)."""
     return pd.DataFrame()
 
 def analyze_participant(events_df: pd.DataFrame, prolific_id: str,
@@ -435,33 +398,21 @@ def calculate_metrics(result: dict, events_df: pd.DataFrame, logger) -> dict:
         cheating_lying_rate = main_phases.get('cheating_lying_rate', 0)
         metrics['cheating_lying_rate'] = cheating_lying_rate
         
-        # ---- 4. Has interaction data flag ----
+        # ---- 4. Behavioral flags ----
         metrics['has_interaction_data'] = result.get('has_interaction_data', False)
-        
-        # ---- 5. NEW METRICS ----
         metrics['cheating_main_round'] = result.get('cheating_main_round', False)
         metrics['has_page_left'] = 1 if result.get('has_page_left', False) else 0
         metrics['total_time_page_left'] = result.get('total_time_page_left', 0.0)
         metrics['has_mouse_inactivity'] = 1 if result.get('has_mouse_inactivity', False) else 0
         metrics['total_time_mouse_inactivity'] = result.get('total_time_mouse_inactivity', 0.0)
-        
-        # ---- 6. NEW: Count valid 7-letter and 8-letter words ----
-        valid_7_letter_words = 0
-        valid_8_letter_words = 0
-        
-        for word_info in main_round_words:
-            if word_info['is_valid']:  # Only count valid words
-                word_length = word_info['length']
-                if word_length == 7:
-                    valid_7_letter_words += 1
-                elif word_length == 8:
-                    valid_8_letter_words += 1
-        
+
+        # ---- 5. Count valid 7-letter and 8-letter words ----
+        valid_7_letter_words = sum(1 for w in main_round_words if w['is_valid'] and w['length'] == 7)
+        valid_8_letter_words = sum(1 for w in main_round_words if w['is_valid'] and w['length'] == 8)
         metrics['valid_7_letter_words'] = valid_7_letter_words
         metrics['valid_8_letter_words'] = valid_8_letter_words
-        
-        # ---- 7. Message information retrieval ----
-        # Get message information
+
+        # ---- 6. Message information ----
         message_shown_events = events_df[
             (events_df['eventType'] == 'motivational_message_shown') &
             (events_df['phase'] == 'main_game')
@@ -563,7 +514,7 @@ def calculate_metrics(result: dict, events_df: pd.DataFrame, logger) -> dict:
         
         prev_timestamp = start_time  # Initialize with time participant finished reading the message
         
-        for i, word_info in enumerate(sorted_main_words):
+        for word_info in sorted_main_words:
             current_timestamp = pd.to_datetime(word_info['timestamp'])
             word_text = word_info['word']
             word_length = word_info['length']
@@ -582,32 +533,8 @@ def calculate_metrics(result: dict, events_df: pd.DataFrame, logger) -> dict:
             
             # Calculate word difficulty
             word_difficulty = calculate_word_difficulty(word_text)
-            
-            
-            # # Calculate unified performance contribution: word_length / time_spent
-            # performance_contribution = word_length / int(time_spent)
 
-            # # === METRIC 1: HONESTY-WEIGHTED PERFORMANCE ===
-            # if is_cheating:
-            #     multiplier_honesty = 0  # Cheating words contribute nothing
-            # elif is_valid:
-            #     multiplier_honesty = 2  # Valid non-cheating words get double points
-            # else:
-            #     multiplier_honesty = 1  # Invalid non-cheating words get normal points
-
-            # honesty_weighted_contribution = performance_contribution * multiplier_honesty
-            # performance_score_excluding_cheated_words += honesty_weighted_contribution
-
-            # # === METRIC 2: ABILITY-ONLY PERFORMANCE ===
-            # if is_valid:
-            #     multiplier_ability = 2  # Valid words (cheating or not) get double points
-            # else:
-            #     multiplier_ability = 1  # Invalid words (cheating or not) get normal points
-
-            # ability_only_contribution = performance_contribution * multiplier_ability
-            # performance_score_including_cheated_words += ability_only_contribution
-            
-            # Calculate reward based on word length (your new logic)
+            # Calculate reward based on word length
             def calculate_reward(word_length):
                 if word_length == 8:
                     return 8  # 8 pence
@@ -762,8 +689,8 @@ def create_summary_dataframe(results: list, metrics_list: list) -> pd.DataFrame:
             # Confession metrics
             'used_external_resources': confessed['used_external_resources'],
             'confessed_words_count': confessed['confessed_words_count'],
-            
-            # NEW METRICS
+
+            # Behavioral metrics
             'cheating_main_round': metrics.get('cheating_main_round', False),
             'has_page_left': metrics.get('has_page_left', 0),
             'total_time_page_left': metrics.get('total_time_page_left', 0.0),
@@ -802,24 +729,15 @@ def combine_with_survey_results(summary_df: pd.DataFrame, survey_path: Path) -> 
         return summary_df
 
 def run_data_pipelines(mongodb_uri: str, mongodb_db_name: str, logger) -> bool:
-    """Run both data pipelines: events and mouse interactions."""
+    """Run data pipeline to extract game events from MongoDB."""
     try:
-        # 1. Run main data pipeline (game events)
-        logger.info("Starting main data pipeline (game events)")
-        main_pipeline = DataPipeline(mongodb_uri, mongodb_db_name)
-        main_pipeline.run_pipeline()
-        logger.info("Main data pipeline completed")
-        
-        # 2. Run mouse interaction pipeline
-        # logger.info("Starting mouse interaction pipeline")
-        # mouse_pipeline = MouseInteractionPipeline(mongodb_uri, mongodb_db_name)
-        # mouse_pipeline.run_pipeline()
-        # logger.info("Mouse interaction pipeline completed")
-        
+        logger.info("Starting data pipeline (game events)")
+        pipeline = DataPipeline(mongodb_uri, mongodb_db_name)
+        pipeline.run_pipeline()
+        logger.info("Data pipeline completed")
         return True
-        
     except Exception as e:
-        logger.error(f"Error running data pipelines: {e}")
+        logger.error(f"Error running data pipeline: {e}")
         raise
 
 def main():
@@ -853,10 +771,9 @@ def main():
         base_path = data_root / "participants_all_game_events_csv"
         analysis_path = data_root
         
-        # Run both data pipelines (events + mouse interactions)
-        logger.info("Running data extraction pipelines")
+        # Run data pipeline to extract events from MongoDB
+        logger.info("Running data extraction pipeline")
         run_data_pipelines(MONGODB_URI, MONGODB_DB_NAME, logger)
-        logger.info("All data pipelines completed successfully")
         
         # STEP 1: Calculate data-driven dynamic windows
         logger.info("=" * 60)
@@ -895,21 +812,10 @@ def main():
                 metrics = calculate_metrics(participant_results, events_df, logger)
                 metrics_list.append(metrics)
                 
-                logger.info("\nMetrics:")
-                logger.info("=" * 60)
-                logger.info(f"Word Creation Skill Level: {metrics.get('word_creation_skill_level', 0)}")
-                logger.info(f"Cheating Rate in Main Round: {metrics.get('cheating_rate_main_round', 0):.3f}")
-                logger.info(f"Cheating Lying Rate: {metrics.get('cheating_lying_rate', 0):.3f}")
-                logger.info(f"Performance Score: {metrics.get('performance_score', 0):.3f}")
-                logger.info(f"Has Interaction Data: {metrics.get('has_interaction_data', False)}")
-                
-                # Log NEW METRICS
-                logger.info("NEW METRICS:")
-                logger.info(f"Cheating Main Round (Boolean): {metrics.get('cheating_main_round', False)}")
-                logger.info(f"Has Page Left: {metrics.get('has_page_left', 0)}")
-                logger.info(f"Total Time Page Left: {metrics.get('total_time_page_left', 0.0):.2f}s")
-                logger.info(f"Has Mouse Inactivity: {metrics.get('has_mouse_inactivity', 0)}")
-                logger.info(f"Total Time Mouse Inactivity: {metrics.get('total_time_mouse_inactivity', 0.0):.2f}s")
+                logger.info(f"Metrics - Skill: {metrics.get('word_creation_skill_level', 0)}, "
+                           f"Cheating rate: {metrics.get('cheating_rate_main_round', 0):.3f}, "
+                           f"Page left: {metrics.get('has_page_left', 0)}, "
+                           f"Mouse inactivity: {metrics.get('has_mouse_inactivity', 0)}")
         
         if results:
             # Save detailed results
@@ -962,7 +868,6 @@ def main():
             total_cheating_main = summary_df['cheating_rate_main_round'].sum()
             total_participants = len(summary_df)
             
-            # NEW METRICS statistics
             participants_with_page_navigation = summary_df['has_page_left'].sum()
             participants_with_mouse_inactivity = summary_df['has_mouse_inactivity'].sum()
             participants_cheated_main = summary_df['cheating_main_round'].sum()

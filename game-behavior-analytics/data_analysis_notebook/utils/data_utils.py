@@ -13,9 +13,7 @@ def load_and_prepare_data(filepath):
             return 1  # Partial cheater
 
     # Construct derived variables
-    df['cheating_behavior'] = df['cheating_rate_main_round'].apply(categorize_cheating)
-    df['experience'] = (df['task_satisfaction'] + df['task_engagement']) / 2
-    df['performance'] = df['performance_score_including_cheated_words']
+    df['cheating_behavior'] = df['cheating_behavior'].apply(categorize_cheating)
 
     df = df.dropna(subset=['cheating_behavior', 'performance', 'experience', 'concept'])
 

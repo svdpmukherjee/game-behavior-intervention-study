@@ -1,180 +1,73 @@
-# Game Behavior Intervention Study - Web Application
+# Word Puzzle Game - Behavioral Study Application
 
-This repository contains a full-stack application for conducting a word puzzle game experiment designed to study user behavior and the effectiveness of different intervention messages.
+A full-stack web application for conducting anagram-based behavioral experiments with psychological intervention messages.
 
-## Application Overview
+## Overview
 
-The application presents users with anagram puzzles where they create valid English words from scrambled letters. The system includes:
+Participants solve word puzzles while the system monitors behavior and delivers theory-based intervention messages. The study flow includes:
+- Tutorial round → Intervention message → Main game → Survey → Word meaning check → Debrief
 
-- A practice/tutorial round
-- Main game rounds with behavior monitoring
-- Intervention messages based on psychological theories
-- Post-game surveys and debriefing
-- Analytics for detecting and analyzing user behavior
+## Quick Start
 
-## Repository Structure
-
-```
-game-application/
-├── frontend-REACTJS/               # React frontend application
-│   ├── src/                        # Source code
-│   │   ├── components/             # UI components
-│   │   │   ├── AnagramGame/        # Game-specific components
-│   │   │   ├── Shared/             # Shared utilities
-│   │   ├── assets/                 # Static assets
-│   ├── .env                        # Environment variables
-│   ├── package.json                # Dependencies
-│   └── vite.config.js              # Vite configuration
-│
-└── backend-FASTAPI-MONGODB/        # FastAPI backend service
-    ├── app/                        # Application code
-    │   ├── config/                 # Configuration files
-    │   │   └── db_config.json      # Game configuration
-    │   │   └── app_config.json     # Environment settings and URL configurations
-    │   ├── models/                 # Data models
-    │   │   └── schemas.py          # Pydantic schemas
-    │   └── main.py                 # API endpoints
-    ├── .env                        # Environment variables
-    ├── requirements.txt            # Python dependencies
-    └── init_database.py            # Database initialization script
-```
-
-## Prerequisites
-
+### Prerequisites
 - Python 3.8+
-- Node.js 18+ and npm
-- MongoDB instance (local or remote)
-- Git
+- Node.js 18+
+- MongoDB instance
 
-## Backend Setup
-
-1. Navigate to the backend directory:
+### Backend Setup
 
 ```bash
-cd backend-FASTAPI-MONGODB
-```
-
-2. Create and activate a virtual environment:
-
-```bash
-# Using conda
-conda create -n <env_name e.g. game_intervention_behavior>
-conda activate game_intervention_behavior
-```
-
-3. Install dependencies:
-
-```bash
+cd backend
 pip install -r requirements.txt
-```
 
-4. Create a `.env` file in the backend directory with the following variables:
-
-```
-MONGODB_URI=mongodb://username:password@hostname:port/
+# Create .env file
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/
 MONGODB_DB_NAME=your_database_name
-```
 
-5. Initialize the database:
-
-```bash
+# Initialize database and start server
 python init_database.py
+uvicorn app.main:app --reload --port 8000
 ```
 
-6. Start the backend server:
+### Frontend Setup
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-## Frontend Setup
-
-1. Navigate to the frontend directory:
-
-```bash
-cd frontend-REACTJS
-```
-
-2. Install dependencies:
-
-```bash
+cd frontend
 npm install
-```
 
-3. Create a `.env` file in the frontend directory:
-
-```
-SURVEY_COMPLETION_CODE=your_survey_code
-```
-
-4. Start the development server:
-
-```bash
+# Create .env file (see .env.example)
 npm run dev
 ```
 
 The application will be available at http://localhost:5173
 
-## Game Configuration
+## Project Structure
 
-The game behavior and parameters can be modified in:
+```
+game-application/
+├── frontend/          # React + Vite frontend
+│   ├── src/components/   # UI components
+│   └── vite.config.js    # API proxy configuration
+└── backend/           # FastAPI backend
+    ├── app/
+    │   ├── config/db_config.json  # Game puzzles, rewards, messages
+    │   └── main.py                # API endpoints
+    └── init_database.py           # Database setup script
+```
 
-- `backend-FASTAPI-MONGODB/app/config/db_config.json`
+## Configuration
 
-This file contains configurations for:
-
-- Anagram puzzles
-- Time limits
-- Reward structure
-- Messages created based on psychological theories
-
-## API Endpoints
-
-The main API endpoints include:
-
-| Endpoint                  | Method | Description                 |
-| ------------------------- | ------ | --------------------------- |
-| `/api/initialize-session` | POST   | Create a new user session   |
-| `/api/tutorial/init`      | GET    | Initialize tutorial round   |
-| `/api/tutorial/complete`  | POST   | Complete tutorial round     |
-| `/api/game/init`          | GET    | Initialize main game round  |
-| `/api/game/next`          | GET    | Get next anagram puzzle     |
-| `/api/word-submissions`   | POST   | Submit words for validation |
-| `/api/game-events`        | POST   | Log user events             |
-| `/api/meanings/submit`    | POST   | Submit word meanings        |
-| `/api/game-results`       | GET    | Get game results            |
-| `/api/study-config`       | GET    | Get study configuration     |
-| `/health`                 | GET    | Health check endpoint       |
+Game parameters are in `backend/app/config/db_config.json`:
+- Anagram puzzles and solutions
+- Time limits per round
+- Reward structure (pence per word length)
+- Motivational messages (based on SDT, CDT, SNT theories)
 
 ## Deployment
 
-### Full Stack WebApp Deployment
+- **Backend**: Deploy to Render or similar Python hosting
+- **Frontend**: Deploy to Vercel (`npm run build`)
 
-The backend can be deployed to platforms that support Python applications: e.g. `Render`
+## API Documentation
 
-The frontend can be deployed to any platform that supports static sites: e.g. `Vercel`
-
-Build for production:
-
-```bash
-npm run build
-```
-
-## Analytics
-
-The application includes behavioral analytics that:
-
-1. Tracks user interactions
-2. Monitors potential cheating behavior
-3. Analyzes intervention effectiveness
-4. Processes survey feedback
-
-## Troubleshooting
-
-- **MongoDB Connection Issues**: Verify MongoDB connection string in app/app_config.json and ensure the database is running
-- **CORS Errors**: Check local and production URLs in app/app_config.json
-- **API Connection Errors**: Check local and production URLs in app/app_config.json
-
-## License
-
-[MIT License](LICENSE)
+Once the backend is running, visit http://localhost:8000/docs for interactive API documentation.

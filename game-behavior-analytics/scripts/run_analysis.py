@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to run the complete cheating analysis pipeline with NEW UPDATED LOGIC and additional metrics.
+Script to run the complete cheating analysis pipeline.
 
 This version implements:
 1. Data-driven dynamic windows calculated from actual participant behavior
@@ -8,7 +8,7 @@ This version implements:
 3. NEW Case 2: Inactivity pattern with sequence analysis and 0.4x threshold
 4. Case 3: Confession reconciliation (unchanged)
 5. Performance score calculation and survey integration
-6. NEW METRICS: cheating_main_round, has_page_left, total_time_page_left, has_mouse_inactivity, total_time_mouse_inactivity
+6. Additional metrics: cheating_main_round, has_page_left, total_time_page_left, has_mouse_inactivity, total_time_mouse_inactivity
 
 Usage: python run_analysis.py
 """
@@ -66,8 +66,8 @@ except ImportError:
 
 def setup_logging():
     """Setup logging configuration."""
-    # Create log in data directory
-    log_dir = PROJECT_ROOT / "data"
+    # Create log in data directory (now at parent level)
+    log_dir = PROJECT_ROOT.parent / "data"
     log_dir.mkdir(parents=True, exist_ok=True)
     
     log_file = log_dir / "analysis.log"
@@ -87,12 +87,12 @@ def setup_logging():
 
 def create_all_required_directories():
     """Create all required directories for the analysis pipeline."""
+    data_root = PROJECT_ROOT.parent / "data"
     directories_to_create = [
-        PROJECT_ROOT / "data",
-        PROJECT_ROOT / "data" / "participants_all_game_events_csv",
-        # PROJECT_ROOT / "data" / "participants_all_mouse_events_csv", 
-        PROJECT_ROOT / "data" / "participants_data_analysis_json",
-        PROJECT_ROOT / "data" / "survey_output"
+        data_root,
+        data_root / "participants_all_game_events_csv",
+        data_root / "participants_data_analysis_json",
+        data_root / "survey_output"
     ]
     
     for directory in directories_to_create:
@@ -268,11 +268,11 @@ def load_interaction_data(prolific_id: str, logger) -> pd.DataFrame:
     #     logger.warning(f"Error loading interaction data for {prolific_id}: {e}")
     return pd.DataFrame()
 
-def analyze_participant_with_new_logic(events_df: pd.DataFrame, prolific_id: str, 
-                                     dynamic_windows: Dict[int, float], logger) -> dict:
-    """Analyze single participant's data using NEW UPDATED LOGIC with additional metrics."""
+def analyze_participant(events_df: pd.DataFrame, prolific_id: str,
+                        dynamic_windows: Dict[int, float], logger) -> dict:
+    """Analyze single participant's data."""
     try:
-        logger.info(f"\nStarting analysis for participant {prolific_id} with NEW LOGIC")
+        logger.info(f"\nStarting analysis for participant {prolific_id}")
         logger.info(f"Using dynamic windows: {dynamic_windows}")
 
         # Ensure timestamps are in datetime format
@@ -338,7 +338,7 @@ def analyze_participant_with_new_logic(events_df: pd.DataFrame, prolific_id: str
         # Extract word creation skill level
         word_creation_skill_level = extract_word_creation_skill_level(events_df)
 
-        # Initialize analyzer with NEW LOGIC: events_df AND dynamic_windows
+        # Initialize analyzer with events_df and dynamic_windows
         analyzer = CheatingAnalyzer(events_df, dynamic_windows)
         
         # Get complete analysis
@@ -823,19 +823,11 @@ def run_data_pipelines(mongodb_uri: str, mongodb_db_name: str, logger) -> bool:
         raise
 
 def main():
-    """Run the complete analysis pipeline with NEW UPDATED LOGIC and additional metrics."""
+    """Run the complete analysis pipeline."""
     try:
         # Setup logging
         logger = setup_logging()
-        logger.info("Starting analysis pipeline with NEW UPDATED LOGIC and additional metrics")
-        logger.info("=" * 80)
-        logger.info("NEW FEATURES:")
-        logger.info("1. Data-driven dynamic windows from actual participant behavior")
-        logger.info("2. NEW Case 1: Page navigation with individual word timing + chaining")
-        logger.info("3. NEW Case 2: Inactivity pattern with sequence analysis (0.4x threshold)")
-        logger.info("4. Case 3: Confession reconciliation (unchanged)")
-        logger.info("5. NEW METRICS: cheating_main_round, has_page_left, total_time_page_left,")
-        logger.info("                has_mouse_inactivity, total_time_mouse_inactivity")
+        logger.info("Starting analysis pipeline")
         logger.info("=" * 80)
         
         # Create all required directories first
@@ -856,9 +848,10 @@ def main():
         if not MONGODB_URI or not MONGODB_DB_NAME:
             raise ValueError("MongoDB environment variables not set")
         
-        # Define paths
-        base_path = PROJECT_ROOT / "data" / "participants_all_game_events_csv"
-        analysis_path = PROJECT_ROOT / "data"
+        # Define paths (data folder is at parent level)
+        data_root = PROJECT_ROOT.parent / "data"
+        base_path = data_root / "participants_all_game_events_csv"
+        analysis_path = data_root
         
         # Run both data pipelines (events + mouse interactions)
         logger.info("Running data extraction pipelines")
@@ -871,9 +864,9 @@ def main():
         logger.info("=" * 60)
         dynamic_windows = calculate_data_driven_dynamic_windows(base_path, logger)
         
-        # STEP 2: Analyze each participant's data using NEW LOGIC
+        # STEP 2: Analyze each participant's data
         logger.info("=" * 60)
-        logger.info("STEP 2: Analyzing participants with NEW UPDATED LOGIC")
+        logger.info("STEP 2: Analyzing participants")
         logger.info("=" * 60)
         
         results = []
@@ -890,8 +883,8 @@ def main():
             # Read participant's events
             events_df = pd.read_csv(csv_file)
             
-            # Analyze participant with NEW LOGIC
-            participant_results = analyze_participant_with_new_logic(
+            # Analyze participant
+            participant_results = analyze_participant(
                 events_df, prolific_id, dynamic_windows, logger
             )
             
@@ -926,7 +919,7 @@ def main():
             summary_df = create_summary_dataframe(results, metrics_list)
             
             # Combine with survey results
-            survey_path = PROJECT_ROOT / "data" / "survey_output" / "transformed_survey_results.csv"
+            survey_path = data_root / "survey_output" / "transformed_survey_results.csv"
             logger.info(f"Combining with survey results from {survey_path}")
             combined_df = combine_with_survey_results(summary_df, survey_path)
             
@@ -935,20 +928,12 @@ def main():
             combined_df.to_csv(output_file, index=False)
             logger.info(f"Combined results saved to {output_file}")
             
-            # Print final summary statistics including dynamic windows used
-            logger.info("\nAnalysis Summary with NEW LOGIC and NEW METRICS:")
+            # Print final summary statistics
+            logger.info("\nAnalysis Summary:")
             logger.info("=" * 80)
             logger.info(f"Total participants processed: {len(results)}")
             logger.info(f"Participants with interaction data: {sum(r.get('has_interaction_data', False) for r in results)}")
             logger.info(f"Data-driven dynamic windows used: {dynamic_windows}")
-            
-            # Log NEW LOGIC implementation details
-            logger.info("\nNEW LOGIC IMPLEMENTATION SUMMARY:")
-            logger.info("1. Dynamic Windows: Calculated from actual participant data")
-            logger.info("2. Case 1 (Page Navigation): Individual word timing + chaining logic")
-            logger.info("3. Case 2 (Inactivity): Sequence analysis with 0.4x threshold")
-            logger.info("4. Case 3 (Confession): Unchanged reconciliation logic")
-            logger.info("5. NEW METRICS: Added 5 additional behavioral metrics")
             
             # Calculate and log aggregate statistics
             stats_to_report = [
@@ -982,7 +967,7 @@ def main():
             participants_with_mouse_inactivity = summary_df['has_mouse_inactivity'].sum()
             participants_cheated_main = summary_df['cheating_main_round'].sum()
             
-            logger.info("\nCheating Detection Summary (NEW LOGIC):")
+            logger.info("\nCheating Detection Summary:")
             logger.info("=" * 60)
             logger.info(f"Participants flagged for cheating in practice round: {total_cheating_practice}")
             logger.info(f"Participants flagged for cheating in main round: {total_cheating_main}")
@@ -1008,7 +993,7 @@ def main():
         else:
             logger.warning("No valid analysis results found")
         
-        logger.info("Analysis completed successfully with NEW UPDATED LOGIC and NEW METRICS")
+        logger.info("Analysis completed successfully")
         logger.info("=" * 80)
         
     except Exception as e:

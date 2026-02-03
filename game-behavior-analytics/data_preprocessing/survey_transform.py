@@ -3,7 +3,7 @@ import numpy as np
 import re
 
 # Step 1: Load the CSV file
-df = pd.read_csv('../data/survey_output/survey_results.csv')
+df = pd.read_csv('../../data/survey_output/survey_results.csv')
 
 # Step 1.5: Remove rows without birth year entries (incomplete survey responses)
 print(f"Original dataset shape: {df.shape}")
@@ -20,7 +20,6 @@ else:
     print("Available columns:", df.columns.tolist())
 
 # Step 2: Create a dictionary to map original column names to desired column names
-# Updated dictionary to map original column names from the CSV to desired column names
 column_mapping = {
     # Prolific ID
     "Please enter your Prolific ID:": "Prolific ID",
@@ -331,7 +330,7 @@ for col in text_columns:
 
 # Step 9: Save the transformed data to a new CSV file with proper quoting
 print("Saving transformed survey results...")
-transformed_df.to_csv('../data/survey_output/transformed_survey_results.csv', 
+transformed_df.to_csv('../../data/survey_output/transformed_survey_results.csv', 
                      index=False,
                      quoting=1,  # QUOTE_ALL - ensures all fields are quoted
                      escapechar='\\',  # Use backslash as escape character
@@ -343,7 +342,7 @@ print(f"Final dataset contains {len(transformed_df)} complete survey responses."
 # Step 10: Verification - read the saved file back to ensure it parses correctly
 print("Verifying saved file...")
 try:
-    verification_df = pd.read_csv('../data/survey_output/transformed_survey_results.csv')
+    verification_df = pd.read_csv('../../data/survey_output/transformed_survey_results.csv')
     print(f"Verification successful! Saved file shape: {verification_df.shape}")
     print(f"Expected shape: {transformed_df.shape}")
     

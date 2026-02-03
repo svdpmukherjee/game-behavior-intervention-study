@@ -13,16 +13,17 @@ class DataPipeline:
         self.client = MongoClient(mongodb_uri)
         self.db = self.client[db_name]
         self.project_root = Path(__file__).resolve().parent.parent.resolve()
-        
+        self.data_root = self.project_root.parent / "data"
+
         # Create the correct paths - only for game events (mouse events handled separately)
-        self.events_path = self.project_root / "data" / "participants_all_game_events_csv"
+        self.events_path = self.data_root / "participants_all_game_events_csv"
         
         self.setup_logging()
         
     def setup_logging(self):
         """Setup logging configuration."""
         # Log to the main data directory
-        log_path = self.project_root / 'data' / 'pipeline.log'
+        log_path = self.data_root / 'pipeline.log'
         # Ensure directory exists
         log_path.parent.mkdir(parents=True, exist_ok=True)
         
@@ -197,7 +198,6 @@ class DataPipeline:
         try:
             # Extract only the part before @ if it exists in the prolific_id
             clean_id = prolific_id.split('@')[0] if '@' in prolific_id else prolific_id
-            # Updated filename to include _game_events suffix
             output_path = self.events_path / f'{clean_id}_game_events.csv'
             df.to_csv(output_path, index=False)
             self.logger.info(f"Saved event data for participant {prolific_id} to {output_path}")

@@ -14,16 +14,17 @@ class MouseInteractionPipeline:
         self.client = MongoClient(mongodb_uri)
         self.db = self.client[db_name]
         self.project_root = Path(__file__).resolve().parent.parent.resolve()
-        
+        self.data_root = self.project_root.parent / "data"
+
         # Use consistent directory structure - participants_all_mouse_events_csv
-        self.mouse_events_path = self.project_root / "data" / "participants_all_mouse_events_csv"
-        
+        self.mouse_events_path = self.data_root / "participants_all_mouse_events_csv"
+
         self.setup_logging()
-        
+
     def setup_logging(self):
         """Setup logging configuration."""
         # Log to the main data directory
-        log_path = self.project_root / 'data' / 'mouse_pipeline.log'
+        log_path = self.data_root / 'mouse_pipeline.log'
         
         logging.basicConfig(
             filename=log_path,

@@ -346,16 +346,16 @@ def get_available_models() -> Dict[str, list]:
         "OpenAI": []
     }
     
-    # Together.ai models
-    if st.session_state.get('together_api_key'):
+    # Together.ai models - check current_together_key which is set by initialize_services()
+    if st.session_state.get('current_together_key'):
         models["Together AI"] = [
             "meta-llama/Llama-3.3-70B-Instruct-Turbo",
             "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8",
             "google/gemma-2-27b-it",
         ]
-    
-    # OpenAI models
-    if st.session_state.get('openai_api_key'):
+
+    # OpenAI models - check current_openai_key which is set by initialize_services()
+    if st.session_state.get('current_openai_key'):
         models["OpenAI"] = [
             "gpt-4o",
             "gpt-4-turbo",

@@ -1,5 +1,7 @@
 .env
 .DS_Store
 *.pyc
+*.log
+app.log
 /results
 /exports

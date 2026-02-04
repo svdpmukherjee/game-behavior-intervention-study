@@ -17,6 +17,29 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+def get_secret(key, default=""):
+    """Get a secret from st.secrets (Streamlit Cloud) or environment variables."""
+    # First try st.secrets (Streamlit Cloud)
+    try:
+        if hasattr(st, 'secrets') and key in st.secrets:
+            value = st.secrets[key]
+            if value:  # Only return if non-empty
+                return value
+    except Exception:
+        pass
+
+    # Fall back to environment variables
+    env_value = os.getenv(key)
+    if env_value:
+        return env_value
+
+    return default
+
+def has_server_credentials():
+    """Check if server-side credentials are configured (secrets or env vars)."""
+    mongodb_uri = get_secret("MONGODB_URI")
+    return bool(mongodb_uri)
+
 # Page configuration
 st.set_page_config(
     page_title="Message Evaluation App",
@@ -603,7 +626,7 @@ def admin_interface(db):
     import os
 
     admin_enabled = True
-    admin_password = os.getenv("ADMIN_PASS")
+    admin_password = get_secret("ADMIN_PASS")
 
     if admin_enabled:
         with st.sidebar.expander("Admin Controls", expanded=False):
@@ -715,66 +738,121 @@ def get_concept_definitions_from_db(db):
 
 def main():
     """Main application function."""
-    
-    # Setup database connections from environment variables
-    mongo_uri = os.getenv("MONGODB_URI", "")
-    db_name = os.getenv("DB_NAME", "evaluation_results")
-    
+
+    # Get server-side credentials (from secrets or env vars) - never display these
+    server_mongo_uri = get_secret("MONGODB_URI")
+    server_db_name = get_secret("DB_NAME", "evaluation_results")
+    has_server_mongodb = bool(server_mongo_uri)
+
+    # Initialize session state for "use own credentials" toggle
+    if "use_own_mongodb" not in st.session_state:
+        st.session_state.use_own_mongodb = not has_server_mongodb
+    if "user_mongodb_uri" not in st.session_state:
+        st.session_state.user_mongodb_uri = ""
+    if "user_db_name" not in st.session_state:
+        st.session_state.user_db_name = "evaluation_results"
+
+    # Determine which credentials to use (declared outside sidebar for proper scoping)
+    mongo_uri = ""
+    db_name = server_db_name
+    use_own = st.session_state.use_own_mongodb
+
     # Add a sidebar with database configuration UI
     with st.sidebar:
         st.title("Database Settings")
-        
-        # MongoDB URI field
-        mongo_uri_input = st.text_input(
-            "MongoDB URI",
-            type="password",
-            value=mongo_uri,
-            help="Connection string for MongoDB"
-        )
-        
-        # Source database name field
-        db_name_input = st.text_input(
-            "Database Name",
-            value=db_name,
-            help="Name of the database"
-        )
-        
-        # Apply settings button
-        if st.button("Apply Database Settings", use_container_width=True):
-            # Update values
-            mongo_uri = mongo_uri_input
-            db_name = db_name_input
-            
-            # Clear existing connections and force reconnect
-            if "db" in st.session_state:
-                del st.session_state["db"]
-            if "progress_tracker" in st.session_state:
-                del st.session_state["progress_tracker"]
-            
-            st.success("Database settings updated. Reconnecting...")
-            st.rerun()
-        
-        # Add a force reconnect button for troubleshooting
-        # if st.button("Force Reconnect", use_container_width=True):
-        #     if "db" in st.session_state:
-        #         del st.session_state["db"]
-        #     if "progress_tracker" in st.session_state:
-        #         del st.session_state["progress_tracker"]
-        #     st.success("Forcing reconnection...")
-        #     st.rerun()
-    
+
+        if has_server_mongodb:
+            st.success("✓ Database configured")
+            use_own = st.checkbox(
+                "Use my own MongoDB instead",
+                value=st.session_state.use_own_mongodb,
+                key="use_own_mongodb_checkbox"
+            )
+            st.session_state.use_own_mongodb = use_own
+
+            if use_own:
+                # Show input fields for user's own credentials (empty by default)
+                mongo_uri_input = st.text_input(
+                    "MongoDB URI",
+                    type="password",
+                    value=st.session_state.user_mongodb_uri,
+                    help="Connection string for MongoDB"
+                )
+                db_name_input = st.text_input(
+                    "Database Name",
+                    value=st.session_state.user_db_name,
+                    help="Name of the database"
+                )
+
+                # Apply settings button
+                if st.button("Apply Database Settings", use_container_width=True):
+                    st.session_state.user_mongodb_uri = mongo_uri_input
+                    st.session_state.user_db_name = db_name_input
+
+                    # Clear existing connections and force reconnect
+                    if "db" in st.session_state:
+                        del st.session_state["db"]
+                    if "progress_tracker" in st.session_state:
+                        del st.session_state["progress_tracker"]
+
+                    st.success("Database settings updated. Reconnecting...")
+                    st.rerun()
+
+                mongo_uri = st.session_state.user_mongodb_uri
+                db_name = st.session_state.user_db_name
+        else:
+            # No server credentials - user must provide their own
+            mongo_uri_input = st.text_input(
+                "MongoDB URI",
+                type="password",
+                value=st.session_state.user_mongodb_uri,
+                help="Connection string for MongoDB"
+            )
+            db_name_input = st.text_input(
+                "Database Name",
+                value=st.session_state.user_db_name,
+                help="Name of the database"
+            )
+
+            # Apply settings button
+            if st.button("Apply Database Settings", use_container_width=True):
+                st.session_state.user_mongodb_uri = mongo_uri_input
+                st.session_state.user_db_name = db_name_input
+
+                # Clear existing connections and force reconnect
+                if "db" in st.session_state:
+                    del st.session_state["db"]
+                if "progress_tracker" in st.session_state:
+                    del st.session_state["progress_tracker"]
+
+                st.success("Database settings updated. Reconnecting...")
+                st.rerun()
+
+            mongo_uri = st.session_state.user_mongodb_uri
+            db_name = st.session_state.user_db_name
+
+    # Use server credentials if not using own and they exist
+    if has_server_mongodb and not use_own:
+        mongo_uri = server_mongo_uri
+        db_name = server_db_name
+
     # Create a fresh database connection each time
     db = None
+    if not mongo_uri:
+        st.sidebar.warning("Please configure MongoDB credentials.")
+        st.error("No database connection configured. Please provide MongoDB credentials in the sidebar.")
+        return
+
     try:
         client = MongoClient(mongo_uri)
         client.admin.command('ping')  # Test connection
         db = client[db_name]
         st.sidebar.success(f"Connected to {db_name}")
-        
+
         # Add the admin interface
         admin_interface(db)
     except Exception as e:
-        st.sidebar.error(f"Connection error: {e}")
+        st.sidebar.error(f"Connection error: {str(e)[:100]}")
         st.error("Failed to connect to databases. Please check your settings and try again.")
         return
     

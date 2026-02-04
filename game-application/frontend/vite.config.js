@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   // Determine API URL based on mode
   const apiUrl =
     mode === "production"
-      ? "https://puzzle-solving-game-study.onrender.com"
+      ? "https://anagram-solving-game-study.onrender.com"
       : "http://localhost:8000";
 
   return {

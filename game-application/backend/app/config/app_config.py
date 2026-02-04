@@ -14,7 +14,7 @@ load_dotenv()
 def get_cors_origins():
     """Get CORS origins based on environment."""
     # Production URL - update this with your Production frontend URL
-    production_url = "https://puzzle-solving-game-study.vercel.app"
+    production_url = "https://anagram-solving-game-study.vercel.app"
     
     # Local URL - for development locally
     local_url = "http://localhost:5173"

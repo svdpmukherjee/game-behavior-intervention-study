@@ -741,7 +741,7 @@ def main():
 
     # Get server-side credentials (from secrets or env vars) - never display these
     server_mongo_uri = get_secret("MONGODB_URI")
-    server_db_name = get_secret("DB_NAME", "evaluation_results")
+    server_db_name = get_secret("DB_NAME")
     has_server_mongodb = bool(server_mongo_uri)
 
     # Initialize session state for "use own credentials" toggle
@@ -750,7 +750,7 @@ def main():
     if "user_mongodb_uri" not in st.session_state:
         st.session_state.user_mongodb_uri = ""
     if "user_db_name" not in st.session_state:
-        st.session_state.user_db_name = "evaluation_results"
+        st.session_state.user_db_name = ""
 
     # Determine which credentials to use (declared outside sidebar for proper scoping)
     mongo_uri = ""
@@ -762,7 +762,7 @@ def main():
         st.title("Database Settings")
 
         if has_server_mongodb:
-            st.success("✓ Database configured")
+            st.success("✓ Developer's Database Configured")
             use_own = st.checkbox(
                 "Use my own MongoDB instead",
                 value=st.session_state.use_own_mongodb,
@@ -855,7 +855,7 @@ def main():
         client = MongoClient(mongo_uri)
         client.admin.command('ping')  # Test connection
         db = client[db_name]
-        st.sidebar.success(f"Connected to {db_name}")
+        # st.sidebar.success(f"Connected to {db_name}")
 
         # Add the admin interface
         admin_interface(db)

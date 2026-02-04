@@ -107,7 +107,7 @@ def api_key_setup():
 
     # API Keys section
     if has_server_api_keys:
-        st.success("✓ API keys configured")
+        st.success("✓ Developer's API Keys Configured")
         use_own = st.checkbox(
             "Use my own API keys instead",
             value=st.session_state.use_own_api_keys,
@@ -169,7 +169,7 @@ def api_key_setup():
     # MongoDB section
     with st.expander("Database Settings (MongoDB)", expanded=not has_server_mongodb):
         if has_server_mongodb:
-            st.success("✓ Database configured")
+            st.success("✓ Developer's Database Configured")
             use_own_db = st.checkbox(
                 "Use my own MongoDB instead",
                 value=st.session_state.use_own_mongodb,

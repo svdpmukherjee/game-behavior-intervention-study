@@ -1,26 +1,26 @@
 # Game Behavior Intervention Study
 
-This project implements a comprehensive framework to study the effects of message interventions, designed based on psychological constructs, on game-playing behavior in word puzzle-solving games.
+This project implements a comprehensive framework to study the effects of message interventions, designed based on psychological constructs, on game-playing behavior in word puzzle-solving anagram games.
 
 ## Project Structure
 
 ```
 game-behavior-intervention-study/
-├── game-application/               # The actual game web application
-│   ├── frontend-REACTJS/           # React-based game interface
-│   └── backend-FASTAPI-MONGODB/    # FastAPI server with MongoDB integration
+├── game-application/               # The actual anagram game web application
+│   ├── frontend/                   # React-based game interface
+│   └── backend/                    # FastAPI server with MongoDB integration
 ├── message-generation-framework/   # Framework for generating motivational messages for honest game playing
-└── game-behavior-analytics/        # Data analysis and visualization tools (will be added shortly)
+├── message-evaluation-framework/   # Framework for blind evaluation of generated messages by experts
+└── game-behavior-analytics/        # Data analysis and visualization tools
 ```
 
 ## Components
 
 ### 1. Game Application (`game-application/`)
 
-A full-stack web application that implements a word puzzle solving game:
+A full-stack web application that implements a an anagram game
 
 - **Frontend (React.js)**:
-
   - Interactive anagram puzzle interface
   - Behavior tracking system
   - Survey forms for data collection
@@ -37,7 +37,6 @@ A full-stack web application that implements a word puzzle solving game:
 Creates, evaluates and optimizes messages (with Human-in-the-Loop feedback) designed to reduce cheating behavior
 
 - **Generator**: Uses Llama 3.3 (70B) to create messages based on 15 psychological concepts from 4 behavioral theories:
-
   - Self-Determination Theory (SDT)
   - Cognitive Dissonance Theory (CDT)
   - Self-Efficacy Theory (SET)
@@ -89,7 +88,7 @@ Processes and analyzes game event data to understand player behavior:
 4. **Initialize Database**
 
    ```bash
-   cd ../game-application/backend-FASTAPI-MONGODB
+   cd ../game-application/backend
    conda activate <env_name>
    pip install -r requirements.txt
    python init_database.py
@@ -98,7 +97,7 @@ Processes and analyzes game event data to understand player behavior:
 5. **Run Backend Server**
 
    ```bash
-   cd ../game-application/backend-FASTAPI-MONGODB
+   cd ../game-application/backend
    conda activate <env_name>
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
@@ -106,7 +105,7 @@ Processes and analyzes game event data to understand player behavior:
 6. **Run Frontend Application**
 
    ```bash
-   cd ../game-application/frontend-REACTJS
+   cd ../game-application/frontend
    npm install
    npm run dev
    ```
@@ -128,16 +127,16 @@ Each component contains its own README with detailed setup and usage instruction
 
 ## Citation
 
-If you use this game or message generation framework in your research, please cite:
+If you use this anagram-game-application or message generation/evaluation framework or cheating algorithm implemented in your research, please cite:
 
 ```bibtex
-@misc{message-intervention-framework,
-  author = {XXX, YYY},
-  title = {Message Intervention Framework for Game Behavior Study},
+@misc{mukherjee2025cheating,
+  author = {Mukherjee, Suvadeep and Cardoso-Leite, Pedro},
+  title = {Game Behavior Intervention Study: Theory-Informed Messages on Cheating Behavior},
   year = {2025},
   publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/svdpmukherjee/game-behavior-intervention-study}}
+  howpublished = {\url{https://github.com/svdpmukherjee/game-behavior-intervention-study}},
+  note = {GitHub repository}
 }
 ```
 

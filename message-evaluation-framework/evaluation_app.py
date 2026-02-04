@@ -776,12 +776,16 @@ def main():
                     "MongoDB URI",
                     type="password",
                     value=st.session_state.user_mongodb_uri,
-                    help="Connection string for MongoDB"
+                    placeholder="e.g., mongodb+srv://user:pass@cluster.mongodb.net/",
+                    help="Connection URI for MongoDB",
+                    key="mongodb_uri_input"
                 )
                 db_name_input = st.text_input(
-                    "Database Name",
+                    "MongoDB Database Name",
                     value=st.session_state.user_db_name,
-                    help="Name of the database"
+                    placeholder="e.g., my_database",
+                    help="Name of the MongoDB database to use",
+                    key="mongodb_db_name_input"
                 )
 
                 # Apply settings button
@@ -806,12 +810,16 @@ def main():
                 "MongoDB URI",
                 type="password",
                 value=st.session_state.user_mongodb_uri,
-                help="Connection string for MongoDB"
+                placeholder="e.g., mongodb+srv://user:pass@cluster.mongodb.net/",
+                help="Connection URI for MongoDB",
+                key="mongodb_uri_input"
             )
             db_name_input = st.text_input(
-                "Database Name",
+                "MongoDB Database Name",
                 value=st.session_state.user_db_name,
-                help="Name of the database"
+                placeholder="e.g., my_database",
+                help="Name of the MongoDB database to use",
+                key="mongodb_db_name_input"
             )
 
             # Apply settings button

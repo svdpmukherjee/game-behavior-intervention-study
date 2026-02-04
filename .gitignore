@@ -3,8 +3,6 @@
 *.pyc
 __pycache__/
 .Rhistory
-data/
-message-intervention-framework/
 .Rproj.user
 data_analysis_notebook/
 claude-code-notebook-mcp/

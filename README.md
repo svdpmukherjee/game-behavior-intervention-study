@@ -127,7 +127,7 @@ Each component contains its own README with detailed setup and usage instruction
 
 ## Citation
 
-If you use this anagram-game-application or message generation/evaluation framework or cheating algorithm implemented in your research, please cite:
+If you replicate or use (1) anagram game development codes, (2) message generation/evaluation framework, (3) cheating algorithm implemented, or (4) our published datasets in your research, please cite:
 
 ```bibtex
 @misc{mukherjee2025cheating,
